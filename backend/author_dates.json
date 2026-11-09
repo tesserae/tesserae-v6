@@ -1573,6 +1573,4074 @@
    "era": "Late Antique",
    "note": "c. 331-363 CE",
    "year": 363
+  },
+  "abydenus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "acta_petri": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "adamantius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "adamantius_judaeus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "adrianus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "aegimius": {
+   "era": "Archaic",
+   "note": "fl. c. 6th cent. BCE (date uncertain)",
+   "year": -550,
+   "added": "cllg-2026-11-09"
+  },
+  "aelius_dius": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "aeschines_socraticus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "aethlius": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE (date uncertain)",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "aetius_of_amida": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "agaclytus": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "agatharchides_historicus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "agathocles": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "agathon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "agesilaus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "aglais": {
+   "era": "Hellenistic",
+   "note": "date uncertain (the TLG catalog gives c. 4 B.C./A.D. 1)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "aglaosthenes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "agroetas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "albinus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "alcaeus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "alcimus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "alexander": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "alexander_of_aphrodisias": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd-3rd cent. CE",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "alexander_of_lycopolis": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "alexarchus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE (date uncertain)",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "alexis_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "alexis_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "amelesagoras": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "amipsias": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "ammonius": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "amometus": {
+   "era": "Classical",
+   "note": "before 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "amphicrates": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "amphilochius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "amphis": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "anatolius": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "anaxandridas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "anaxandrides": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "anaxicrates": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE (date uncertain)",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "anaxilas": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "anaxippus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "andreas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "andriscus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "androetas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "andron_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "andron_historicus_2172": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE (date uncertain)",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "andron_historicus_4347": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "andron_incertus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "andronicus_rhodius": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "androtion": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_commentarius_in_platonis_theaetetum": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_de_astrologia_dialogus": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th/6th cent. CE (date uncertain)",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_de_barbarismo_et_soloecismo": {
+   "era": "Late Antique",
+   "note": "anonymous grammatical tract, date unknown",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_de_terrae_motibus": {
+   "era": "Byzantine",
+   "note": "before 11th cent. CE",
+   "year": 1050,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_historici": {
+   "era": "Early Imperial",
+   "note": "papyrus of the Roman period, date of composition unknown",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_medici": {
+   "era": "Late Antique",
+   "note": "anonymous medical writing, date unknown",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymi_paradoxographi": {
+   "era": "Byzantine",
+   "note": "Vatican excerpts of the paradoxographers, Byzantine, date uncertain",
+   "year": 1000,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymus_epicureus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymus_londinensis": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymus_seguerianus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "antenor": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "anthologiae_graecae_appendix": {
+   "era": "Early Imperial",
+   "note": "epigrams of many periods, date uncertain",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "antidotus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "antigonus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "antileon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE (date uncertain)",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "antimachus": {
+   "era": "Archaic",
+   "note": "fl. c. 8th cent. BCE",
+   "year": -750,
+   "added": "cllg-2026-11-09"
+  },
+  "antiochus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "antiphanes": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "antonius_hagiographus": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "antyllus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "aphthonius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th/5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "apion": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "apocalypsis_esdrae": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. BCE to 2nd cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "apocalypsis_joannis": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "apollas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "apollodorus_carystius_vel_apollodorus_gelous": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "apollodorus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "apollodorus_comicus_0413": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "apollodorus_grammaticus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "apollodorus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "apollodorus_mechanicus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st-2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "apollonius_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "apollonius_philosophus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "apollophanes": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "apophthegmata": {
+   "era": "Late Antique",
+   "note": "after 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "araros": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "aratus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "arcadius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE (date uncertain)",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "archedicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "archelaus": {
+   "era": "Byzantine",
+   "note": "before 8th cent. CE",
+   "year": 750,
+   "added": "cllg-2026-11-09"
+  },
+  "archemachus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "archestratus_parodius": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "archinus": {
+   "era": "Classical",
+   "note": "after 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "archippus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "aretades": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "ariaethus": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "aristagoras_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE (date uncertain)",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "aristagoras_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "aristides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "aristippus": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "aristobulus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "aristocles_paradoxographus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE to 1st cent. CE (date uncertain)",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "aristocles_philosophus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "aristocrates": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "aristocreon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "aristocritus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "aristodemus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "aristomenes": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "ariston": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "aristonicus_grammaticus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "aristonicus_historicus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "aristonymus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "aristophanes_grammaticus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "aristophanes_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "aristophon": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "aristoxenus_comicus": {
+   "era": "Archaic",
+   "note": "fl. c. 7th/6th cent. BCE",
+   "year": -600,
+   "added": "cllg-2026-11-09"
+  },
+  "armenidas": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "artemon_grammaticus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd/1st cent. BCE (date uncertain)",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "artemon_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "artemon_historicus_2392": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "asclepiades_grammaticus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "asclepiades_grammaticus_2423": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE (date uncertain)",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "asclepiades_mythographus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "asclepius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "astrampsychus_magus": {
+   "era": "Classical",
+   "note": "before 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "athanis": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "athenaeus_mechanicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE (date uncertain)",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "athenio": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "athenodorus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "autocharis": {
+   "era": "Hellenistic",
+   "note": "historian of unknown date",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "autocrates_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "autocrates_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "axionicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "balagrus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "basilis": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "bato_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "bato_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "berossus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "bias": {
+   "era": "Archaic",
+   "note": "fl. c. 6th cent. BCE",
+   "year": -550,
+   "added": "cllg-2026-11-09"
+  },
+  "bion_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "bion_historicus_1871": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "biton": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "blaesus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd/1st cent. BCE (date uncertain)",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "bolus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "callias": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "callippus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "callippus_historicus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "callixenus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "cantharus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "capito": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th/6th cent. CE (date uncertain)",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "carystius": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "cebes": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "cephalion": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "cephisodorus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "chaeremon": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "charax": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "chariclides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "charon": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "chionides": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "choerilus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "choricius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "chronicon_paschale": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th cent. CE",
+   "year": 650,
+   "added": "cllg-2026-11-09"
+  },
+  "chrysermus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "chrysippus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "cineas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "claudius_iolaus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE (date uncertain)",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "clearchus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "cleobulus": {
+   "era": "Archaic",
+   "note": "fl. c. 7th-6th cent. BCE",
+   "year": -600,
+   "added": "cllg-2026-11-09"
+  },
+  "cleomedes": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "clidemus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "clitonymus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "clitophon": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "clytus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "comica_adespota": {
+   "era": "Hellenistic",
+   "note": "anonymous comic fragments of mixed and unknown date",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "conon": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "constantine_porphyrogenitus": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "constantinus_manasses": {
+   "era": "Byzantine",
+   "note": "fl. c. 12th cent. CE",
+   "year": 1150,
+   "added": "cllg-2026-11-09"
+  },
+  "cornelius_alexander_polyhistor": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "cornutus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "craterus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "crates_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "crates_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "cratinus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "cratinus_junior": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "cratippus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE (date uncertain)",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "creophylus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE (date uncertain)",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "crito_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "crito_historicus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st-2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "critolaus": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "crobylus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "ctesiphon": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "cyril_of_alexandria": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "cyril_of_jerusalem": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "daimachus_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "daimachus_historicus_2482": {
+   "era": "Hellenistic",
+   "note": "after 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "damastes": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "damianus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "damigeron_magus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "damon": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "damoxenus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "david": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "deilochus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE (date uncertain)",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "demaratus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "demetrius_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th/4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "demetrius_grammaticus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "demetrius_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "demetrius_historicus_2511": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "demetrius_junior": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "demetrius_rhetor": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd/1st cent. BCE",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "demochares": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "democles": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "democritus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "demon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "demonicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th/4th cent. BCE (date uncertain)",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "demosthenes_epicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "dercyllus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "dexicrates": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "dexippus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "didymus_the_blind": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "dieuchidas": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "dinias": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "dinolochus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "dinon": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "diocles": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "diodorus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "diodorus_periegeta": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "diodorus_rhetor": {
+   "era": "Early Imperial",
+   "note": "date uncertain (the TLG catalog gives c. 4 B.C./A.D. 4)",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "diogenes": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE (date uncertain)",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "diogenianus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "dionysius_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th/4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "dionysius_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "dionysius_historicus_1328": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "dionysius_historicus_2354": {
+   "era": "Hellenistic",
+   "note": "historian of unknown date",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "dionysius_historicus_2466": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "dionysius_scytobrachion": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "diophantus_comicus": {
+   "era": "Hellenistic",
+   "note": "date unknown; a comic poet of Kock's Comicorum Atticorum fragmenta (placed with the Hellenistic comic poets)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "diophantus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "dioscurides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/1st cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "diotimus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "dioxippus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "diphilus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "diyllus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "doctrina_patrum": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th-8th cent. CE",
+   "year": 700,
+   "added": "cllg-2026-11-09"
+  },
+  "domitius_callistratus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE (date uncertain)",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "dosiadas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "dositheus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "dositheus_magister": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "dromo": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "duris": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "ecphantides": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "elias": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "eparchides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "ephippus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "ephraem": {
+   "era": "Byzantine",
+   "note": "fl. c. 14th cent. CE",
+   "year": 1350,
+   "added": "cllg-2026-11-09"
+  },
+  "epicrates": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "epigenes": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "epilycus": {
+   "era": "Classical",
+   "note": "fl. c. 5th/4th cent. BCE (date uncertain)",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "epinicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "epiphanius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "eratosthenes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "ergias": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "eriphus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "erotianus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "euagon": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "euangelus": {
+   "era": "Classical",
+   "note": "after 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "euboeus_parodius": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "eubulides": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "eubulus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "eudemus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "eudocia_augusta": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "eudoxus_astronomus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "eudoxus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "eudoxus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "eumachus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "eumelus": {
+   "era": "Archaic",
+   "note": "fl. c. 8th/7th cent. BCE",
+   "year": -700,
+   "added": "cllg-2026-11-09"
+  },
+  "eunapius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "eunicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "euphanes": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "euphantus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "euphro": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "eupolis": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "eustathius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "eustochius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "eustratius": {
+   "era": "Byzantine",
+   "note": "fl. c. 11th-12th cent. CE",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "eutecnius": {
+   "era": "Late Antique",
+   "note": "date uncertain (the TLG catalog gives c. A.D. 3/10)",
+   "year": 600,
+   "added": "cllg-2026-11-09"
+  },
+  "euthycles": {
+   "era": "Classical",
+   "note": "fl. c. 5th/4th cent. BCE (date uncertain)",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "eutychianus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_aegyptium": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_bartholomaei": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_ebionitum": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd/3rd cent. CE",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_evae": {
+   "era": "Late Antique",
+   "note": "before 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_mariae": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE (date uncertain)",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_philippi": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd/3rd cent. CE (date uncertain)",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_secundum_hebraeos": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st/2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "evangelium_thomae": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "fragmentum_lexici_graeci": {
+   "era": "Byzantine",
+   "note": "after 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "gaius_acilius": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "gaius_asinius_quadratus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE (date uncertain)",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "geminus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "geoponica": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "georgius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "georgius_cedrenus": {
+   "era": "Byzantine",
+   "note": "fl. c. 11th-12th cent. CE",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "georgius_choeroboscus": {
+   "era": "Byzantine",
+   "note": "fl. c. 9th cent. CE",
+   "year": 850,
+   "added": "cllg-2026-11-09"
+  },
+  "georgius_monachus_continuatus": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "georgius_pachymeres": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th-14th cent. CE",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "glaucus_historicus": {
+   "era": "Early Imperial",
+   "note": "date uncertain (the TLG catalog gives c. 2 B.C./A.D. 3)",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "glaucus_historicus_4391": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "gorgias": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st-2nd cent. CE (date uncertain)",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "gorgon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "gregory_of_nyssa": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "gregory_thaumaturgus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "hagias_dercylus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "harmodius": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "harpocrationis_epistula": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE (date uncertain)",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "hegemon_parodius": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "hegesander": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "hegesianax": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "hegesippus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "hegesippus_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "heliodorus_periegeta": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "heliodorus_poeta": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE (date uncertain)",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "heliodorus_tragicus": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "heniochus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "heraclides_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "heraclides_grammaticus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st-2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "heraclides_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "heraclides_lembus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "heraclitus": {
+   "era": "Classical",
+   "note": "after 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "hereas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "herennius_philo": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st-2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "hermaeus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE (date uncertain)",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "hermesianax": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "hermias": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "hermippus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "herodorus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "hestiaeus": {
+   "era": "Early Imperial",
+   "note": "before 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "hesychius_illustrius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "hierocles": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "hieronymus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "hierotheus": {
+   "era": "Byzantine",
+   "note": "before 8th cent. CE",
+   "year": 750,
+   "added": "cllg-2026-11-09"
+  },
+  "hipparchus_astronomus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "hipparchus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "hippias": {
+   "era": "Classical",
+   "note": "after 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "hippolytus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "hippostratus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "hippys": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE (date uncertain)",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "historia_alexandri_magni": {
+   "era": "Late Antique",
+   "note": "recension alpha of the Alexander Romance, c. 3rd cent. CE",
+   "year": 300,
+   "added": "cllg-2026-11-09"
+  },
+  "hypermenes": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "hyperochus": {
+   "era": "Hellenistic",
+   "note": "after 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "iamblichus": {
+   "era": "Late Antique",
+   "note": "fl. c. 3rd-4th cent. CE",
+   "year": 300,
+   "added": "cllg-2026-11-09"
+  },
+  "idomeneus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "irenaeus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "isigonus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE to 1st cent. CE",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "ister": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_antiochenus": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th cent. CE",
+   "year": 650,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_camaterus": {
+   "era": "Byzantine",
+   "note": "fl. c. 12th cent. CE",
+   "year": 1150,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_cinnamus": {
+   "era": "Byzantine",
+   "note": "fl. c. 12th-13th cent. CE",
+   "year": 1200,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_epiphaniensis": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_laurentius_lydus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_malalas": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th-6th cent. CE",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_of_gaza": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_pediasimus": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th-14th cent. CE",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_philoponus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_protospatharius": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th-14th cent. CE",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_theologus": {
+   "era": "Byzantine",
+   "note": "fl. c. 8th cent. CE",
+   "year": 750,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_vi_cantacuzenus": {
+   "era": "Byzantine",
+   "note": "fl. c. 14th cent. CE",
+   "year": 1350,
+   "added": "cllg-2026-11-09"
+  },
+  "joannes_zonaras": {
+   "era": "Byzantine",
+   "note": "fl. c. 11th-12th cent. CE",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "joel": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th cent. CE",
+   "year": 1250,
+   "added": "cllg-2026-11-09"
+  },
+  "john_chrysostom": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "juba_ii": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "julia_balbilla": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "jusjurandum_medicum": {
+   "era": "Late Antique",
+   "note": "medical oath in verse, date unknown",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "lachares": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "laetus": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "laon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "laonicus_chalcocondyles": {
+   "era": "Byzantine",
+   "note": "fl. c. 15th cent. CE",
+   "year": 1450,
+   "added": "cllg-2026-11-09"
+  },
+  "leo_diaconus": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "leo_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "leo_historicus_1978": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "leo_historicus_2186": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. BCE to 2nd cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "lepidus": {
+   "era": "Late Antique",
+   "note": "before 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "lesbonax": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "leuco": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "lexica_segueriana": {
+   "era": "Byzantine",
+   "note": "Byzantine lexicon (Synagoge), c. 9th-10th cent. CE, date uncertain",
+   "year": 900,
+   "added": "cllg-2026-11-09"
+  },
+  "lexicon_artis_grammaticae": {
+   "era": "Byzantine",
+   "note": "date uncertain (the TLG catalog gives c. A.D. 5/10)",
+   "year": 700,
+   "added": "cllg-2026-11-09"
+  },
+  "lobo": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "lucius_cincius_alimentus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "lucius_licinius_lucullus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "lyceas": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "lycus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "lynceus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "lysanias": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "lysippus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "machon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "maeandrius": {
+   "era": "Hellenistic",
+   "note": "before 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "magnes": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "magnus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "manetho_astrologus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE (date uncertain)",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "manetho_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "manuel_philes": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th-14th cent. CE",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "marcellinus_i": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "marcellus": {
+   "era": "Late Antique",
+   "note": "before 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "marcus_antonius_polemon": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st-2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "marinus": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "martyrium_ignatii": {
+   "era": "Early Imperial",
+   "note": "after 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "matron_parodius": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "matthiae_traditiones": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "maximus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd/4th cent. CE (date uncertain)",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "megasthenes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "melampus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "melanthius": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "melisseus": {
+   "era": "Classical",
+   "note": "before 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "memnon": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE (date uncertain)",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "menander": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "menander_protector": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "menecles": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "menecrates_historicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "menecrates_historicus_2475": {
+   "era": "Classical",
+   "note": "after 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "menecrates_historicus_4345": {
+   "era": "Hellenistic",
+   "note": "historian of unknown date",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "menecrates_historicus_4346": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "menesthenes": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "menetor": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "menodotus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "menyllus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "metagenes": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "metrodorus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "metrodorus_philosophus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "metrophanes": {
+   "era": "Late Antique",
+   "note": "fl. c. 3rd/4th cent. CE (date uncertain)",
+   "year": 300,
+   "added": "cllg-2026-11-09"
+  },
+  "michael_attaliates": {
+   "era": "Byzantine",
+   "note": "fl. c. 11th-12th cent. CE",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "michael_glycas": {
+   "era": "Byzantine",
+   "note": "fl. c. 12th cent. CE",
+   "year": 1150,
+   "added": "cllg-2026-11-09"
+  },
+  "michael_of_ephesus": {
+   "era": "Byzantine",
+   "note": "fl. c. 11th-12th cent. CE",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "minucianus_junior": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "mnaseas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "mnesimachus_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "mnesimachus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "moeris": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd/3rd cent. CE (date uncertain)",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "molpis": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "montanus_et_montanistae": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "musonius_rufus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "myron": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "myronianus": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "myrsilus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "myrtilus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "nausicrates": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "neanthes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "nepualius": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "nicander_grammaticus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/1st cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "nicander_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "nicanor": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "nicephorus_gregoras": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th-14th cent. CE",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "nicias_historicus": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "nico": {
+   "era": "Classical",
+   "note": "after 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "nicochares": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "nicocles": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "nicocrates": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "nicolaus_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "nicolaus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "nicolaus_rhetor": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "nicomachus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "nicophon": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "nicostratus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "nonnosus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "nymphis": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "nymphodorus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "ocellus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "oecumenius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "olympiodorus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "ophelio": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "oracula_sibyllina": {
+   "era": "Early Imperial",
+   "note": "date uncertain (the TLG catalog gives c. 2 B.C.-A.D. 4)",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "orion": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "orus": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "paeon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "palaephatus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "palladius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "pamphila": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "pappus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "parodica_anonyma": {
+   "era": "Hellenistic",
+   "note": "anonymous epic parodies, date unknown",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "parthax": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "parthenius": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "patria_constantinopoleos": {
+   "era": "Byzantine",
+   "note": "date uncertain (the TLG catalog gives c. A.D. 6/13)",
+   "year": 900,
+   "added": "cllg-2026-11-09"
+  },
+  "patrocles": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "paulus": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th cent. CE",
+   "year": 650,
+   "added": "cllg-2026-11-09"
+  },
+  "pausanias_historicus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "phaedimus_epicus": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "phanodemus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "phanodicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "pherecrates": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "pherecydes": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "philemon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "philemon_junior": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "philetaerus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "philetas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "philinus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "philippides": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "philippus_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "philippus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "philiscus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "philistus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "phillis": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "philo_of_byzantium": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "philonides": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "philostephanus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "philostephanus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "philumenus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "philyllius": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "phoenicides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "phormis": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "photius": {
+   "era": "Byzantine",
+   "note": "fl. c. 9th cent. CE",
+   "year": 850,
+   "added": "cllg-2026-11-09"
+  },
+  "phrynichus_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "phrynichus_incertus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "phylarchus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "pittacus": {
+   "era": "Archaic",
+   "note": "fl. c. 7th-6th cent. BCE",
+   "year": -600,
+   "added": "cllg-2026-11-09"
+  },
+  "plato_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "platonius": {
+   "era": "Byzantine",
+   "note": "fl. c. 9th/10th cent. CE (date uncertain)",
+   "year": 900,
+   "added": "cllg-2026-11-09"
+  },
+  "polemon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "poliochus": {
+   "era": "Classical",
+   "note": "fl. c. 5th/3rd cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "polycharmus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "polycrates": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "polystratus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "polyzelus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "porphyry": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "posidippus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "posidonius": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE (date uncertain)",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "possis": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "potamon": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "praecepta_salubria": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE (date uncertain)",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "praxagoras": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "priscianus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "proclus": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "procopius_rhetor": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th-6th cent. CE",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "promathidas": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "promathion": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "protagorides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "proxenus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "pseudocodinus": {
+   "era": "Byzantine",
+   "note": "date uncertain (the TLG catalog gives c. A.D. 10/15)",
+   "year": 1200,
+   "added": "cllg-2026-11-09"
+  },
+  "pseudodioscorides": {
+   "era": "Early Imperial",
+   "note": "after 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "pseudohippocrates": {
+   "era": "Classical",
+   "note": "after 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "pseudopolemon": {
+   "era": "Late Antique",
+   "note": "after 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "pseudosymeon": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "ptolemaeus_grammaticus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. BCE to 2nd cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "ptolemaeus_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "ptolemaeus_viii_euergetes_ii": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "publius_herennius_dexippus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "publius_rutilius_rufus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "pyrander": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "pyrgion": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "pyrrhus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "pythaenetus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "pythagoras": {
+   "era": "Classical",
+   "note": "fl. c. 6th-5th cent. BCE",
+   "year": -500,
+   "added": "cllg-2026-11-09"
+  },
+  "pythermus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "pythocles": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "quintus_fabius_pictor": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "rhinthon": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "sannyrion": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "satyrus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd/2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "scamon": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia": {
+   "era": "Late Antique",
+   "note": "old scholia, compiled over many centuries, date uncertain",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "sciras": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "scriptor_incertus_de_leone_armenio": {
+   "era": "Byzantine",
+   "note": "fl. c. 9th cent. CE",
+   "year": 850,
+   "added": "cllg-2026-11-09"
+  },
+  "semus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE (date uncertain)",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "sententiae_pythagoreorum": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd-3rd cent. CE (date uncertain)",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "serenus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "severianus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "severus_iatrosophista": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE (date uncertain)",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "sextus_julius_africanus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd-3rd cent. CE",
+   "year": 200,
+   "added": "cllg-2026-11-09"
+  },
+  "silenus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "simon": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "simplicius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "simylus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "socrates_historicus": {
+   "era": "Hellenistic",
+   "note": "before 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "socrates_historicus_1679": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "sopater": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "sophaenetus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "sophilus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "sophonias": {
+   "era": "Byzantine",
+   "note": "fl. c. 13th-14th cent. CE",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "sophron": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "sosibius": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd-2nd cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "sosicrates_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "sosicrates_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "sosipater": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "sosthenes": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "sostratus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "sotades": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "speusippus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "staphylus": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "stephanus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "stephanus_grammaticus": {
+   "era": "Byzantine",
+   "note": "fl. c. 12th cent. CE (date uncertain)",
+   "year": 1150,
+   "added": "cllg-2026-11-09"
+  },
+  "stephanus_medicus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th/7th cent. CE",
+   "year": 600,
+   "added": "cllg-2026-11-09"
+  },
+  "stephanus_medicus_0736": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th cent. CE",
+   "year": 650,
+   "added": "cllg-2026-11-09"
+  },
+  "stephanus_philosophus": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th cent. CE",
+   "year": 650,
+   "added": "cllg-2026-11-09"
+  },
+  "stesiclides": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE (date uncertain)",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "stesimbrotus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "straton": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th-3rd cent. BCE",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "strattis": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "susarion": {
+   "era": "Classical",
+   "note": "fl. c. 6th/5th cent. BCE",
+   "year": -500,
+   "added": "cllg-2026-11-09"
+  },
+  "symeon_logothetes": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "syrianus": {
+   "era": "Late Antique",
+   "note": "fl. c. 5th cent. CE",
+   "year": 450,
+   "added": "cllg-2026-11-09"
+  },
+  "teleclides": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "telephus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "testamentum_abrahae": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "testamentum_salomonis": {
+   "era": "Later Imperial",
+   "note": "fl. c. 3rd cent. CE (date uncertain)",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "teucer_astrologus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "teucer_historicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "thallus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st/2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "theagenes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "themison": {
+   "era": "Hellenistic",
+   "note": "before 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "themistius": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "theodosius_astronomus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd-1st cent. BCE",
+   "year": -100,
+   "added": "cllg-2026-11-09"
+  },
+  "theodosius_grammaticus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th-5th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "theognetus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE (date uncertain)",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "theognis": {
+   "era": "Later Imperial",
+   "note": "before 3rd cent. CE",
+   "year": 250,
+   "added": "cllg-2026-11-09"
+  },
+  "theon_grammaticus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "theon_philosophus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 2nd cent. CE",
+   "year": 150,
+   "added": "cllg-2026-11-09"
+  },
+  "theophanes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "theophanes_continuatus": {
+   "era": "Byzantine",
+   "note": "fl. c. 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "theophilus_comicus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "theophilus_historicus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "theophilus_protospatharius": {
+   "era": "Byzantine",
+   "note": "fl. c. 9th/10th cent. CE",
+   "year": 900,
+   "added": "cllg-2026-11-09"
+  },
+  "theophilus_protospatharius_et_stephanus_atheniensis": {
+   "era": "Byzantine",
+   "note": "after 9th cent. CE",
+   "year": 900,
+   "added": "cllg-2026-11-09"
+  },
+  "theophrastus_poeta": {
+   "era": "Byzantine",
+   "note": "fl. c. 7th cent. CE (date uncertain)",
+   "year": 650,
+   "added": "cllg-2026-11-09"
+  },
+  "theopompus": {
+   "era": "Classical",
+   "note": "fl. c. 5th-4th cent. BCE",
+   "year": -400,
+   "added": "cllg-2026-11-09"
+  },
+  "theotimus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE (date uncertain)",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "theseus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE (date uncertain)",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "thrasyllus": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE (date uncertain)",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "thugenides": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "timaeus_praxidas": {
+   "era": "Hellenistic",
+   "note": "before 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "timaeus_sophista": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE (date uncertain)",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "timagenes": {
+   "era": "Hellenistic",
+   "note": "fl. c. 1st cent. BCE",
+   "year": -50,
+   "added": "cllg-2026-11-09"
+  },
+  "timagetus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "timagoras": {
+   "era": "Hellenistic",
+   "note": "historian of unknown date",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "timocles": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "timolaus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "timonax": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "timonides": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "timostratus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "timotheus_comicus": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/3rd cent. BCE (date uncertain)",
+   "year": -300,
+   "added": "cllg-2026-11-09"
+  },
+  "timotheus_grammaticus": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "timotheus_historicus": {
+   "era": "Early Imperial",
+   "note": "before 2nd cent. CE",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "uranius": {
+   "era": "Late Antique",
+   "note": "fl. c. 6th cent. CE (date uncertain)",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "verba_in_scripturis_de_christo": {
+   "era": "Byzantine",
+   "note": "fl. c. 8th/10th cent. CE",
+   "year": 850,
+   "added": "cllg-2026-11-09"
+  },
+  "vita_adam_et_evae": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. BCE to 1st cent. CE",
+   "year": 0,
+   "added": "cllg-2026-11-09"
+  },
+  "vitae_aeschinis": {
+   "era": "Late Antique",
+   "note": "ancient lives of Aeschines transmitted with the scholia, date uncertain",
+   "year": 500,
+   "added": "cllg-2026-11-09"
+  },
+  "vitae_aesopi": {
+   "era": "Early Imperial",
+   "note": "fl. c. 1st cent. CE",
+   "year": 50,
+   "added": "cllg-2026-11-09"
+  },
+  "vitae_prophetarum": {
+   "era": "Late Antique",
+   "note": "Lives of the Prophets, Jewish work with Christian recensions, date uncertain",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "xanthus": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "xenagoras": {
+   "era": "Hellenistic",
+   "note": "fl. c. 4th/1st cent. BCE",
+   "year": -200,
+   "added": "cllg-2026-11-09"
+  },
+  "xenarchus": {
+   "era": "Classical",
+   "note": "fl. c. 4th cent. BCE",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "xenion": {
+   "era": "Classical",
+   "note": "after 4th cent. BCE (date uncertain)",
+   "year": -350,
+   "added": "cllg-2026-11-09"
+  },
+  "xeno": {
+   "era": "Hellenistic",
+   "note": "fl. c. 3rd cent. BCE",
+   "year": -250,
+   "added": "cllg-2026-11-09"
+  },
+  "xenomedes": {
+   "era": "Classical",
+   "note": "fl. c. 5th cent. BCE (date uncertain)",
+   "year": -450,
+   "added": "cllg-2026-11-09"
+  },
+  "zeno": {
+   "era": "Hellenistic",
+   "note": "fl. c. 2nd cent. BCE",
+   "year": -150,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.anonymi_in_analyticorum_posteriorum_librum_alterum": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.fragmentum_commentarii_in_aristotelis_rhetorica": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.fragmentum_paraphrasis_in_aristotelis_rhetorica": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_aristotelis_sophisticos_elenchos_paraphrasis": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_ethica_nicomachea_ii_v_commentaria": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_ethica_nicomachea_paraphrasis": {
+   "era": "Byzantine",
+   "note": "paraphrase made by Constantine Palaeocappa, 16th cent. CE, once ascribed to Heliodorus",
+   "year": 1500,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_ethica_nicomachea_vii_commentaria": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_oppiani_halieutica_exegesis": {
+   "era": "Byzantine",
+   "note": "Byzantine exegesis of Oppian, date uncertain",
+   "year": 1200,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.in_primum_librum_analyticorum_posteriorum_commentarium": {
+   "era": "Byzantine",
+   "note": "Byzantine commentary on Aristotle, date uncertain (c. 12th cent. CE)",
+   "year": 1100,
+   "added": "cllg-2026-11-09"
+  },
+  "anonymous.paraphrasis_categoriarum": {
+   "era": "Byzantine",
+   "note": "Byzantine paraphrase of Aristotle, date uncertain",
+   "year": 1200,
+   "added": "cllg-2026-11-09"
+  },
+  "clement_of_rome.pseudo_clementina": {
+   "era": "Byzantine",
+   "note": "epitome by Symeon Metaphrastes, 10th cent. CE",
+   "year": 950,
+   "added": "cllg-2026-11-09"
+  },
+  "clement_of_rome.pseudo_clementina_tlg012": {
+   "era": "Byzantine",
+   "note": "epitome of the Pseudo-Clementines before Symeon Metaphrastes, date uncertain",
+   "year": 900,
+   "added": "cllg-2026-11-09"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae": {
+   "era": "Late Antique",
+   "note": "interpolated letters of Ignatius, forged in the 4th cent. CE",
+   "year": 400,
+   "added": "cllg-2026-11-09"
+  },
+  "orphica.lithica": {
+   "era": "Late Antique",
+   "note": "c. 4th cent. CE (date uncertain)",
+   "year": 350,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_aeschylum_persas_tlg020": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_aeschylum_persas_tlg021": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_aeschylum_prometheum_vinctum": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_hesiodum_opera_et_dies": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_oppianum_cynegetica": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_oppianum_halieutica": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_pausaniam_pausaniae_periegesin": {
+   "era": "Late Antique",
+   "note": "scholia that the edition attributes to Agathias, 6th cent. CE",
+   "year": 550,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_pindarum": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_pindarum_nemea_et_isthmia": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_pindarum_olympia_et_pythia": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_pindarum_paeanes": {
+   "era": "Early Imperial",
+   "note": "papyrus commentary of the Roman period, date uncertain",
+   "year": 100,
+   "added": "cllg-2026-11-09"
+  },
+  "scholia.in_pindarum_pythia_v_vii": {
+   "era": "Byzantine",
+   "note": "later (Byzantine) scholia, date uncertain",
+   "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "evagrius_ponticus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
+   "added": "cllg-2026-11-09"
   }
  },
  "he": {

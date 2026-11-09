@@ -1,6 +1,6 @@
 {
  "_description": "The prose or poetry label of every text, one entry per .tess file. detect_text_type reads this table. \"source\" says where the first value came from: override, marker, line_length, default, or reviewed (a person set it). The name markers and median line length only propose a value for a new text (scripts/corpus/text_types.py fill).",
- "_last_updated": "2026-11-07",
+ "_last_updated": "2026-11-09",
  "ar": {
   "abid_ibn_al_abras.muallaqa.tess": {
    "source": "line_length",
@@ -2154,6 +2154,10 @@
   }
  },
  "grc": {
+  "abydenus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "achilles_tatius.leucippe_et_clitophon.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -2161,6 +2165,38 @@
   "acta_joannis.acta_joannis.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "acta_petri.martyrium_petri.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "adamantius.de_recta_in_deum_fide.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "adamantius_judaeus.physiognomonica.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "adamantius_judaeus.physiognomonica.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "adamantius_judaeus.physiognomonica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "adamantius_judaeus.physiognomonica_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "adrianus.declamatio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aegimius.aegimius.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "aelian.de_natura_animalium.tess": {
    "source": "marker",
@@ -2186,12 +2222,32 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "aelius_dius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "aelius_herodianus.de_prosodia_catholica.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "aelius_herodianus.de_versibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "aelius_herodianus.on_enclitics.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "aelius_herodianus.parekbolai_toy_megaloy_rematos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aelius_herodianus.peri_lexeos_ton_stichon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aelius_herodianus.schematismi_homerici.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "aelius_theon.progymnasmata.tess": {
@@ -2208,6 +2264,10 @@
   },
   "aeschines.on_the_embassy.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "aeschines_socraticus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "aeschines_sp.epistulae.tess": {
@@ -2258,13 +2318,81 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "aesop.fabulae_tlg015.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "aesop.fabularum_collectio.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "aethlius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aetius_of_amida.iatricorum_liber_ix.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aetius_of_amida.iatricorum_liber_xii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aetius_of_amida.iatricorum_liber_xiii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aetius_of_amida.iatricorum_liber_xv.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aetius_of_amida.iatricorum_liber_xvi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "agaclytus.fragmentum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "agatharchides.ex_agatharchidis_de_maris_erythraeo_libri_excerpta.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "agatharchides_historicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "agathocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "agathon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "agesilaus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aglais.adversus_suffusiones_incipientes.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "aglaosthenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "agroetas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "albinus.introductio_in_platonem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alcaeus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "alcidamas.de_sophistis.tess": {
    "source": "line_length",
@@ -2274,9 +2402,165 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "alcimus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "alexander_of_aphrodisias.aporiai_kai_lyseis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.de_anima.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.de_anima_libri_mantissa.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.de_fato.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.de_mixtione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.ethika_problemata.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.in_analytica_posteriora_commentariorum_fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.in_aristotelis_analyticorum_priorum_librum_i_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.in_aristotelis_metaphysica_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.in_aristotelis_meteorologicorum_libros_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.in_aristotelis_topicorum_libros_octo_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.in_librum_de_sensu_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.problemata.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.problemata.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_aphrodisias.problemata.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexander_of_lycopolis.tractatus_de_placitis_manichaeorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexarchus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "alexis_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "alexis_comicus.fragmenta_tlg005.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "alexis_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "amelesagoras.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "amipsias.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "ammonius.in_aristotelis_analytica_priora.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ammonius.in_aristotelis_analyticorum_priorum_librum_i_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ammonius.in_aristotelis_categorias_commentarius.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ammonius.in_aristotelis_librum_de_interpretatione_commentarius.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ammonius.in_porphyrii_isagogen_sive_quinque_voces.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "amometus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "amphicrates.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "amphilochius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "amphis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "anacharsis.epistulae.tess": {
    "source": "marker",
    "text_type": "prose"
+  },
+  "anatolius.peri_dekados_kai_ton_entos_aytes_arithmon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anaxandridas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anaxandrides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anaxicrates.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anaxilas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anaxippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "andocides.against_alcibiades.tess": {
    "source": "line_length",
@@ -2292,6 +2576,46 @@
   },
   "andocides.on_the_peace.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "andreas.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andriscus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "androetas.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andron_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andron_historicus_2172.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andron_historicus_4347.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andron_incertus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andronicus_rhodius.de_passionibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "andronicus_rhodius.de_passionibus_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "androtion.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "anna_comnena.alexias.part.0.tess": {
@@ -2362,12 +2686,132 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "anonymi_commentarius_in_platonis_theaetetum.commentarius_in_platonis_theaetetum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_de_astrologia_dialogus.de_astrologia_dialogus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_de_barbarismo_et_soloecismo.de_barbarismo_et_soloecismo.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_de_terrae_motibus.de_terrae_motibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_historici.alexandri_historia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_historici.chronicon_archontum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_medici.diagnosis_peri_ton_oxeon_kai_chronion_nosematon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_medici.fragmenta_varia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_medici.onomata_ton_iatrikon_ergaleion_kata_stoicheia_ois_en_tais.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_medici.physiognomonica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymi_paradoxographi.de_incredibilibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.anonymi_in_analyticorum_posteriorum_librum_alterum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.fragmentum_commentarii_in_aristotelis_rhetorica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.fragmentum_paraphrasis_in_aristotelis_rhetorica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "anonymous.geographiae_expositio_compendiaria.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium.part.0.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_aristotelis_sophisticos_elenchos_paraphrasis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_ethica_nicomachea_ii_v_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_ethica_nicomachea_paraphrasis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_ethica_nicomachea_vii_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_oppiani_halieutica_exegesis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.in_primum_librum_analyticorum_posteriorum_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymous.paraphrasis_categoriarum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "anonymous.stadiasmus_magni_maris.tess": {
    "source": "override",
+   "text_type": "prose"
+  },
+  "anonymus_epicureus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymus_epicureus.fragmenta_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymus_londinensis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymus_londinensis.iatrica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "anonymus_seguerianus.ars_rhetorica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "antenor.fragmentum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "anthologia_graeca.part.1.tess": {
@@ -2434,6 +2878,62 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "anthologiae_graecae_appendix.epigrammata_dedicatoria.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.epigrammata_demonstrativa.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.epigrammata_exhortatoria_et_supplicatoria.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.epigrammata_irrisoria.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.epigrammata_sepulcralia.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.epigrammatis_addenda.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.oracula.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "anthologiae_graecae_appendix.problemata_et_aenigmata.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "antidotus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "antigonus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "antileon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "antimachus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "antiochus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "antiphanes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "antiphon.speeches.part.1.against_the_stepmother_for_poisoning.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -2470,6 +2970,46 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "antonius_hagiographus.vita_symeonis_stylitae_senioris.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "antyllus.ek_toy_peri_klysmon_oti_dia_treis_aitias_paralambanontai.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aphthonius.progymnasmata.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apion.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apion.fragmenta_de_glossis_homericis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apocalypsis_esdrae.apocalypsis_esdrae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apocalypsis_joannis.apocalypsis_apocrypha_joannis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apocalypsis_joannis.apocalypsis_apocrypha_joannis_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apocalypsis_joannis.apocalypsis_apocrypha_joannis_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apollas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "apollodorus.epitome.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -2478,12 +3018,48 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "apollodorus_carystius_vel_apollodorus_gelous.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "apollodorus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "apollodorus_comicus_0413.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "apollodorus_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apollodorus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apollodorus_mechanicus.poliorcetica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "apollonius_dyscolus.de_pronominibus.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "apollonius_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "apollonius_of_perga.conica.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "apollonius_philosophus.apotelesmata.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apollonius_philosophus.de_horis_diei_et_noctis.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "apollonius_rhodius.argonautica.part.1.tess": {
@@ -2505,6 +3081,18 @@
   "apollonius_rhodius.argonautica.tess": {
    "source": "line_length",
    "text_type": "poetry"
+  },
+  "apollophanes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "apophthegmata.apophthegmata.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "apophthegmata.apophthegmata_patrum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
   },
   "appian.civil_wars.part.1.tess": {
    "source": "marker",
@@ -2586,8 +3174,36 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "araros.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "aratus.phaenomena.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "aratus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "arcadius.de_accentibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "archedicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "archelaus.archelaoy_philosophoy_peri_tes_theias_technes_dia_stichon.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "archemachus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "archestratus_parodius.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "archimedes.ad_eratosthenem_methodus.tess": {
@@ -2638,13 +3254,189 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "archinus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "archippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "archytas_of_tarentum.fragmenta.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "aretades.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "aretaeus.curatione_acutorum_morbum.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "ariaethus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristagoras_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "aristagoras_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristobulus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristocles_paradoxographus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristocles_philosophus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristocrates.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristocreon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristocritus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristodemus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristomenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "ariston.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.21.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.22.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.23.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.24.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonicus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristonymus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "aristophanes.acharnians.tess": {
    "source": "line_length",
@@ -2660,6 +3452,14 @@
   },
   "aristophanes.ecclesiazusae.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "aristophanes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "aristophanes.fragmenta_tlg017.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "aristophanes.frogs.tess": {
@@ -2688,6 +3488,18 @@
   },
   "aristophanes.wasps.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "aristophanes_grammaticus.aristophanis_historiae_animalium_epitome_subjunctis_aeliani.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristophanes_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "aristophon.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "aristotle.analytica_priora.tess": {
@@ -2726,6 +3538,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "aristotle.de_incessu_animalium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "aristotle.de_insomniis.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -2744,6 +3560,10 @@
   },
   "aristotle.de_memoria_et_reminiscentia.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "aristotle.de_motu_animalium.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "aristotle.de_partibus_animalium.tess": {
@@ -2846,8 +3666,16 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "aristoxenus_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "arius_didymus.liber_de_philosophorum_sectis_epitome_ap_stobaeum.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "armenidas.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "arrian.anabasis.part.1.tess": {
@@ -2894,8 +3722,44 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "artemon_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "artemon_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "artemon_historicus_2392.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "asclepiades_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "asclepiades_grammaticus_2423.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "asclepiades_mythographus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "asclepius.in_aristotelis_metaphysicorum_libros_a_z_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "aspasius.in_ethica_nicomachea_paraphrasis.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "astrampsychus_magus.oracula.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "athanasius.commentarius_de_templo_athenarum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "athanasius.contra_arianos_i.tess": {
@@ -2918,8 +3782,60 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "athanasius.de_virginitate.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.dialogus_athanasii_et_zacchaei.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.doctrina_ad_antiochum_ducem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.epistula_ad_epictetum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.quaestio_136_e_quaestionibus_ad_antiochum_ducem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.quaestio_136_e_quaestionibus_ad_antiochum_ducem_tlg025.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.scholia_in_job.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.sermo_exhortatorius.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.sermo_major_de_fide.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.syntagma_ad_monachos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanasius.syntagma_ad_monachos_tlg127.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "athanis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "athenaeus.deipnosophists.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "athenaeus_mechanicus.de_machinis.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "athenagoras.de_resurrectione.tess": {
@@ -2929,6 +3845,30 @@
   "athenagoras.legatio.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "athenio.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "athenodorus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "autocharis.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "autocrates_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "autocrates_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "axionicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "babrius.fabulae_aesopeae.tess": {
    "source": "override",
@@ -2942,6 +3882,10 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "balagrus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "barnabas.barnabae_epistulae.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -2954,6 +3898,38 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "basil_of_caesarea.expositio_fidei_nicaenae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "basilis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "bato_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "bato_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "berossus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "bias.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "bion_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "bion_historicus_1871.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "bion_of_phlossa.epitaphius.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -2964,6 +3940,22 @@
   },
   "bion_of_phlossa.fragmenta.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "biton.kataskeyai_polemikon_organon_kai_katapaltikon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "blaesus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "bolus.peri_sympatheion_kai_antipatheion.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "callias.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "callimachus.aetia.tess": {
@@ -2986,13 +3978,37 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "callippus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "callippus_historicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "callistratus.statuarum_descriptiones.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "callixenus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cantharus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "capito.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "carmina_delphis_inventa.carmina_delphis_inventa.tess": {
    "source": "line_length",
    "text_type": "poetry"
+  },
+  "carystius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
   },
   "cassius_dio.roman_history.part.36.tess": {
    "source": "line_length",
@@ -3078,25 +4094,301 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "cebes.cebetis_tabula.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cephalion.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cephisodorus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "chaeremon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "charax.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "chariclides.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "chariton.de_chaerea.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "charon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "chionides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "chionis_epistulae.epistulae.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "choerilus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "choricius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.21.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.22.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.23.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.24.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.25.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.26.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.27.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.28.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.29.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.30.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.31.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.32.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.33.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.34.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.35.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.36.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.37.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.38.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.39.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.40.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.41.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.42.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "choricius.opera.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "chronicon_paschale.chronicon_paschale.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "chrysermus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "chrysippus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cineas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_iolaus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "claudius_ptolemaeus.apotelesmatica_tetrabiblos.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "claudius_ptolemaeus.de_analemmate.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.geographia.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.geographia.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.geographia.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.geographia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.hypotheses.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.inscriptio_canobi.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "claudius_ptolemaeus.musica.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.phaseis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "claudius_ptolemaeus.procheiron_kanonon_diataxis_kai_psephophoria.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "claudius_ptolemaeus.syntaxis_mathematica.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "clearchus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "clement.exhortation.tess": {
    "source": "marker",
@@ -3130,29 +4422,297 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "clement_of_rome.epistulae_de_virginitate.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clement_of_rome.epistulae_de_virginitate.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clement_of_rome.epistulae_de_virginitate.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clement_of_rome.pseudo_clementina.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clement_of_rome.pseudo_clementina_tlg012.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cleobulus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "cleomedes.de_motu_circulari_corporum_caelestium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "cleonides.introductio_harmonica.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "clidemus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clitonymus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clitophon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "clytus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "colluthus.rape_of_helen.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
+  "comica_adespota.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "comica_adespota.fragmenta_incertorum_poetarum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "conon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.de_cerimoniis_aulae_byzantinae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.de_contionibus_militaribus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.de_insidiis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.de_legationibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.de_sententiis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.de_virtutibus_et_vitiis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.narratio_de_imagine_edessena.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantine_porphyrogenitus.oratio_de_translatione_chrysostomi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "constantinus_manasses.compendium_chronicum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "cornelius_alexander_polyhistor.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cornutus.de_natura_deorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "craterus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "crates_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "crates_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "cratetis_epistulae.epistulae.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "cratinus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "cratinus.fragmenta_tlg005.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "cratinus_junior.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "cratippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "creophylus.fragmentum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "critias.fragmenta.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "crito_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "crito_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "critolaus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "crobylus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "ctesiphon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cyril_of_alexandria.commentarii_in_lucam.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cyril_of_alexandria.contra_julianum_imperatorem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cyril_of_alexandria.solutiones.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cyril_of_alexandria.thesaurus_de_sancta_et_consubstantiali_trinitate.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cyril_of_jerusalem.catechesis_ad_illuminandos_2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "cyril_of_jerusalem.homilia_aquae_in_vinum_conversae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "daimachus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "daimachus_historicus_2482.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "damastes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "damianus.optica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "damigeron_magus.de_lapidibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "damon.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "damoxenus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "david.in_porphyrii_isagogen_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "david.prolegomena_philosophiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "deilochus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "demades.on_the_twelve_years.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "demaratus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "demetrius.elocutione.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "demetrius_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "demetrius_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demetrius_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demetrius_historicus_2511.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demetrius_junior.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "demetrius_rhetor.formae_epistolicae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demetrius_rhetor.formae_epistolicae_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demochares.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "democles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "democritus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "demonicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "demosthenes.against_androtion.tess": {
    "source": "marker",
@@ -3406,12 +4966,40 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "demosthenes_epicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "dercyllus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dexicrates.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "dexippus.in_aristotelis_categorias_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "didache.didache.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
   "didymus_alexandrinus.mensurae_marmorum_ac_lignorum.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "didymus_the_blind.dialexis_montanistae_et_orthodoxi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "didymus_the_blind.in_epistulas_catholicas_brevis_enarratio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dieuchidas.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "dinarchus.against_aristogiton.tess": {
@@ -3424,6 +5012,18 @@
   },
   "dinarchus.against_philocles.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "dinias.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dinolochus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "dinon.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "dio_chrysostom.orationes.part.1.tess": {
@@ -3726,6 +5326,22 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "diocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "diodorus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "diodorus_periegeta.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "diodorus_rhetor.fragmentum_de_viris_duobus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "diodorus_siculus.bibliotheca_historica.part.1.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -3790,6 +5406,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "diogenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "diogenes_laertius.vitae_philosophorum.part.1.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -3834,12 +5454,20 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "diogenianus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "diogenianus_of_heraclea.paroemiae.tess": {
    "source": "override",
    "text_type": "prose"
   },
   "dionysius_calliphontis.dionysii_calliphontis_filii_descriptio_graeciae.tess": {
    "source": "override",
+   "text_type": "poetry"
+  },
+  "dionysius_comicus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "dionysius_halicarnassensis.ad_ammaeum.tess": {
@@ -3942,6 +5570,22 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "dionysius_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dionysius_historicus_1328.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dionysius_historicus_2354.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dionysius_historicus_2466.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "dionysius_of_halicarnassus.de_compositione_verborum_epitome.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -3954,12 +5598,116 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "dionysius_scytobrachion.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dionysius_scytobrachion.testimonia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "diophantus_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "diophantus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dioscurides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "diotimus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "dioxippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "diphilus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "diyllus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "doctrina_patrum.doctrina_patrum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "domitius_callistratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dosiadas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dositheus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dositheus_magister.ars_grammatica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "dromo.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "duris.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ecphantides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "elias.eliae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "elias.in_porphyrii_isagogen.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "enoch.apocalypsis_enochi.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "eparchides.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ephippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "ephraem.chronicon.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "epicharmus.fragmenta.tess": {
    "source": "override",
+   "text_type": "poetry"
+  },
+  "epicharmus.fragmenta_epicharmi.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "epicharmus.fragmenta_pseudepicharmea.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "epicharmus.fragmentum_epicharmi.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "epicrates.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "epictetus.discourses.tess": {
@@ -3990,9 +5738,233 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "epigenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "epilycus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "epinicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "epiphanius.ancoratus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.appendices_ad_indices_apostolorum_discipulorumque.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_fide.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_mensuris_et_ponderibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_mensuris_et_ponderibus_tlg037.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_mensuris_et_ponderibus_tlg038.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_prophetarum_vita_et_obitu.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_prophetarum_vita_et_obitu_tlg022.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_trinitate.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.de_xii_gemmis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.enumeratio_lxxii_prophetarum_et_prophetissarum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.index_apostolorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.index_discipulorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.nomina_apostolorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "epiphanius.notitiae_episcopatuum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eratosthenes.catasterismi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ergias.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eriphus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "erotianus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "erotianus.vocum_hippocraticarum_collectio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euagon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euangelus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "euboeus_parodius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eubulides.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eubulus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eubulus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "euclid.catoptrica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.data.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.data_tlg008.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "euclid.elements.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "euclid.epigramma.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "euclid.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.optica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.opticorum_recensio_theonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.phaenomena.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.phaenomena_tlg013.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.phaenomena_tlg014.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euclid.sectio_canonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eudemus.peri_lexeon_retorikon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eudocia_augusta.de_martyrio_sancti_cypriani.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eudocia_augusta.de_martyrio_sancti_cypriani.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eudocia_augusta.de_martyrio_sancti_cypriani.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eudocia_augusta.homerocentones.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eudoxus_astronomus.ars_astronomica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eudoxus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eudoxus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eumachus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eumelus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eunapius.fragmenta_historica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eunicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "euphanes.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "euphantus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euphro.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "eupolis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "euripides.alcestis.tess": {
    "source": "line_length",
@@ -4016,6 +5988,10 @@
   },
   "euripides.fragmenta.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "euripides.fragmenta_oenei.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "euripides.hecuba.tess": {
@@ -4074,6 +6050,74 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "eusebius_caesarea.constantini_imperatoris_oratio_ad_coetum_sanctorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.de_laudibus_constantini.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.de_theophania.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.demonstratio_evangelica_tlg006.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.generalis_elementaria_introductio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.generalis_elementaria_introductio_tlg024.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "eusebius_caesarea.historia_ecclesiastica.part.1.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -4118,8 +6162,112 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "eusebius_caesarea.in_cantica_canticorum_interpretatio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eusebius_caesarea.onomasticon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eustathius.homilia_christologica_in_lazarum_mariam_et_martham.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eustochius.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eustratius.in_aristotelis_analyticorum_posteriorum_librum_secundum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eustratius.in_aristotelis_ethica_nicomachea_i_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eustratius.in_aristotelis_ethica_nicomachea_vi_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "eutecnius.paraphrasis_in_oppiani_cynegetica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "euthycles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "eutropius.breviarium_historiae_romanae.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "eutychianus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.aliae_sententiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.capita_paraenetica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.de_magistris_et_discipulis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.expositio_in_proverbia_salomonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.sententiae_ad_monachos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.sententiae_ad_virginem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evagrius_ponticus.spiritales_sententiae_per_alphabeticum_dispositae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_aegyptium.evangelium_aegyptium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_bartholomaei.evangelium_bartholomaei.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_bartholomaei.fragmenta_evangelii_bartholomaei.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_ebionitum.evangelium_ebionitum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_evae.evangelium_evae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_mariae.evangelium_mariae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_philippi.evangelium_philippi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_secundum_hebraeos.evangelium_secundum_hebraeos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "evangelium_thomae.evangelium_thomae.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "flavius_josephus.antiquitates_judaicae.part.1.tess": {
@@ -4254,6 +6402,18 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "fragmentum_lexici_graeci.lexicon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gaius_acilius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gaius_asinius_quadratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "gaius_romanus.fragmenta.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -4382,6 +6542,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "galen.de_optima_corporis_nostri_constitutione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "galen.de_optima_doctrina.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -4408,6 +6572,10 @@
   },
   "galen.de_praesagitione_ex_pulsibus.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "galen.de_propriis_placitis_fragmenta_inedita.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "galen.de_propriorum_animi_cuiuslibet_affectuum_dignotion.tess": {
@@ -4510,6 +6678,26 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "galen.in_hippocratis_de_natura_hominis_librum_commentarii_iii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "galen.in_hippocratis_de_victu_acutorum_commentaria_iv.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "galen.in_hippocratis_prognosticum_commentaria_iii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "galen.in_hippocratis_prorrheticum_i_commentaria_iii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "galen.in_hippocratis_vel_polybi_opus_de_salubri_victus_ratione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "galen.institutio_logica.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -4538,6 +6726,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "galen.quod_qualitates_incorporeae_sint.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "galen.quos_quibus_catharticis_medicamentis_et_quando_pur.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -4550,6 +6742,134 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "geminus.fragmenta_optica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.part.p.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "geoponica.geoponica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "georgius.anacreontea.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "georgius_cedrenus.compendium_historiarum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "georgius_choeroboscus.de_spiritibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "georgius_choeroboscus.epimerismi_in_psalmos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "georgius_monachus_continuatus.chronicon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "georgius_pachymeres.syggraphikai_istoriai.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "glaucus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "glaucus_historicus_4391.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gorgias.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "gorgias_of_leontini.helenae_encomium.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -4558,16 +6878,120 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "gorgon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "gregory_of_nazianzus.alphabeticum_paraeneticum_1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "gregory_of_nazianzus.christus_patiens.tess": {
    "source": "override",
    "text_type": "poetry"
+  },
+  "gregory_of_nazianzus.funebris_in_laudem_caesarii_fratris_oratio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nazianzus.funebris_oratio_in_laudem_basilii_magni_caesareae_in.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nazianzus.testamentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
   },
   "gregory_of_nazianzus.theological_orations.tess": {
    "source": "marker",
    "text_type": "prose"
   },
+  "gregory_of_nyssa.de_oratione_dominica_orationes_v.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.de_oratione_dominica_orationes_v.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.de_oratione_dominica_orationes_v.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.de_oratione_dominica_orationes_v.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.de_oratione_dominica_orationes_v.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.de_oratione_dominica_orationes_v.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.in_basilium_fratrem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_of_nyssa.inventio_imaginis_in_camulianis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_thaumaturgus.eis_to_oyden_eidolon_en_kosmo.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_thaumaturgus.fragmenta_in_jeremiam.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_thaumaturgus.fragmentum_in_job.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "gregory_thaumaturgus.sententiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hagias_dercylus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "hanno.periplus_hannonis.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "harmodius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "harpocrationis_epistula.epistula.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hegemon_parodius.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hegemon_parodius.fragmentum_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hegesander.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hegesianax.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hegesippus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hegesippus_historicus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "heliodorus.aethiopica.part.1.tess": {
@@ -4614,8 +7038,56 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "heliodorus_periegeta.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "heliodorus_poeta.eliodoroy_philosophoy_pros_theodosion_ton_megan_basilea_peri.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "heliodorus_tragicus.italika_thaymata.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "heniochus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "heraclides_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "heraclides_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "heraclides_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "heraclides_lembus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "heraclitus.de_incredibilibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "heraclitus_of_ephesus.fragmenta.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "hereas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "herennius_philo.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hermaeus.fragmentum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "hermas.pastor.part.1.tess": {
@@ -4726,6 +7198,18 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "hermesianax.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hermias.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hermippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "hermogenes.de_statibus.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -4742,6 +7226,10 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "hero_of_alexandria.cheiroballistras_kataskeye_kai_symmetria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "hero_of_alexandria.de_automatis.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -4750,12 +7238,24 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "hero_of_alexandria.definitiones.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "hero_of_alexandria.dioptra.tess": {
    "source": "line_length",
    "text_type": "prose"
   },
+  "hero_of_alexandria.fragmenta_de_horoscopiis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "hero_of_alexandria.geodaesia_sp.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "hero_of_alexandria.geometrica.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "hero_of_alexandria.mechanicorum_fragmenta.tess": {
@@ -4780,6 +7280,10 @@
   },
   "herodianus.symposium.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "herodorus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "herodotus.histories.part.1.tess": {
@@ -4833,6 +7337,62 @@
   "hesiod.works_and_days.tess": {
    "source": "line_length",
    "text_type": "poetry"
+  },
+  "hestiaeus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hesychius_illustrius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hesychius_illustrius.homilia_in_natalem_christi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hierocles.ethike_stoicheiosis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hierocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hierocles.fragmenta_ethica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hieronymus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hierotheus.ierotheoy_philosophoy_peri_tes_theias_kai_ieras_technes_dia.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hipparchus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hippias.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
   },
   "hippocrates.aphorismi.tess": {
    "source": "marker",
@@ -4906,6 +7466,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "hippocrates.de_purgantibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "hippocrates.de_salubri_diaeta.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -4917,6 +7481,10 @@
   "hippocrates.jusjurandum.tess": {
    "source": "marker",
    "text_type": "prose"
+  },
+  "hippocrates.jusjurandum_metricum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "hippocrates.praeceptiones.tess": {
    "source": "marker",
@@ -4932,6 +7500,158 @@
   },
   "hippocrates.vectiarius.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "hippolytus.chronicon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.contra_beronem_et_heliconem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_antichristo.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_benedictione_balaam.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_benedictione_balaam_tlg046.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_consummatione_mundi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_duobus_latronibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_resurrectione_ad_mammaeam_imperatricem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_theophania.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.de_universo.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.demonstratio_temporum_paschatis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.ex_interpretatione_ruth.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_genesim.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_genesim_tlg005.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_proverbia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_proverbia_tlg014.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_proverbia_tlg015.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_psalmos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_in_psalmos_tlg012.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmenta_varia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmentum_de_distributione_talentorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmentum_de_engastrimytho.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmentum_de_resurrectione_et_incorruptione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmentum_in_ecclesiasten.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.fragmentum_in_matthaeum_6_11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.in_canticum_canticorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.in_canticum_mosis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.in_ecclesiasten.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.in_evangelium_joannis_et_de_resurrectione_lazari.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.in_helcanam_et_annam.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.in_principium_isaiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippolytus.narratio_de_virgine_corinthiaca.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippostratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "hippys.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "homer.hymns.part.1.tess": {
@@ -5294,6 +8014,22 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "hypermenes.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "hyperochus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "iamblichus.theologoumena_arithmeticae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "idomeneus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "ignatius.epistulae.part.1.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -5324,6 +8060,78 @@
   },
   "ignatius.epistulae.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "irenaeus.adversus_haereses.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "irenaeus.adversus_haereses.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "irenaeus.adversus_haereses.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "irenaeus.fragmenta_deperditorum_operum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "isaeus.speeches.part.1.tess": {
@@ -5380,6 +8188,10 @@
   },
   "isidore_of_charax.mansiones_parthicae.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "isigonus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "isocrates.letters.part.1.tess": {
@@ -5508,6 +8320,262 @@
   },
   "isocrates.speeches.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "ister.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_antiochenus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_camaterus.de_zodiaco.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "joannes_camaterus.introductio_in_astronomiam.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_cinnamus.epitome_rerum_ab_joanne_et_alexio_comnenis_gestarum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_epiphaniensis.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_laurentius_lydus.de_ostentis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronographia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_malalas.chronologica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_of_gaza.anacreontea.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "joannes_of_gaza.ekphrasis_toy_kosmikoy_pinakos.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "joannes_pediasimus.scholia_in_hesiodi_scutum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.0.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_opificio_mundi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.de_usu_astrolabii_eiusque_constructione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_analytica_posteriora_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_analytica_posteriora_commentaria_tlg004.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_analytica_priora_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_categorias_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_libros_de_anima_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_libros_de_generatione_et_corruptione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_meteorologicorum_librum_primum_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_aristotelis_physicorum_libros_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_philoponus.in_libros_de_generatione_animalium_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_protospatharius.exegesis_physike_ton_emeron_esiodoy.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_theologus.narratio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_vi_cantacuzenus.historiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_zonaras.epitome_historiarum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_zonaras.epitome_historiarum_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joannes_zonaras.epitome_historiarum_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "joel.chronographia_compendiaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "john_chrysostom.encomium_in_sanctum_polycarpum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "john_chrysostom.fragmenta_ex_homiliis_diversis.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "john_of_damascus.barlaam_et_ioasaph.part.0.tess": {
@@ -5678,6 +8746,14 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "juba_ii.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "julia_balbilla.epigrammata.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "julian.ad_atheniensis.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -5734,6 +8810,10 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "jusjurandum_medicum.jusjurandum_medicum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "justin_martyr.apologia_i.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -5745,6 +8825,66 @@
   "justin_martyr.dialogus_cum_tryphone.tess": {
    "source": "marker",
    "text_type": "prose"
+  },
+  "lachares.rhetorica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "laetus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "laon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "laonicus_chalcocondyles.historiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "leo_diaconus.historia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "leo_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "leo_historicus_1978.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "leo_historicus_2186.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "lepidus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lesbonax.politikos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lesbonax.protreptikos_a.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lesbonax.protreptikos_b.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "leuco.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "lexica_segueriana.collectio_verborum_utilium_e_differentibus_rhetoribus_et.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lexicon_artis_grammaticae.lexicon_artis_grammaticae.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "libanius.declamations.part.1.tess": {
    "source": "line_length",
@@ -5777,6 +8917,10 @@
   "libanius.orations.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "lobo.epigrammata_in_poetas_ante_alexandrinorum_aetatem_condita.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "longus.daphnis_et_chloe.part.1.tess": {
    "source": "line_length",
@@ -6082,12 +9226,40 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "lucius_cincius_alimentus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lucius_licinius_lucullus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lyceas.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "lycophron.alexandra.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
   "lycurgus.against_leocrates.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "lycus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lynceus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "lysanias.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "lysias.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "lysias.speeches.part.1.tess": {
@@ -6230,12 +9402,348 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "lysippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "machon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "maeandrius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "magnes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "magnus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "manetho_astrologus.apotelesmatica.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.part.t.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_astrologus.apotelesmatica.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "manetho_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "manuel_philes.carmina_inedita.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "marcellinus_i.de_pulsibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "marcellus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "marcus_antonius_polemon.declamationes.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "marcus_antonius_polemon.declamationes.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "marcus_antonius_polemon.declamationes.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "marcus_aurelius.m._antonius_imperator_ad_se_ipsum.tess": {
    "source": "marker",
    "text_type": "prose"
   },
+  "marinus.commentarium_in_euclidis_data.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "martyrium_ignatii.martyrium_ignatii_antiocheni.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "martyrium_ignatii.martyrium_ignatii_antiocheni_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "matron_parodius.convivium_atticum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "matron_parodius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "matthiae_traditiones.matthiae_traditiones.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "maximus.peri_katarchon.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "maximus.peri_katarchon_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "maximus_of_tyre.dialexeis.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "megasthenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "melampus.peri_elaion_toy_somatos_pros_ptolemaion_basilea.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "melampus.peri_palmon_archomenoy_apo_kephales_eos_podon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "melampus.peri_palmon_mantike_pros_ptolemaion_basilea.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "melampus.peri_palmon_ti_semainoysin_en_ekasto_merei.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "melanthius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "melisseus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "memnon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menander.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menander_protector.de_legationibus_gentium_ad_romanos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menander_protector.de_legationibus_romanorum_ad_gentes.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menander_protector.de_sententiis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menecles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menecrates_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menecrates_historicus_2475.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menecrates_historicus_4345.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menecrates_historicus_4346.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menesthenes.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menetor.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menodotus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "menyllus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "metagenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "metrodorus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "metrodorus_philosophus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "metrophanes.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_attaliates.historia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_glycas.annales.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_glycas.annales_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_aristotelis_sophisticos_elenchos_commentarius.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_ethica_nicomachea_ix_x_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_libros_de_animalium_motione_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_libros_de_partibus_animalium_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_librum_de_animalium_incessu_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_librum_quintum_ethicorum_nicomacheorum_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "michael_of_ephesus.in_parva_naturalia_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "minucianus_junior.peri_epicheirematon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "mnaseas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "mnesimachus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "mnesimachus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "moeris.lexicon_atticum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "molpis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "montanus_et_montanistae.oracula.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "musonius_rufus.epistulae_spuriae.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "musonius_rufus.epistulae_spuriae.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "musonius_rufus.epistulae_spuriae.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "musonius_rufus.epistulae_spuriae.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "musonius_rufus.epistulae_spuriae.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "musonius_rufus.epistulae_spuriae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "myron.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "myronianus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "myrsilus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "myrtilus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "myrtilus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "nausicrates.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "neanthes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nepualius.peri_ton_kata_antipatheian_kai_sympatheian.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "nicander.alexipharmaca.tess": {
@@ -6246,9 +9754,69 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "nicander_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicander_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicanor.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicephorus_gregoras.historia_romana.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "niciae_epistula.epistula.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "nicias_historicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nico.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "nicochares.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "nicocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicocrates.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicolaus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "nicolaus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicolaus_rhetor.progymnasmata.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicolaus_rhetor.progymnasmata_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicolaus_rhetor.progymnasmata_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nicomachus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "nicomachus_of_gerasa.excerpta.tess": {
    "source": "override",
@@ -6264,6 +9832,18 @@
   },
   "nicomachus_of_gerasa.problemata_arithmetica.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "nicophon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "nicostratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "nonnosus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "nonnus_of_panopolis.dionysiaca.part.1.books_1-10.tess": {
@@ -6288,6 +9868,10 @@
   },
   "nonnus_of_panopolis.dionysiaca.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "nonnus_of_panopolis.paraphrasis_sancti_evangelii_joannei.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "novum_testamentum.actus_apostolorum.tess": {
@@ -6398,6 +9982,42 @@
    "source": "override",
    "text_type": "prose"
   },
+  "nymphis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "nymphodorus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ocellus.de_universi_natura.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ocellus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "oecumenius.commentarius_in_apocalypsin.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "olympiodorus.in_aristotelis_categorias_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "olympiodorus.in_aristotelis_meteora_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "olympiodorus.prolegomena.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ophelio.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "oppian.halieutica.part.1.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -6441,6 +10061,22 @@
   "oppian_of_apamea.cynegetica.tess": {
    "source": "line_length",
    "text_type": "poetry"
+  },
+  "oracula_sibyllina.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "oracula_sibyllina.oracula.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "origen.commentarii_in_epistulam_ad_romanos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.commentarii_in_epistulam_ad_romanos_tlg037.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
   },
   "origen.commentarii_in_evangelium_joannis.part.1.tess": {
    "source": "marker",
@@ -6490,6 +10126,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "origen.commentarii_in_romanos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "origen.contra_celsum.part.0.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -6530,12 +10170,268 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "origen.de_engastrimytho.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.de_oratione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.epistula_ad_gregorium_thaumaturgum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.exhortatio_ad_martyrium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_ex_commentariis_in_epistulam_ad_ephesios.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_ex_commentariis_in_epistulam_i_ad_corinthios.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_in_evangelium_joannis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_in_jeremiam.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_in_jeremiam_tlg084.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_in_lamentationes.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmenta_in_librum_primum_regnorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmentum_in_lamentationes.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.fragmentum_in_librum_primum_regnorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.homiliae_in_exodum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.homiliae_in_ezechielem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.homiliae_in_genesim.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.homiliae_in_leviticum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jeremiam.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.in_jesu_nave_homiliae_xxvi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.libri_x_in_canticum_canticorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.philocalia_sive_ecloga_de_operibus_origenis_a_basilio_et.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.scholia_in_apocalypsem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "origen.scholia_in_apocalypsem_tlg043.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "orion.anthologion.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "orphica.fragmenta.tess": {
    "source": "override",
    "text_type": "poetry"
   },
+  "orphica.lithica.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "orus.orthographia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paeon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "palaephatus.de_incredibilibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "palaephatus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "palladius.dialogus_de_vita_joannis_chrysostomi.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pamphila.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pappus.synagoge.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "paradoxographus_florentinus.mirabilia_de_aquis.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "parodica_anonyma.fragmenta_dubia.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "parodica_anonyma.incertorum_fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "parthax.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "parthenius.narrationes_amatoriae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "parthenius.poesis_reliquiae.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "patria_constantinopoleos.de_sepulcris_imperatorum_quae_sunt_in_templo_sanctorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "patrocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.0.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "paulus.epitomae_medicae_libri_septem.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "pausanias.description_of_greece.part.1.tess": {
@@ -6582,12 +10478,92 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "pausanias_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phaedimus_epicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "phalaridis_epistulae.epistulae.tess": {
    "source": "marker",
    "text_type": "prose"
   },
+  "phanodemus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phanodicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pherecrates.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "pherecrates.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "pherecydes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "philemon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philemon.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philemon_junior.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philetaerus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philetas.fragmenta_grammatica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "philetas.fragmenta_poetica.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philinus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "philip_ii_king_of_macedonia.epistulae.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "philippides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philippus_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philippus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "philiscus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philistus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phillis.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "philo_judaeus.de_abrahamo.tess": {
@@ -6620,6 +10596,10 @@
   },
   "philo_judaeus.de_ebrietate.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "philo_judaeus.de_ebrietate_ii.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "philo_judaeus.de_fuga_et_inventione.tess": {
@@ -6682,6 +10662,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "philo_judaeus.hypothetica_sive_apologia_pro_judaeis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "philo_judaeus.in_flaccum.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -6700,6 +10684,26 @@
   },
   "philo_judaeus.quod_deterius_potiori_insidiari_soleat.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "philo_of_byzantium.belopoeica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "philo_of_byzantium.parasceuastica_et_poliorcetica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "philonides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philostephanus_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "philostephanus_historicus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "philostorgius.historia_ecclesiastica.part.1.tess": {
@@ -6810,8 +10814,48 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "philumenus.de_venenatis_animalibus_eorumque_remediis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "philyllius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "phlegon.de_mirabilibus.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "phoenicides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "phormis.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "photius.lexicon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phrynichus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "phrynichus_incertus.praeparatio_sophistica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phrynichus_incertus.praeparatio_sophistica_tlg005.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phylarchus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "phylarchus.testimonia.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "pindar.odes.part.1.isthmeans.tess": {
@@ -6832,6 +10876,10 @@
   },
   "pindar.odes.tess": {
    "source": "line_length",
+   "text_type": "poetry"
+  },
+  "pittacus.fragmentum.tess": {
+   "source": "reviewed",
    "text_type": "poetry"
   },
   "plato.alcibiades_1.tess": {
@@ -7116,6 +11164,18 @@
   },
   "plato.timaeus.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "plato_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "plato_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "platonius.fragmenta_de_comoedia_graeca.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "plotinus.enneades.part.1.tess": {
@@ -7470,6 +11530,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "plutarch.de_proverbiis_alexandrinorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "plutarch.de_pythiae_oraculis.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -7714,6 +11778,14 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "polemon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "poliochus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "polyaenus.excerpta_polyaeni.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -7724,6 +11796,294 @@
   },
   "polybius.histories.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "polycharmus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "polycrates.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "polystratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "polystratus.peri_alogoy_kataphroneseos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "polyzelus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "porphyry.contra_christianos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.in_aristotelis_categorias_expositio_per_interrogationem_et.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.isagoge_sive_quinque_voces.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.21.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.22.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.23.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.24.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_iliadem_pertinentium_reliquiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.21.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.22.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.23.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.24.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.quaestionum_homericarum_ad_odysseam_pertinentium_reliquiae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "porphyry.zetemata_codicis_vaticani.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "posidippus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "posidonius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "possis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "potamon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "praecepta_salubria.praecepta_salubria.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "praxagoras.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "priscianus.metaphrasis_in_theophrastum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proclus.de_sacrificio_et_magia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proclus.in_platonis_cratylum_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proclus.in_primum_euclidis_elementorum_librum_commentarii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proclus.institutio_physica.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proclus.institutio_physica.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proclus.institutio_physica.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "procopius.wars.part.1.tess": {
@@ -7762,6 +12122,30 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "procopius_rhetor.horologium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "procopius_rhetor.refutatio_procli.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "promathidas.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "promathion.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "protagorides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "proxenus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "pseudo_dicaearchus_messeniushe.dicaearchi_ut_fertur_potius_vero_athenaei_descript.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -7782,8 +12166,32 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "pseudocodinus.de_officiis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pseudodioscorides.de_iis_quae_virus_ejaculantur_animalibus_libellus_in_quo_et.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pseudodioscorides.de_lapidibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pseudodioscorides.de_venenis_eorumque_praecautione_et_medicatione.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "pseudogalen.ad_gaurum_quomodo_animetur_fetus.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "pseudogalen.an_animal_sit_quod_est_in_utero.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pseudogalen.de_causa_affectionum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "pseudogalen.de_fasciis.tess": {
@@ -7802,8 +12210,16 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "pseudogalen.de_victus_ratione_in_morbis_acutis_ex_hippocratis_sententia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "pseudogalen.introductio_seu_medicus.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "pseudohippocrates.ermeneia_peri_energon_lithon.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "pseudolucian.amores.tess": {
@@ -7834,6 +12250,10 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "pseudomenander.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "pseudomenander.sententiae_corresponds_to_version_men_ar_i_greek.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -7846,9 +12266,69 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "pseudopolemon.physiognomonica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "pseudoscymnus.scymni_chii_ut_fertur_periegesis.tess": {
    "source": "override",
    "text_type": "poetry"
+  },
+  "pseudosymeon.chronographia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ptolemaeus_grammaticus.de_differentia_vocabulorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ptolemaeus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "ptolemaeus_viii_euergetes_ii.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "publius_herennius_dexippus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "publius_rutilius_rufus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pyrander.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pyrgion.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pyrrhus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pythaenetus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pythagoras.fragmenta_astrologica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pythermus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "pythocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "quintus_fabius_pictor.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
   },
   "quintus_smyrnaeus.fall_of_troy.part.1.tess": {
    "source": "line_length",
@@ -7910,6 +12390,10 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "rhinthon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "rufus_of_ephesus.de_renum_et_vesicae_affectionibus.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -7918,12 +12402,344 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "sannyrion.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "sappho.fragments.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
+  "satyrus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scamon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_aeschylum_persas.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_aeschylum_persas_tlg020.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_aeschylum_persas_tlg021.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_aeschylum_prometheum_vinctum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_euclidem_euclidis_catoptrica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_euclidem_euclidis_data.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_euclidem_euclidis_data_et_catoptrica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_euclidem_euclidis_optica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_euclidem_euclidis_phaenomena.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_euclidem_opticorum_recensionem_theonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_hesiodum_opera_et_dies.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.21.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.22.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.23.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.24.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.10.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.11.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.12.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.13.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.14.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.15.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.16.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.17.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.18.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.19.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.20.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.21.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.22.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.23.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.24.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.8.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.part.9.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_homerum_iliadem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_isocratem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_oppianum_cynegetica.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_oppianum_cynegetica.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_oppianum_cynegetica.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_oppianum_cynegetica.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_oppianum_cynegetica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_oppianum_halieutica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_pausaniam_pausaniae_periegesin.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_pindarum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_pindarum_nemea_et_isthmia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_pindarum_olympia_et_pythia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_pindarum_paeanes.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_pindarum_pythia_v_vii.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_sophoclem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "scholia.in_xenophontem_anabasin_cyri.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sciras.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "scriptor_incertus_de_leone_armenio.de_leone_armenio.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "scylax_of_caranda.periplus_scylacis.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "semus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sententiae_pythagoreorum.sententiae_pythagoreorum.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "septuaginta.abdias.tess": {
@@ -8146,12 +12962,80 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "serenus.de_sectione_coni.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "serenus.de_sectione_cylindri.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "severianus.in_illud_quando_ipsi_subiciet_omnia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "severus_iatrosophista.de_instrumentis_infusoriis_seu_clysteribus_ad_timotheum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "sextus_empiricus.adversus_mathematicos.tess": {
    "source": "marker",
    "text_type": "prose"
   },
   "sextus_empiricus.pyrrhoniae_hypotyposes.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "sextus_julius_africanus.epistula_ad_aristidem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sextus_julius_africanus.epistula_ad_origenem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "silenus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simon.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simplicius.commentarius_in_epicteti_enchiridion.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simplicius.de_caelo_i.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simplicius.in_aristotelis_categorias_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simplicius.in_aristotelis_libros_de_anima_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simplicius.in_aristotelis_physicorum_libros_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simplicius.in_aristotelis_quattuor_libros_de_caelo_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "simylus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "socrates_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "socrates_historicus_1679.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "socrates_scholasticus.historia_ecclesiastica.part.1.tess": {
@@ -8186,6 +13070,18 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "sopater.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "sophaenetus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sophilus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "sophocles.ajax.tess": {
    "source": "line_length",
    "text_type": "poetry"
@@ -8218,6 +13114,14 @@
    "source": "line_length",
    "text_type": "poetry"
   },
+  "sophonias.in_aristotelis_libros_de_anima_paraphrasis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sophron.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
   "soranus.de_fasciis.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -8233,6 +13137,34 @@
   "soranus.vita_hippocratis_secundum_soranum.tess": {
    "source": "line_length",
    "text_type": "prose"
+  },
+  "sosibius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sosicrates_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "sosicrates_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sosipater.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "sosthenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sostratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "sotades.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
   },
   "sozomen.historia_ecclesiastica.part.1.tess": {
    "source": "line_length",
@@ -8272,6 +13204,42 @@
   },
   "sozomen.historia_ecclesiastica.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "speusippus.epistula_ad_philippum_regem.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "staphylus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "stephanus_comicus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "stephanus_grammaticus.in_artem_rhetoricam_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "stephanus_medicus.collyrium_ophthalmicum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "stephanus_medicus_0736.in_magni_sophistae_librum_de_urinis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "stephanus_philosophus.in_aristotelis_librum_de_interpretatione_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "stesiclides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "stesimbrotus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "strabo.geography.part.1.tess": {
@@ -8350,8 +13318,164 @@
    "source": "line_length",
    "text_type": "prose"
   },
+  "straton.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "strattis.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "susarion.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "symeon_logothetes.chronicon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "syrianus.commentarium_in_hermogenis_librum_peri_ideon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "syrianus.commentarium_in_hermogenis_librum_peri_staseon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "syrianus.in_aristotelis_metaphysica_commentaria.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "syrianus.praefatio_in_hermogenis_librum_peri_ideon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "tatian.oratio_ad_graecos.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "teleclides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "telephus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_abrahae.testamentum_abrahae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_abrahae.testamentum_abrahae_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.conspectus_titulorum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.narratio_de_propheta_et_sapientissimo_rege_salomone.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.sigilla_anuli_salomonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.testamentum_salomonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg004.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg005.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg006.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "testamentum_salomonis.vita_salomonis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "teucer_astrologus.de_duodecim_signis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "teucer_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "thallus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theagenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themison.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.analyticorum_posteriorum_paraphrasis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.0.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.6.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_libros_de_anima_paraphrasis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_aristotelis_physica_paraphrasis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.in_parva_naturalia_commentarium.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "themistius.quae_fertur_in_aristotelis_analyticorum_priorum_librum_i.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "themistocles.epistulae.tess": {
@@ -8510,6 +13634,106 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "theodoret.quaestiones_et_responsiones_ad_orthodoxos.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_astronomus.de_diebus_et_noctibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_astronomus.de_habitationibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_astronomus.sphaerica.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_grammaticus.de_dialectis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_grammaticus.epitome_catholicae_herodiani.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_grammaticus.peri_grammatikes.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_grammaticus.peri_kliseos_ton_eis_on_barytonon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_grammaticus.peri_kliseos_ton_eis_on_oxytonon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theodosius_grammaticus.peri_tonoy.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theognetus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "theognis.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "theon_grammaticus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theon_grammaticus.testimonia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theon_philosophus.de_utilitate_mathematicae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.part.0.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.part.7.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophanes_continuatus.chronographia.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "theophilus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "theophilus_of_antioch.ad_autolycum.part.1.tess": {
    "source": "line_length",
    "text_type": "prose"
@@ -8524,6 +13748,34 @@
   },
   "theophilus_of_antioch.ad_autolycum.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius.de_corporis_humani_fabrica_libri_quinque.part.1.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius.de_corporis_humani_fabrica_libri_quinque.part.2.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius.de_corporis_humani_fabrica_libri_quinque.part.3.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius.de_corporis_humani_fabrica_libri_quinque.part.4.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius.de_corporis_humani_fabrica_libri_quinque.part.5.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius.de_corporis_humani_fabrica_libri_quinque.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theophilus_protospatharius_et_stephanus_atheniensis.de_febrium_differentia.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "theophrastus.characters.tess": {
@@ -8556,6 +13808,26 @@
   },
   "theophrastus.fragmenta_varia_13190.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "theophrastus_poeta.theophrastoy_philosophoy_peri_tes_theias_technes_dia_stichon.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "theopompus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "theotimus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "theseus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "thrasyllus.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "thucydides.peloponnesian_war.part.1.tess": {
@@ -8594,12 +13866,140 @@
    "source": "marker",
    "text_type": "prose"
   },
+  "thugenides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "timaeus_praxidas.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timaeus_sophista.lexicon_platonicum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timagenes.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timagetus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timagoras.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timocles.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "timolaus.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timonax.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timonides.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timostratus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "timotheus_comicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "timotheus_grammaticus.excerpta_ex_libris_de_animalibus.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "timotheus_historicus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
   "tryphiodorus.the_taking_of_ilios.tess": {
    "source": "line_length",
    "text_type": "poetry"
   },
   "tryphon_i_grammaticus.de_tropis.tess": {
    "source": "line_length",
+   "text_type": "prose"
+  },
+  "tryphon_i_grammaticus.peri_pathon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "uranius.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "verba_in_scripturis_de_christo.verba_in_scripturis_de_christi_natale_epiphaniis_et.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "vita_adam_et_evae.vita_adam_et_evae.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_aeschinis.vitae_aeschinis.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_aesopi.biblion_mythikon_toy_aisopoy_eikonizon_apo_ton_alogon_zoon.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_aesopi.vita.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_aesopi.vita_pl_vel_accursiana.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_prophetarum.de_prophetarum_vita_et_obitu.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_prophetarum.de_prophetarum_vita_et_obitu_tlg002.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_prophetarum.de_prophetarum_vita_et_obitu_tlg003.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "vitae_prophetarum.index_apostolorum_discipulorumque_domini.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "xanthus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "xenagoras.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "xenarchus.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "xenion.fragmenta.tess": {
+   "source": "reviewed",
+   "text_type": "prose"
+  },
+  "xeno.fragmentum.tess": {
+   "source": "reviewed",
+   "text_type": "poetry"
+  },
+  "xenomedes.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "xenophon.anabasis.tess": {
@@ -8660,6 +14060,10 @@
   },
   "xenophon_of_ephesus.ephesiaca.tess": {
    "source": "marker",
+   "text_type": "prose"
+  },
+  "zeno.fragmenta.tess": {
+   "source": "reviewed",
    "text_type": "prose"
   },
   "zenobius_sophista.epitome_proverbiorum.tess": {
