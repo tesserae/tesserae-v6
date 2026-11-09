@@ -49,9 +49,12 @@ def test_jstor_rows_carry_a_link_and_no_sentence(tmp_path, monkeypatch):
         by.setdefault(r['source'], []).append(r)
     assert set(by) == {'citation_index', 'muse', 'jstor'}
     stable, bare = sorted(by['jstor'], key=lambda r: r['year'], reverse=True)
-    assert stable['url'] == 'https://www.jstor.org/stable/123456' and stable['url_jstor'] == stable['url']
+    # The delivery has no printed page numbers: the stable link opens on the
+    # citing page (?seq= counts from 1, the stored page index from 0) and no
+    # page number is listed.
+    assert stable['url'] == 'https://www.jstor.org/stable/123456?seq=4' and stable['url_jstor'] == stable['url']
     assert stable['url_ia'] is None and stable['snippet'] is None
-    assert stable['cites'] == 'Aen. 1.1' and stable['pages'] == [3]
+    assert stable['cites'] == 'Aen. 1.1' and stable['pages'] == []
     assert bare['url'] == 'https://doi.org/10.2307/654321' and bare['snippet'] is None
     assert 'licensed sentence' not in json.dumps(out, ensure_ascii=False)
     assert 'no excerpt' in out['note']
@@ -80,7 +83,7 @@ def test_citing_articles_never_returns_a_jstor_sentence(tmp_path, monkeypatch):
         by.setdefault(r['source'], []).append(r)
     assert set(by) == {'ejc', 'jstor'} and len(by['jstor']) == 2
     urls = sorted(r['url'] for r in by['jstor'])
-    assert urls == ['https://doi.org/10.2307/654321', 'https://www.jstor.org/stable/123456']
+    assert urls == ['https://doi.org/10.2307/654321', 'https://www.jstor.org/stable/123456?seq=4']
     assert all(r['sentences'] == [] for r in by['jstor'])
     assert by['ejc'][0]['sentences']
     assert 'licensed sentence' not in json.dumps(out, ensure_ascii=False)

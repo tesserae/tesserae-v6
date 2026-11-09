@@ -1217,9 +1217,14 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
             link = {'url': f'https://doi.org/{doi}' if doi else None, 'url_jstor': None, 'url_ia': None}
         elif source == 'jstor':
             # JSTOR's condition (2026-11-09): citation and a link back to the
-            # article on JSTOR, no excerpt of the text at all.
+            # article on JSTOR, no excerpt of the text at all. The delivery
+            # gives no printed page numbers, so `page` is the page's index in
+            # the article (from 0); a stable link takes it as ?seq= (from 1)
+            # and opens on the citing page, and no page number is listed.
             doi = r['doi'] or ''
             url = r['url_jstor'] or (f'https://doi.org/{doi}' if doi else None)
+            if url and '/stable/' in url and r['page'] is not None and '?' not in url:
+                url = f'{url}?seq={int(r["page"]) + 1}'
             link = {'url': url, 'url_jstor': url, 'url_ia': None}
         else:
             link = {'url': r['url_jstor'] or r['url_ia'], 'url_jstor': r['url_jstor'], 'url_ia': r['url_ia']}
@@ -1232,7 +1237,7 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
             'cites': clean_surface, 'cites_note': note,
             'snippet': snippet,
             'source': source})
-        if r['page'] and r['page'] not in art['pages']:
+        if source != 'jstor' and r['page'] and r['page'] not in art['pages']:
             art['pages'].append(r['page'])
     return by_article
 
