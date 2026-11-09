@@ -365,7 +365,7 @@ def logeion_parses(form):
 # article that mentions another word in passing is left alone.
 CROSS_REFERENCE_MAX = 200
 _CROSS_REFERENCE = (
-    re.compile(r'\bv\.\s+(?:\d\.\s+)?([^\s,;.()\[\]]+)'),
+    re.compile(r'\b(?:v\.|see)\s+(?:\d\.\s+)?([^\s,;.()\[\]]+)'),
     re.compile(r'\b(?:of|from|for)\s+([^\s,;.()\[\]]+)\.?\s*$'),
     re.compile(r'=\s*([^\s,;.()\[\]]+)'),
 )
