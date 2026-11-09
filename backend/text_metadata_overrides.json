@@ -1984,41 +1984,6 @@
   "eustratius.in_aristotelis_analyticorum_posteriorum_librum_secundum.tess": {
     "display_work": "In Aristotelis Analyticorum Posteriorum Librum Secundum Commentarium"
   },
-  "evagrius_scholasticus.aliae_sententiae.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
-  "evagrius_scholasticus.capita_paraenetica.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
-  "evagrius_scholasticus.de_magistris_et_discipulis.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
-  "evagrius_scholasticus.expositio_in_proverbia_salomonis.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
-  "evagrius_scholasticus.sententiae_ad_monachos.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
-  "evagrius_scholasticus.sententiae_ad_virginem.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
-  "evagrius_scholasticus.spiritales_sententiae_per_alphabeticum_dispositae.tess": {
-    "display_author": "Evagrius Ponticus",
-    "year": 350,
-    "era": "Late Antique"
-  },
   "galen.in_hippocratis_vel_polybi_opus_de_salubri_victus_ratione.tess": {
     "display_work": "In Hippocratis Vel Polybi Opus de Salubri Victus Ratione Privatorum Commentarius (+ Galeni in"
   },
@@ -2409,31 +2374,6 @@
     "year": 250,
     "era": "Later Imperial"
   },
-  "nicias_incertus.epigrammata.part.16.tess": {
-    "display_author": "Nicias (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "nicias_incertus.epigrammata.part.6.tess": {
-    "display_author": "Nicias (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "nicias_incertus.epigrammata.part.7.tess": {
-    "display_author": "Nicias (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "nicias_incertus.epigrammata.part.9.tess": {
-    "display_author": "Nicias (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "nicias_incertus.epigrammata.tess": {
-    "display_author": "Nicias (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
   "nicolaus_comicus.fragmenta.tess": {
     "display_author": "Nicolaus (comic poet)",
     "year": -350,
@@ -2479,31 +2419,6 @@
   "origen.scholia_in_apocalypsem_tlg043.tess": {
     "display_work": "Scholia in Apocalypsem (scholia 28-38)"
   },
-  "pancrates_epicus.fragmentum.tess": {
-    "display_author": "Pancrates (epic poet)",
-    "year": 150,
-    "era": "Early Imperial"
-  },
-  "pancrates_epicus.testimonium.tess": {
-    "display_author": "Pancrates (epic poet)",
-    "year": 150,
-    "era": "Early Imperial"
-  },
-  "pancrates_incertus.epigrammata.part.6.tess": {
-    "display_author": "Pancrates (epigrammatist)",
-    "year": -200,
-    "era": "Hellenistic"
-  },
-  "pancrates_incertus.epigrammata.part.7.tess": {
-    "display_author": "Pancrates (epigrammatist)",
-    "year": -200,
-    "era": "Hellenistic"
-  },
-  "pancrates_incertus.epigrammata.tess": {
-    "display_author": "Pancrates (epigrammatist)",
-    "year": -200,
-    "era": "Hellenistic"
-  },
   "pausanias_historicus.fragmenta.tess": {
     "display_author": "Pausanias (historian)",
     "year": 350,
@@ -2513,26 +2428,6 @@
     "display_author": "Phaedimus (epic poet)",
     "year": 200,
     "era": "Later Imperial"
-  },
-  "phaedimus_incertus.epigrammata.part.13.tess": {
-    "display_author": "Phaedimus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "phaedimus_incertus.epigrammata.part.6.tess": {
-    "display_author": "Phaedimus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "phaedimus_incertus.epigrammata.part.7.tess": {
-    "display_author": "Phaedimus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "phaedimus_incertus.epigrammata.tess": {
-    "display_author": "Phaedimus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
   },
   "philippus_comicus.fragmentum.tess": {
     "display_author": "Philippus (comic poet)",
@@ -2594,36 +2489,6 @@
   },
   "posidippus_comicus.fragmenta.tess": {
     "display_author": "Posidippus (comic poet)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "posidippus_incertus.epigrammata.part.12.tess": {
-    "display_author": "Posidippus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "posidippus_incertus.epigrammata.part.16.tess": {
-    "display_author": "Posidippus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "posidippus_incertus.epigrammata.part.5.tess": {
-    "display_author": "Posidippus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "posidippus_incertus.epigrammata.part.7.tess": {
-    "display_author": "Posidippus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "posidippus_incertus.epigrammata.part.9.tess": {
-    "display_author": "Posidippus (epigrammatist)",
-    "year": -250,
-    "era": "Hellenistic"
-  },
-  "posidippus_incertus.epigrammata.tess": {
-    "display_author": "Posidippus (epigrammatist)",
     "year": -250,
     "era": "Hellenistic"
   },

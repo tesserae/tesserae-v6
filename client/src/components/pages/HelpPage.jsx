@@ -2364,11 +2364,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    A large corpus: about 1,940 works (about 3,021 files, counting books held separately). Vocabulary, sound, meaning, and
+                    A large corpus: about 1,927 works (about 2,987 files, counting books held separately). Vocabulary, sound, meaning, and
                     rare-word channels all work. Searches are accent-insensitive, so you can enter text with or without
-                    diacritics. About half the Greek corpus is grammatically parsed (1,635 of the about 3,021 files, Homer among them), so the
+                    diacritics. About half the Greek corpus is grammatically parsed (1,635 of the about 2,987 files, Homer among them), so the
                     syntax channels contribute where both texts are parsed and nothing where either is not.
-                    In November 2026 the Greek corpus gained about 1,040 works from the CLLG Freed Corpus: commentators on
+                    In November 2026 the Greek corpus gained about 1,030 works from the CLLG Freed Corpus: commentators on
                     Aristotle, Byzantine historians, collections of fragments of Greek historians and of comic poets, scholia,
                     and medical, mathematical and Christian writers. These new files have no grammar parse and almost no
                     translation yet.
@@ -3325,7 +3325,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Greek: Partial</h4>
                 <p className="text-sm text-gray-700">
-                  1,635 of the about 3,021 Greek files in the corpus have been parsed (558,000+ lines), using Stanza with
+                  1,635 of the about 2,987 Greek files in the corpus have been parsed (558,000+ lines), using Stanza with
                   the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model. Homer is among them.
                   Syntax matching <strong>does</strong> work for Greek pairs where both texts are parsed, and contributes
                   nothing where either is not. The other channels run normally either way.
@@ -3502,7 +3502,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     electronic sources are the Perseus Digital Library and Open Greek and Latin (with its
                     Scaife and CSEL texts) for Greek and Latin, The Latin Library and Musisque Deoque for
                     Latin, Coptic Scriptorium for Coptic, Sefaria for Hebrew, the SBL Greek New Testament, Project Gutenberg
-                    for English, the CLLG Freed Corpus (Inria) for about 1,040 further Greek works (released under CC0, because
+                    for English, the CLLG Freed Corpus (Inria) for about 1,030 further Greek works (released under CC0, because
                     French law gives no copyright in the text of a critical edition), and open datasets and Wikisource for Persian and Urdu. The edition is the one
                     the electronic source reproduces, often an older edition now in the public domain, and the
                     print source on the Text Credits page says which. A few works come under a license for
@@ -3642,7 +3642,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
                     Coptic almost entirely (186 of 187 files), Latin for every file (1,889 of 1,889), and Greek for
-                    1,635 of its 3,021 files (Homer among them, not the files added in November 2026). One Latin line in the Natural History of Pliny
+                    1,635 of its 2,987 files (Homer among them, not the files added in November 2026). One Latin line in the Natural History of Pliny
                     (32.61) is too long for the parser and has none. A work added after the latest parse is not
                     covered until the parses are updated. English, Hebrew, Persian and Urdu are not parsed. Where a
                     text has no parse the syntax channel contributes nothing and the other channels run normally.

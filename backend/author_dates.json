@@ -1580,12 +1580,6 @@
    "year": 150,
    "added": "cllg-2026-11-09"
   },
-  "acesander": {
-   "era": "Hellenistic",
-   "note": "fl. c. 4th/2nd cent. BCE (date uncertain)",
-   "year": -250,
-   "added": "cllg-2026-11-09"
-  },
   "acta_petri": {
    "era": "Early Imperial",
    "note": "fl. c. 2nd cent. CE",
@@ -3296,12 +3290,6 @@
    "year": 350,
    "added": "cllg-2026-11-09"
   },
-  "evagrius_scholasticus": {
-   "era": "Late Antique",
-   "note": "fl. c. 4th cent. CE",
-   "year": 350,
-   "added": "cllg-2026-11-09"
-  },
   "evangelium_aegyptium": {
    "era": "Early Imperial",
    "note": "fl. c. 2nd cent. CE",
@@ -4286,12 +4274,6 @@
    "year": 250,
    "added": "cllg-2026-11-09"
   },
-  "nicias_incertus": {
-   "era": "Hellenistic",
-   "note": "fl. c. 3rd cent. BCE",
-   "year": -250,
-   "added": "cllg-2026-11-09"
-  },
   "nico": {
    "era": "Classical",
    "note": "after 5th cent. BCE",
@@ -4436,18 +4418,6 @@
    "year": 50,
    "added": "cllg-2026-11-09"
   },
-  "pancrates_epicus": {
-   "era": "Early Imperial",
-   "note": "fl. c. 2nd cent. CE",
-   "year": 150,
-   "added": "cllg-2026-11-09"
-  },
-  "pancrates_incertus": {
-   "era": "Hellenistic",
-   "note": "fl. c. 3rd/2nd cent. BCE",
-   "year": -200,
-   "added": "cllg-2026-11-09"
-  },
   "pappus": {
    "era": "Late Antique",
    "note": "fl. c. 4th cent. CE",
@@ -4500,12 +4470,6 @@
    "era": "Later Imperial",
    "note": "before 3rd cent. CE",
    "year": 200,
-   "added": "cllg-2026-11-09"
-  },
-  "phaedimus_incertus": {
-   "era": "Hellenistic",
-   "note": "fl. c. 3rd cent. BCE",
-   "year": -250,
    "added": "cllg-2026-11-09"
   },
   "phanodemus": {
@@ -4634,12 +4598,6 @@
    "year": -400,
    "added": "cllg-2026-11-09"
   },
-  "phocylides": {
-   "era": "Archaic",
-   "note": "fl. c. 6th cent. BCE",
-   "year": -550,
-   "added": "cllg-2026-11-09"
-  },
   "phoenicides": {
    "era": "Hellenistic",
    "note": "fl. c. 3rd cent. BCE",
@@ -4737,12 +4695,6 @@
    "added": "cllg-2026-11-09"
   },
   "posidippus_comicus": {
-   "era": "Hellenistic",
-   "note": "fl. c. 3rd cent. BCE",
-   "year": -250,
-   "added": "cllg-2026-11-09"
-  },
-  "posidippus_incertus": {
    "era": "Hellenistic",
    "note": "fl. c. 3rd cent. BCE",
    "year": -250,
@@ -5258,12 +5210,6 @@
    "year": 350,
    "added": "cllg-2026-11-09"
   },
-  "theodoridas": {
-   "era": "Hellenistic",
-   "note": "fl. c. 3rd cent. BCE",
-   "year": -250,
-   "added": "cllg-2026-11-09"
-  },
   "theodosius_astronomus": {
    "era": "Hellenistic",
    "note": "fl. c. 2nd-1st cent. BCE",
@@ -5372,12 +5318,6 @@
    "year": -450,
    "added": "cllg-2026-11-09"
   },
-  "timaeus": {
-   "era": "Hellenistic",
-   "note": "fl. c. 4th-3rd cent. BCE",
-   "year": -300,
-   "added": "cllg-2026-11-09"
-  },
   "timaeus_praxidas": {
    "era": "Hellenistic",
    "note": "before 2nd cent. BCE",
@@ -5418,12 +5358,6 @@
    "era": "Early Imperial",
    "note": "before 2nd cent. CE",
    "year": 100,
-   "added": "cllg-2026-11-09"
-  },
-  "timon": {
-   "era": "Hellenistic",
-   "note": "fl. c. 4th-3rd cent. BCE",
-   "year": -300,
    "added": "cllg-2026-11-09"
   },
   "timonax": {
@@ -5700,6 +5634,12 @@
    "era": "Byzantine",
    "note": "later (Byzantine) scholia, date uncertain",
    "year": 1300,
+   "added": "cllg-2026-11-09"
+  },
+  "evagrius_ponticus": {
+   "era": "Late Antique",
+   "note": "fl. c. 4th cent. CE",
+   "year": 350,
    "added": "cllg-2026-11-09"
   }
  },
