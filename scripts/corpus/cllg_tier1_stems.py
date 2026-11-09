@@ -41,7 +41,7 @@ AUTHOR_OVERRIDES = {
     'Joannes Camaterus': 'joannes_camaterus', 'Gregorius Nyssenus': 'gregory_of_nyssa', 'Michael': 'michael_of_ephesus',
     'Gregorius Thaumaturgus': 'gregory_thaumaturgus', 'Athanasius': 'athanasius', 'Epiphanius': 'epiphanius',
     'Hippolytus': 'hippolytus', 'Irenaeus': 'irenaeus', 'Didymus Caecus': 'didymus_the_blind',
-    'Evagrius': 'evagrius_scholasticus', 'Claudius Iolaus': 'claudius_iolaus',
+    'Evagrius': 'evagrius_ponticus', 'Claudius Iolaus': 'claudius_iolaus',
     'Sextus Julius Africanus': 'sextus_julius_africanus', 'Ignatius': 'ignatius', 'Menander Protector': 'menander_protector',
     'Eudocia Augusta': 'eudocia_augusta', 'Aëtius': 'aetius_of_amida',
     'Claudius Ptolemaeus': 'claudius_ptolemaeus', 'Gaius Musonius Rufus': 'musonius_rufus',
@@ -55,6 +55,7 @@ AUTHOR_OVERRIDES = {
 # Keyed by the whole TEI author string; wins over everything else (distinct people who share a name, and
 # authors we hold under a stem the TLG number does not reach).
 RAW_OVERRIDES = {
+    'Evagrius Scr. Eccl.': 'evagrius_ponticus',   # TLG 4110 is Evagrius Ponticus, not the church historian
     'Alexander Phil.': 'alexander_of_aphrodisias', 'Alexander Theol.': 'alexander_of_lycopolis',
     'Cyrillus Scr. Eccl.': 'cyril_of_jerusalem', 'Cyrillus Theol.': 'cyril_of_alexandria',
     'Joannes Gramm. et Poeta': 'joannes_of_gaza', 'Joannes Theol.': 'joannes_theologus',
@@ -191,6 +192,10 @@ def main():
     DUPLICATES = json.load(open(os.path.join(repo, 'scripts/corpus/cllg_tier1_duplicates.json'), encoding='utf-8'))
     dup_rows = [dict(t, reason='probable duplicate: ' + DUPLICATES[t['file']]) for t in texts if t['file'] in DUPLICATES]
     texts = [t for t in texts if t['file'] not in DUPLICATES]
+    # Editions of 1930 or later are not in group one (read from the sourceDesc by a person): file -> imprint.
+    LATE = json.load(open(os.path.join(repo, 'scripts/corpus/cllg_tier1_edition_after_1930.json'), encoding='utf-8'))
+    late_rows = [dict(t, reason='edition after 1930: ' + LATE[t['file']]) for t in texts if t['file'] in LATE]
+    texts = [t for t in texts if t['file'] not in LATE]
     texts = [t for t in texts if t not in left_out]
     held_stems = set(l.strip() for l in open(os.path.join(HOME, 'our_grc_works.txt')) if l.strip())
     cts = json.load(open(os.path.join(repo, 'data/cts_urns.json')))['grc']
@@ -202,8 +207,12 @@ def main():
     used_tags = set()
     # Only the files git tracks: a file this import wrote earlier must not count as a tag already in use.
     tracked = subprocess.check_output(['git', '-C', repo, 'ls-files', 'texts/grc'], text=True).split()
+    prior = set()
+    wp = os.path.join(repo, 'scripts/corpus/cllg_tier1_works.json')
+    if os.path.exists(wp):
+        prior = {r['stem'] for r in json.load(open(wp, encoding='utf-8'))}     # this import's own files, tracked on its branch
     for f in tracked:
-        if not f.endswith('.tess'):
+        if not f.endswith('.tess') or any(os.path.basename(f).startswith(p + '.') for p in prior):
             continue
         with open(os.path.join(repo, f), encoding='utf-8') as fh:
             used_tags.add(fh.readline()[1:].split('>')[0].rsplit(' ', 1)[0])
@@ -292,7 +301,7 @@ def main():
     open(os.path.join(repo, 'scripts/corpus/cllg_tier1_works.json'), 'w', encoding='utf-8').write(out)
     json.dump([{'file': t['file'], 'urn': t['urn'], 'author': t['author'], 'title': t['title'], 'tokens': t['tokens'],
                 'reason': t.get('reason', 'title only: the file holds the name of a lost play and no text')}
-               for t in left_out + dup_rows],
+               for t in left_out + dup_rows + late_rows],
               open(os.path.join(repo, 'scripts/corpus/cllg_tier1_left_out.json'), 'w', encoding='utf-8'),
               ensure_ascii=False, indent=1)
     print(len(left_out), 'title-only and', len(dup_rows), 'duplicates left out;', len(rows), 'rows;', len(set(r['stem'] for r in rows)), 'unique stems;', len(set(r['tag'] for r in rows)), 'unique tags;',

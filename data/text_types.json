@@ -2158,10 +2158,6 @@
    "source": "reviewed",
    "text_type": "prose"
   },
-  "acesander.fragmenta.tess": {
-   "source": "reviewed",
-   "text_type": "prose"
-  },
   "achilles_tatius.leucippe_et_clitophon.tess": {
    "source": "marker",
    "text_type": "prose"
@@ -6210,31 +6206,31 @@
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.aliae_sententiae.tess": {
+  "evagrius_ponticus.aliae_sententiae.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.capita_paraenetica.tess": {
+  "evagrius_ponticus.capita_paraenetica.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.de_magistris_et_discipulis.tess": {
+  "evagrius_ponticus.de_magistris_et_discipulis.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.expositio_in_proverbia_salomonis.tess": {
+  "evagrius_ponticus.expositio_in_proverbia_salomonis.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.sententiae_ad_monachos.tess": {
+  "evagrius_ponticus.sententiae_ad_monachos.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.sententiae_ad_virginem.tess": {
+  "evagrius_ponticus.sententiae_ad_virginem.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
-  "evagrius_scholasticus.spiritales_sententiae_per_alphabeticum_dispositae.tess": {
+  "evagrius_ponticus.spiritales_sententiae_per_alphabeticum_dispositae.tess": {
    "source": "reviewed",
    "text_type": "prose"
   },
@@ -9782,26 +9778,6 @@
    "source": "reviewed",
    "text_type": "prose"
   },
-  "nicias_incertus.epigrammata.part.16.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "nicias_incertus.epigrammata.part.6.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "nicias_incertus.epigrammata.part.7.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "nicias_incertus.epigrammata.part.9.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "nicias_incertus.epigrammata.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
   "nico.fragmentum.tess": {
    "source": "reviewed",
    "text_type": "poetry"
@@ -10358,26 +10334,6 @@
    "source": "reviewed",
    "text_type": "prose"
   },
-  "pancrates_epicus.fragmentum.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "pancrates_epicus.testimonium.tess": {
-   "source": "reviewed",
-   "text_type": "prose"
-  },
-  "pancrates_incertus.epigrammata.part.6.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "pancrates_incertus.epigrammata.part.7.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "pancrates_incertus.epigrammata.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
   "pappus.synagoge.part.2.tess": {
    "source": "reviewed",
    "text_type": "prose"
@@ -10527,22 +10483,6 @@
    "text_type": "prose"
   },
   "phaedimus_epicus.fragmentum.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "phaedimus_incertus.epigrammata.part.13.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "phaedimus_incertus.epigrammata.part.6.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "phaedimus_incertus.epigrammata.part.7.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "phaedimus_incertus.epigrammata.tess": {
    "source": "reviewed",
    "text_type": "poetry"
   },
@@ -10885,10 +10825,6 @@
   "phlegon.de_mirabilibus.tess": {
    "source": "line_length",
    "text_type": "prose"
-  },
-  "phocylides.epigramma.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
   },
   "phoenicides.fragmenta.tess": {
    "source": "reviewed",
@@ -12102,30 +12038,6 @@
    "source": "reviewed",
    "text_type": "poetry"
   },
-  "posidippus_incertus.epigrammata.part.12.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "posidippus_incertus.epigrammata.part.16.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "posidippus_incertus.epigrammata.part.5.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "posidippus_incertus.epigrammata.part.7.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "posidippus_incertus.epigrammata.part.9.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "posidippus_incertus.epigrammata.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
   "posidonius.fragmenta.tess": {
    "source": "reviewed",
    "text_type": "prose"
@@ -13294,10 +13206,6 @@
    "source": "line_length",
    "text_type": "prose"
   },
-  "speusippus.epigramma.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
   "speusippus.epistula_ad_philippum_regem.tess": {
    "source": "reviewed",
    "text_type": "prose"
@@ -13730,30 +13638,6 @@
    "source": "reviewed",
    "text_type": "prose"
   },
-  "theodoridas.epigrammata.part.13.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "theodoridas.epigrammata.part.16.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "theodoridas.epigrammata.part.6.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "theodoridas.epigrammata.part.7.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "theodoridas.epigrammata.part.9.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "theodoridas.epigrammata.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
   "theodosius_astronomus.de_diebus_et_noctibus.tess": {
    "source": "reviewed",
    "text_type": "prose"
@@ -13986,14 +13870,6 @@
    "source": "reviewed",
    "text_type": "poetry"
   },
-  "timaeus.fragmenta.tess": {
-   "source": "reviewed",
-   "text_type": "prose"
-  },
-  "timaeus.testimonia.tess": {
-   "source": "reviewed",
-   "text_type": "prose"
-  },
   "timaeus_praxidas.fragmentum.tess": {
    "source": "reviewed",
    "text_type": "prose"
@@ -14021,18 +13897,6 @@
   "timolaus.fragmentum.tess": {
    "source": "reviewed",
    "text_type": "prose"
-  },
-  "timon.epigrammata.part.10.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "timon.epigrammata.part.11.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
-  },
-  "timon.epigrammata.tess": {
-   "source": "reviewed",
-   "text_type": "poetry"
   },
   "timonax.fragmenta.tess": {
    "source": "reviewed",

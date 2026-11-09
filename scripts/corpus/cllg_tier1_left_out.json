@@ -182,5 +182,109 @@
   "title": "Breviarium ab urbe condita (Paeanii translatio)",
   "tokens": 24738,
   "reason": "probable duplicate: the same Greek translation of Eutropius (Paeanius) as eutropius.breviarium_historiae_romanae, which we hold; 67 percent of the six-word sequences are shared"
+ },
+ {
+  "file": "tlg1533/tlg001/tlg1533.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1533.tlg001",
+  "author": "Nicias Epigr.",
+  "title": "Epigrammata",
+  "tokens": 178,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1555/tlg002/tlg1555.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1555.tlg002",
+  "author": "Pancrates Epic.",
+  "title": "Testimonium",
+  "tokens": 127,
+  "reason": "edition after 1930: Jacoby, FGrH vol. 3B (1950) or 3C (1958)"
+ },
+ {
+  "file": "tlg1555/tlg003/tlg1555.tlg003.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1555.tlg003",
+  "author": "Pancrates Epic.",
+  "title": "Fragmentum",
+  "tokens": 25,
+  "reason": "edition after 1930: Jacoby, FGrH vol. 3B (1950) or 3C (1958)"
+ },
+ {
+  "file": "tlg1556/tlg002/tlg1556.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1556.tlg002",
+  "author": "Pancrates Epigr.",
+  "title": "Epigrammata",
+  "tokens": 77,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1577/tlg001/tlg1577.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1577.tlg001",
+  "author": "Phaedimus Epigr.",
+  "title": "Epigrammata",
+  "tokens": 140,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1604/tlg002/tlg1604.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1604.tlg002",
+  "author": "Phocylides Eleg. et Gnom.",
+  "title": "Epigramma",
+  "tokens": 30,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1632/tlg001/tlg1632.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1632.tlg001",
+  "author": "Posidippus Epigr.",
+  "title": "Epigrammata",
+  "tokens": 764,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1692/tlg004/tlg1692.tlg004.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1692.tlg004",
+  "author": "Speusippus Phil.",
+  "title": "Epigramma",
+  "tokens": 15,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1715/tlg001/tlg1715.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1715.tlg001",
+  "author": "Theodoridas Epigr.",
+  "title": "Epigrammata",
+  "tokens": 520,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1733/tlg001/tlg1733.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1733.tlg001",
+  "author": "Timaeus Hist.",
+  "title": "Testimonia",
+  "tokens": 3609,
+  "reason": "edition after 1930: Jacoby, FGrH vol. 3B (1950) or 3C (1958)"
+ },
+ {
+  "file": "tlg1733/tlg002/tlg1733.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1733.tlg002",
+  "author": "Timaeus Hist.",
+  "title": "Fragmenta",
+  "tokens": 23621,
+  "reason": "edition after 1930: Jacoby, FGrH vol. 3B (1950) or 3C (1958)"
+ },
+ {
+  "file": "tlg1735/tlg002/tlg1735.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1735.tlg002",
+  "author": "Timon Phil.",
+  "title": "Epigrammata",
+  "tokens": 24,
+  "reason": "edition after 1930: Beckby, Anthologia Graeca, 2nd edn., Heimeran, Munich 1965 to 1968"
+ },
+ {
+  "file": "tlg1832/tlg001/tlg1832.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1832.tlg001",
+  "author": "Acesander Hist.",
+  "title": "Fragmenta",
+  "tokens": 539,
+  "reason": "edition after 1930: Jacoby, FGrH vol. 3B (1950) or 3C (1958)"
  }
 ]

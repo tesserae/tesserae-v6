@@ -4130,16 +4130,6 @@
   "parts": false
  },
  {
-  "file": "tlg1533/tlg001/tlg1533.tlg001.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1533.tlg001",
-  "stem": "nicias_incertus.epigrammata",
-  "tag": "nicias. epig.",
-  "author_stem": "nicias_incertus",
-  "author": "Nicias Epigr.",
-  "title": "Epigrammata",
-  "parts": true
- },
- {
   "file": "tlg1534/tlg002/tlg1534.tlg002.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg1534.tlg002",
   "stem": "nicocles.fragmenta",
@@ -4230,36 +4220,6 @@
   "parts": false
  },
  {
-  "file": "tlg1555/tlg002/tlg1555.tlg002.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1555.tlg002",
-  "stem": "pancrates_epicus.testimonium",
-  "tag": "pancra. test.",
-  "author_stem": "pancrates_epicus",
-  "author": "Pancrates Epic.",
-  "title": "Testimonium",
-  "parts": false
- },
- {
-  "file": "tlg1555/tlg003/tlg1555.tlg003.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1555.tlg003",
-  "stem": "pancrates_epicus.fragmentum",
-  "tag": "pancra. frag.",
-  "author_stem": "pancrates_epicus",
-  "author": "Pancrates Epic.",
-  "title": "Fragmentum",
-  "parts": false
- },
- {
-  "file": "tlg1556/tlg002/tlg1556.tlg002.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1556.tlg002",
-  "stem": "pancrates_incertus.epigrammata",
-  "tag": "pancra. epig.",
-  "author_stem": "pancrates_incertus",
-  "author": "Pancrates Epigr.",
-  "title": "Epigrammata",
-  "parts": true
- },
- {
   "file": "tlg1560/tlg001/tlg1560.tlg001.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg1560.tlg001",
   "stem": "matthiae_traditiones.matthiae_traditiones",
@@ -4288,16 +4248,6 @@
   "author": "Phaedimus Epic.",
   "title": "Fragmentum",
   "parts": false
- },
- {
-  "file": "tlg1577/tlg001/tlg1577.tlg001.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1577.tlg001",
-  "stem": "phaedimus_incertus.epigrammata",
-  "tag": "phaedi. epig.",
-  "author_stem": "phaedimus_incertus",
-  "author": "Phaedimus Epigr.",
-  "title": "Epigrammata",
-  "parts": true
  },
  {
   "file": "tlg1583/tlg003/tlg1583.tlg003.cllg-grc1.xml",
@@ -4357,16 +4307,6 @@
   "author_stem": "philo_of_byzantium",
   "author": "Philo Mech.",
   "title": "Parasceuastica et poliorcetica",
-  "parts": false
- },
- {
-  "file": "tlg1604/tlg002/tlg1604.tlg002.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1604.tlg002",
-  "stem": "phocylides.epigramma",
-  "tag": "phocyl. epig.",
-  "author_stem": "phocylides",
-  "author": "Phocylides Eleg. et Gnom.",
-  "title": "Epigramma",
   "parts": false
  },
  {
@@ -4468,16 +4408,6 @@
   "author": "Polystratus Phil.",
   "title": "Fragmenta (P. Herc. 346)",
   "parts": false
- },
- {
-  "file": "tlg1632/tlg001/tlg1632.tlg001.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1632.tlg001",
-  "stem": "posidippus_incertus.epigrammata",
-  "tag": "posidi. epig.",
-  "author_stem": "posidippus_incertus",
-  "author": "Posidippus Epigr.",
-  "title": "Epigrammata",
-  "parts": true
  },
  {
   "file": "tlg1636/tlg003/tlg1636.tlg003.cllg-grc1.xml",
@@ -4670,16 +4600,6 @@
   "parts": false
  },
  {
-  "file": "tlg1692/tlg004/tlg1692.tlg004.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1692.tlg004",
-  "stem": "speusippus.epigramma",
-  "tag": "speusi. epig.",
-  "author_stem": "speusippus",
-  "author": "Speusippus Phil.",
-  "title": "Epigramma",
-  "parts": false
- },
- {
   "file": "tlg1698/tlg003/tlg1698.tlg003.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg1698.tlg003",
   "stem": "telephus.fragmenta",
@@ -4760,16 +4680,6 @@
   "parts": false
  },
  {
-  "file": "tlg1715/tlg001/tlg1715.tlg001.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1715.tlg001",
-  "stem": "theodoridas.epigrammata",
-  "tag": "theodo. epig.",
-  "author_stem": "theodoridas",
-  "author": "Theodoridas Epigr.",
-  "title": "Epigrammata",
-  "parts": true
- },
- {
   "file": "tlg1719/tlg001/tlg1719.tlg001.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg1719.tlg001",
   "stem": "theodosius_astronomus.sphaerica",
@@ -4828,36 +4738,6 @@
   "author": "Theseus Hist.",
   "title": "Fragmenta",
   "parts": false
- },
- {
-  "file": "tlg1733/tlg001/tlg1733.tlg001.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1733.tlg001",
-  "stem": "timaeus.testimonia",
-  "tag": "timaeus. test.",
-  "author_stem": "timaeus",
-  "author": "Timaeus Hist.",
-  "title": "Testimonia",
-  "parts": false
- },
- {
-  "file": "tlg1733/tlg002/tlg1733.tlg002.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1733.tlg002",
-  "stem": "timaeus.fragmenta",
-  "tag": "timaeus. fragm.",
-  "author_stem": "timaeus",
-  "author": "Timaeus Hist.",
-  "title": "Fragmenta",
-  "parts": false
- },
- {
-  "file": "tlg1735/tlg002/tlg1735.tlg002.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1735.tlg002",
-  "stem": "timon.epigrammata",
-  "tag": "timon. epig.",
-  "author_stem": "timon",
-  "author": "Timon Phil.",
-  "title": "Epigrammata",
-  "parts": true
  },
  {
   "file": "tlg1736/tlg002/tlg1736.tlg002.cllg-grc1.xml",
@@ -5206,16 +5086,6 @@
   "tag": "pamphi. frag.",
   "author_stem": "pamphila",
   "author": "Pamphila Hist.",
-  "title": "Fragmenta",
-  "parts": false
- },
- {
-  "file": "tlg1832/tlg001/tlg1832.tlg001.cllg-grc1.xml",
-  "urn": "urn:cts:greekLit:tlg1832.tlg001",
-  "stem": "acesander.fragmenta",
-  "tag": "acesan. frag.",
-  "author_stem": "acesander",
-  "author": "Acesander Hist.",
   "title": "Fragmenta",
   "parts": false
  },
@@ -9682,9 +9552,9 @@
  {
   "file": "tlg4110/tlg007/tlg4110.tlg007.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg007",
-  "stem": "evagrius_scholasticus.sententiae_ad_monachos",
+  "stem": "evagrius_ponticus.sententiae_ad_monachos",
   "tag": "evagri. sent. mona.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "Sententiae ad monachos",
   "parts": false
@@ -9692,9 +9562,9 @@
  {
   "file": "tlg4110/tlg008/tlg4110.tlg008.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg008",
-  "stem": "evagrius_scholasticus.sententiae_ad_virginem",
+  "stem": "evagrius_ponticus.sententiae_ad_virginem",
   "tag": "evagri. sent. virg.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "Sententiae ad virginem",
   "parts": false
@@ -9702,9 +9572,9 @@
  {
   "file": "tlg4110/tlg016/tlg4110.tlg016.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg016",
-  "stem": "evagrius_scholasticus.capita_paraenetica",
+  "stem": "evagrius_ponticus.capita_paraenetica",
   "tag": "evagri. capi. para.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "Capita paraenetica",
   "parts": false
@@ -9712,9 +9582,9 @@
  {
   "file": "tlg4110/tlg017/tlg4110.tlg017.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg017",
-  "stem": "evagrius_scholasticus.spiritales_sententiae_per_alphabeticum_dispositae",
+  "stem": "evagrius_ponticus.spiritales_sententiae_per_alphabeticum_dispositae",
   "tag": "evagri. spir. sent.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "Spiritales sententiae per alphabeticum dispositae",
   "parts": false
@@ -9722,9 +9592,9 @@
  {
   "file": "tlg4110/tlg018/tlg4110.tlg018.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg018",
-  "stem": "evagrius_scholasticus.aliae_sententiae",
+  "stem": "evagrius_ponticus.aliae_sententiae",
   "tag": "evagri. alia. sent.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "Aliae sententiae",
   "parts": false
@@ -9732,9 +9602,9 @@
  {
   "file": "tlg4110/tlg028/tlg4110.tlg028.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg028",
-  "stem": "evagrius_scholasticus.expositio_in_proverbia_salomonis",
+  "stem": "evagrius_ponticus.expositio_in_proverbia_salomonis",
   "tag": "evagri. expo. prov.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "Expositio in Proverbia Salomonis",
   "parts": false
@@ -9742,9 +9612,9 @@
  {
   "file": "tlg4110/tlg043/tlg4110.tlg043.cllg-grc1.xml",
   "urn": "urn:cts:greekLit:tlg4110.tlg043",
-  "stem": "evagrius_scholasticus.de_magistris_et_discipulis",
+  "stem": "evagrius_ponticus.de_magistris_et_discipulis",
   "tag": "evagri. magi. disc.",
-  "author_stem": "evagrius_scholasticus",
+  "author_stem": "evagrius_ponticus",
   "author": "Evagrius Scr. Eccl.",
   "title": "De magistris et discipulis (sub nomine Nili Ancyrani) (fragmenta e codd. Paris. gr. 1188 % 1066)",
   "parts": false
