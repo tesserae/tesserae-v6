@@ -151,3 +151,23 @@ def test_enclitic_word_answers_with_the_base_lemma_in_dictionary_spelling(client
     assert again['cached'] is True and again['lemma'] == 'vir' and again['enclitic'] is None
     assert again['url'] == 'https://logeion.uchicago.edu/vir'
     assert asked == ['uir', 'vir']
+
+
+def test_logeion_entries_keeps_every_homograph():
+    data = {'detail': {'dicos': [
+        {'dname': 'LewisShort', 'es': ['<b>lābor</b>, lapsus, v. dep. n., to move gently along',
+                                       '<b>lăbor</b>, ōris, m., labor, toil, exertion']},
+        {'dname': 'Georges', 'es': ['labor, oris']},
+    ]}}
+    definition, dictionary = D.logeion_entries(data, 'la')
+    assert dictionary == 'Lewis and Short'
+    assert definition.split('\n\n') == ['lābor, lapsus, v. dep. n., to move gently along',
+                                        'lăbor, ōris, m., labor, toil, exertion']
+    # Each entry gets a share of the length limit, so a long first entry cannot crowd out the second.
+    long = {'detail': {'dicos': [{'dname': 'LewisShort', 'es': ['x' * 900, 'y' * 900, 'z' * 900, 'w' * 900]}]}}
+    definition, _ = D.logeion_entries(long, 'la')
+    parts = definition.split('\n\n')
+    assert len(parts) == 3 and all(len(p) <= D.MAX_DEFINITION // 3 + 1 for p in parts)
+    assert D.logeion_entries({'detail': {'dicos': []}}, 'la') is None
+    assert D.logeion_entries({'detail': {'dicos': [{'dname': 'LSJ', 'es': ['λόγος, ὁ, word']}]}}, 'grc') == (
+        'λόγος, ὁ, word', 'Liddell-Scott-Jones (LSJ)')

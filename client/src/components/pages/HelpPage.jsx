@@ -1759,11 +1759,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 </li>
               </ul>
               <p className="text-gray-700 mb-3">
-                Click a word and then <strong>Look up a word</strong> in the toolbar, and a small box opens with
-                the word&rsquo;s dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones
-                for Greek) and a <strong>Full entry</strong> link. The toolbar switches to Word, the word is
-                marked in its line, and while Word is on, each click on another word opens that word&rsquo;s
-                entry. Choose Line or Passage to leave Word. A double-clicked word works too. A Latin word ending in
+                Press <strong>Look up words</strong> in the toolbar and the switch turns red to show that word
+                lookup is on. Then click any word: it is marked in its line and a small box opens with its
+                dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones for Greek) and a{' '}
+                <strong>Full entry</strong> link. When a spelling heads more than one entry (<em>labor</em>,
+                to slip, and <em>labor</em>, toil) the box shows each in turn. Press the switch again, or choose
+                Line or Passage, to turn lookup off. A double-clicked word opens its entry too. A Latin word ending in
                 -que, -ve or -ne is looked up without the ending (<em>inferretque</em> under <em>infero</em>), and
                 the box says so. For Coptic, Hebrew, Persian, Urdu and Arabic it gives the dictionary link alone.
               </p>
