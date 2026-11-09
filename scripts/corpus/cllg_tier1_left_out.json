@@ -1,0 +1,186 @@
+[
+ {
+  "file": "tlg0484/tlg004/tlg0484.tlg004.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0484.tlg004",
+  "author": "Nicostratus Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg0487/tlg006/tlg0487.tlg006.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0487.tlg006",
+  "author": "Philemon Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg0523/tlg001/tlg0523.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0523.tlg001",
+  "author": "Menecrates Comic.",
+  "title": "Titulus",
+  "tokens": 4,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1361/tlg001/tlg1361.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1361.tlg001",
+  "author": "Eumedes Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1780/tlg001/tlg1780.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1780.tlg001",
+  "author": "Alcimenes Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1783/tlg001/tlg1783.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1783.tlg001",
+  "author": "Callicrates Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1784/tlg001/tlg1784.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1784.tlg001",
+  "author": "Heraclitus Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1785/tlg001/tlg1785.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1785.tlg001",
+  "author": "Paramonus Comic.",
+  "title": "Tituli",
+  "tokens": 2,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1786/tlg001/tlg1786.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1786.tlg001",
+  "author": "Sogenes Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1787/tlg001/tlg1787.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1787.tlg001",
+  "author": "[Menippus] Comic.",
+  "title": "Tituli",
+  "tokens": 2,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1788/tlg002/tlg1788.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1788.tlg002",
+  "author": "Phormis Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1792/tlg001/tlg1792.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1792.tlg001",
+  "author": "Biottus Comic.",
+  "title": "Tituli",
+  "tokens": 2,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1793/tlg001/tlg1793.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1793.tlg001",
+  "author": "Timoxenus Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1794/tlg001/tlg1794.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1794.tlg001",
+  "author": "Philocles Comic.",
+  "title": "Titulus",
+  "tokens": 1,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg1795/tlg001/tlg1795.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg1795.tlg001",
+  "author": "Chaerion Comic.",
+  "title": "Titulus",
+  "tokens": 2,
+  "reason": "title only: the file holds the name of a lost play and no text"
+ },
+ {
+  "file": "tlg0086/tlg043/tlg0086.tlg043.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0086.tlg043",
+  "author": "Aristoteles Phil. et Corpus Aristotelicum Aristotle",
+  "title": "De spiritu",
+  "tokens": 3481,
+  "reason": "probable duplicate: the same work as pseudoaristotle.de_spiritu, which we hold; 83 percent of the six-word sequences are shared"
+ },
+ {
+  "file": "tlg0358/tlg003/tlg0358.tlg003.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0358.tlg003",
+  "author": "Nicomachus Math.",
+  "title": "Theologoumena arithmeticae",
+  "tokens": 5640,
+  "reason": "probable duplicate: the same text and edition (de Falco 1922) as iamblichus.theologoumena_arithmeticae in this group; all of its six-word sequences are in that text"
+ },
+ {
+  "file": "tlg0615/tlg001/tlg0615.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0615.tlg001",
+  "author": "Aspasius Phil.",
+  "title": "In ethica Nichomachea commentaria",
+  "tokens": 70702,
+  "reason": "probable duplicate: the same commentary as aspasius.in_ethica_nicomachea_paraphrasis, which we hold; 85 percent of the six-word sequences are shared"
+ },
+ {
+  "file": "tlg0645/tlg002/tlg0645.tlg002.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg0645.tlg002",
+  "author": "Justinus Martyr Apol.",
+  "title": "Apologia secunda",
+  "tokens": 3309,
+  "reason": "probable duplicate: the same work as justin_martyr.apologia_ii, which we hold; 86 percent of the six-word sequences are shared"
+ },
+ {
+  "file": "tlg2035/tlg117/tlg2035.tlg117.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg2035.tlg117",
+  "author": "Athanasius Theol.",
+  "title": "Oratio quarta contra Arianos [Sp.]",
+  "tokens": 10918,
+  "reason": "probable duplicate: the same work as athanasius.contra_arianos_iv, which we hold; 73 percent of the six-word sequences are shared"
+ },
+ {
+  "file": "tlg2042/tlg079/tlg2042.tlg079.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg2042.tlg079",
+  "author": "Origenes Theol.",
+  "title": "Commentarii in evangelium Joannis (lib. 19, 20, 28, 32)",
+  "tokens": 60263,
+  "reason": "probable duplicate: books 19, 20, 28 and 32 of origen.commentarii_in_evangelium_joannis (tlg2042.tlg005), which we hold; 79 percent of the five-word sequences are shared"
+ },
+ {
+  "file": "tlg2057/tlg001/tlg2057.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg2057.tlg001",
+  "author": "Socrates Scholasticus Hist.",
+  "title": "Historia ecclesiastica",
+  "tokens": 101919,
+  "reason": "probable duplicate: the same work as socrates_scholasticus.historia_ecclesiastica (tlg2057.tlg002), which we hold; 95 percent of the six-word sequences are shared"
+ },
+ {
+  "file": "tlg2236/tlg001/tlg2236.tlg001.cllg-grc1.xml",
+  "urn": "urn:cts:greekLit:tlg2236.tlg001",
+  "author": "Eutropius Hist.",
+  "title": "Breviarium ab urbe condita (Paeanii translatio)",
+  "tokens": 24738,
+  "reason": "probable duplicate: the same Greek translation of Eutropius (Paeanius) as eutropius.breviarium_historiae_romanae, which we hold; 67 percent of the six-word sequences are shared"
+ }
+]

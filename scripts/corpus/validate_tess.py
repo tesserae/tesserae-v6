@@ -9,8 +9,13 @@ Checks per file:
   - no HTML tag or entity residue in the text
   - line count and average line length printed for a plausibility read
 
-Usage: python validate_tess.py <file.tess> [...]
+Usage: python validate_tess.py [--edition-order] <file.tess> [...]
 Exits non-zero if any check fails.
+
+--edition-order is for texts cited by the edition's own numbers (the CLLG Freed Corpus: pages and lines of the
+printed edition, fragments such as 3b,469,F or 5col14, verses an editor has transposed). The order check then compares
+only the leading numeric components of a reference (the book or the page), never the last (the line or verse within
+it, which an edition may print out of order), compares references of different depth on their shared leading components, and skips a pair whose leading components are not plain numbers.
 """
 import re
 import sys
@@ -32,7 +37,15 @@ def ref_key(ref):
     return parts
 
 
-def check(path):
+def comparable_prefix(ref):
+    """The leading components of a reference when all are plain numbers or preface labels, else None."""
+    tail = ref.split()[-1].split('.')[:-1]
+    if not tail or not all(p.isdigit() or p in ('pr', 'pref', 'praef', 'arg') for p in tail):
+        return None
+    return [(1, int(p)) if p.isdigit() else (0, p) for p in tail]
+
+
+def check(path, edition_order=False):
     errs = []
     refs = []
     lens = []
@@ -60,6 +73,11 @@ def check(path):
             seen.add(r)
     # monotonicity within the same non-numeric prefix run
     for a, b in zip(refs, refs[1:]):
+        if edition_order:
+            ka, kb = comparable_prefix(a), comparable_prefix(b)
+            if ka is not None and kb is not None and a.split()[:-1] == b.split()[:-1] and kb[:len(ka)] < ka[:len(kb)]:
+                errs.append(f'non-monotonic: <{a}> -> <{b}>')
+            continue
         if a.rsplit('.', 1)[0].split()[0] == b.rsplit('.', 1)[0].split()[0]:
             try:
                 if ref_key(b) < ref_key(a) and ref_key(b)[0] == ref_key(a)[0]:
@@ -77,5 +95,6 @@ def check(path):
 
 
 if __name__ == '__main__':
-    ok = all([check(p) for p in sys.argv[1:]])
+    args = [a for a in sys.argv[1:] if a != '--edition-order']
+    ok = all([check(p, '--edition-order' in sys.argv[1:]) for p in args])
     sys.exit(0 if ok else 1)
