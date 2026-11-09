@@ -43,7 +43,7 @@ AUTHOR_OVERRIDES = {
     'Evagrius': 'evagrius_ponticus', 'Claudius Iolaus': 'claudius_iolaus',
     'Sextus Julius Africanus': 'sextus_julius_africanus', 'Ignatius': 'ignatius', 'Menander Protector': 'menander_protector',
     'Eudocia Augusta': 'eudocia_augusta', 'Aëtius': 'aetius_of_amida',
-    'Claudius Ptolemaeus': 'claudius_ptolemaeus', 'Gaius Musonius Rufus': 'musonius_rufus',
+     'Gaius Musonius Rufus': 'musonius_rufus',
     'Lucius Annaeus Cornutus': 'cornutus', 'Domitius Callistratus': 'domitius_callistratus',
     'Cornelius Alexander': 'cornelius_alexander_polyhistor', 'Aelius Herodianus et Pseudo-Herodianus': 'aelius_herodianus',
     'Julia Balbilla': 'julia_balbilla', 'Juba II Rex Mauretaniae': 'juba_ii', 'Beros(s)us': 'berossus',
