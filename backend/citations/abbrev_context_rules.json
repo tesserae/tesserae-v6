@@ -219,7 +219,7 @@
   "inv": [
    {
     "work": "cicero.de_inventione",
-    "context": "\\bCic|\\bTull|Rhet|[Ii]nvent|[Dd]e\\s*$"
+    "context": "\\bCic|\\bTull|Rhet|[Ii]nventione|[Dd]e\\s*$"
    }
   ],
   "eutrop": [
@@ -750,6 +750,12 @@
     "work": "juvenal.satires",
     "instead": "juvencus.historia_evangelica"
    }
+  ],
+  "eutrop": [
+   {
+    "work": "eutropius.breviarium",
+    "instead": "claudian.in_eutropium"
+   }
   ]
  },
  "defaults": {
@@ -797,5 +803,6 @@
  "_comment_defaults": "Round 4. A form that still names several works after the author-context choice falls back to this work when it is among the candidates and the citation has at least min_levels locus levels: Lysias and Isocrates are cited speech.section (two levels) while the Lysistrata is cited by line, the idylls are what Theoc. means unless Ep. is written, and a bare Bacch. keeps meaning Plautus unless Bacchylides is named. Round 5 adds Ann. (Tacitus, two levels: Ennius is cited by line), Th. (Thucydides, two levels: the Theogony and the Seven against Thebes are cited by line), Str. (Strabo) and Arr. (the Anabasis, three levels: the Cynegeticus has chapters only). These four need an Arabic number or an upper-case Roman numeral as the first level (firm_first), because a lower-case d or c reads as 500 or 100 (\"Ann. d. 1\" is the Annali dell'Istituto). A rule in \"rules\" may carry min_levels_alone: with that many levels the form counts without its author named (Ben. with book, chapter and section is Seneca).",
  "_comment_round6": "Round 6. disambiguate.juv: Juvenal or Juvencus by the author named nearest (a list of Christian poets makes Juv. Juvencus). author_prefix: an author abbreviation (Tert., Lact., Nep., Juvenc.) right before a short title makes it that author's work, and a work of any other author is dropped. bible: a short form that is also a biblical book (Marc., Luc., Num.) is dropped with chapter:verse in a tight colon or with another biblical book and chapter and verse just before. exceeds: a locus beyond the last line (or book) of the default work of a shared short form (Phoen. 1005 is beyond Seneca's 664 lines) goes to the other work when its extent admits the locus, otherwise it is dropped.",
  "_comment_disambiguate": "Forms that name several works in the table (or one work in a collision). Keys are normalized surfaces. Each entry lists a work and a regex for its author; the author named closest before the citation (sentence before, or this sentence ahead of it) decides, and a form with no author named stays as it was (unresolved when the table ties). Added in round 3, 2026-10-16.",
- "_comment_round9": "Round 9 (2026-11-09, from the JSTOR index audit). per: the Italian 'Per il' and 'Per i' were read as Plutarch's Pericles with the article taken for a Roman numeral (il = 49), so a bare Per. needs Plutarch or Pericles named ahead unless the locus has two levels (Per. 12.3). inv: museum inventory numbers (inv. 1234, inv. 0.18) were read as De inventione, so a bare inv. needs Cicero, the Rhetorica or the title named ahead (the bare-number limit of 200 stays). eutrop: Eutrop. without Claudian named ahead (or 'In' just before) is Eutropius the historian and goes to eutropius.breviarium."
+ "_comment_round9": "Round 9 (2026-11-09, from the JSTOR index audit). per: the Italian 'Per il' and 'Per i' were read as Plutarch's Pericles with the article taken for a Roman numeral (il = 49), so a bare Per. needs Plutarch or Pericles named ahead unless the locus has two levels (Per. 12.3). inv: museum inventory numbers (inv. 1234, inv. 0.18) were read as De inventione, so a bare inv. needs Cicero, the Rhetorica or the title named ahead (the bare-number limit of 200 stays). eutrop: Eutrop. without Claudian named ahead (or 'In' just before) is Eutropius the historian and goes to eutropius.breviarium.",
+ "_comment_round9b": "Round 9b (2026-11-09, after reading the round 9 rebuild): inv's context no longer matches 'inventory' (it needs 'inventione'); the parser no longer reads 'il' or a lowercase 'li' as a Roman numeral (the Italian 'Per il' had survived as Pericles 49 when Plutarch was named nearby; the one-level extent of the Pericles is its sections, 12, so the exceeds table cannot be used for it); a Eutrop. locus beyond the Breviarium's ten books is dropped (Claudian's two books cannot take it either)."
 }

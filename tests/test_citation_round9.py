@@ -66,3 +66,35 @@ def test_claudian_named_or_in_before_keeps_in_eutropium():
     assert _loci('Claud. Eutrop. 1.5 mocks him.') == [('claudian.in_eutropium', '1.5')]
     assert _loci('Claudian, In Eutrop. 2.20, is harsher.') == [('claudian.in_eutropium', '2.20')]
     assert _loci('In Eutrop. 2.20 the poet is harsher.') == [('claudian.in_eutropium', '2.20')]
+
+
+# --- round 9b: what the first rebuild still let through --------------------------
+
+def test_il_and_lowercase_li_are_not_roman_numerals():
+    from backend.citations import parser as P
+    assert not P.is_roman_shaped('il') and not P.is_roman_shaped('IL') and not P.is_roman_shaped('li')
+    assert P.is_roman_shaped('LI') and P.is_roman_shaped('xx') and P.is_roman_shaped('l') and P.is_roman_shaped('i')
+
+
+@needs_table
+def test_per_il_with_plutarch_nearby_exceeds_the_pericles():
+    # 'il' and a lowercase 'li' are no longer numerals, so no locus is read.
+    assert _loci('Per il lusus Troiae si veda Dio 43,23,6.', 'Plutarco menziona il passo.') == []
+    assert _loci('Per li soldati di Paliano.', 'Plut. Per. 1 says so.') == []
+
+
+@needs_table
+def test_inventory_in_the_sentence_before_does_not_make_de_inventione():
+    assert _loci('The piece is inv. 123, a cup.', 'The inventory of the museum lists it.') == []
+    assert _loci('Vescovado, store rooms, inv. 82-164 and inv. 88-138.') == []
+
+
+@needs_table
+def test_eutrop_beyond_the_breviarium_is_not_eutropius():
+    # The Breviarium has ten books. A book beyond them cannot be the historian;
+    # Claudian's poem has two books, so the citation is dropped. A line
+    # citation inside books 1 to 10 (Eutrop. 2.362, Claudian's second book)
+    # still goes to the historian: the per-book extent table covers verse
+    # works only, and the Breviarium's chapter numbers are not in it.
+    assert _loci('Eutrop. 12.5 records the reign.') == []
+    assert _loci('Eutrop. 10.1 records the reign.') == [('eutropius.breviarium', '10.1')]
