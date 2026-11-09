@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-09
+- Data operations: the JSTOR citation index (773,047 citations from 222,035 articles of 54 classics journals, 1832 to 2025, read under JSTOR's text-analysis terms) installed as the third index on 2026-11-09; shown as citation and link only. Record in docs/DATA_OPERATIONS.md. (#PR)
 - Scholarship: a JSTOR article's link opens on the citing page (the stable link with ?seq=, since the delivery carries no printed page numbers) and no page number is listed for it. (#PR)
 - Scholarship: a third citation index, the JSTOR text-analysis delivery, read when TESSERAE_CITATIONS_JSTOR names its file. Its articles are listed as citation and link back to JSTOR with no sentence, at JSTOR's request; the Scholarship-about page and Help say so. (#PR)
 
