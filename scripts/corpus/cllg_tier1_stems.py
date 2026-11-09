@@ -12,7 +12,6 @@ Rules: docs in research/specs/2026-11-09_cllg_tier1_convert_spec.md (Stage 1).
     cllg_tier1_stems.py REPO_ROOT SRC_DIR
 """
 import collections
-import glob
 import json
 import os
 import re
@@ -197,7 +196,7 @@ def main():
     late_rows = [dict(t, reason='edition after 1930: ' + LATE[t['file']]) for t in texts if t['file'] in LATE]
     texts = [t for t in texts if t['file'] not in LATE]
     texts = [t for t in texts if t not in left_out]
-    held_stems = set(l.strip() for l in open(os.path.join(HOME, 'our_grc_works.txt')) if l.strip())
+    held_stems = set(line.strip() for line in open(os.path.join(HOME, 'our_grc_works.txt')) if line.strip())
     cts = json.load(open(os.path.join(repo, 'data/cts_urns.json')))['grc']
     held_author_by_id = {}
     for k, v in cts.items():
@@ -221,7 +220,6 @@ def main():
     by_id = collections.OrderedDict()
     for t in texts:
         by_id.setdefault(t['urn'].split(':')[-1].split('.')[0], []).append(t)
-    taken = collections.Counter()
     author_stem_of = {}
     held_stems_authors = set(s.split('.')[0] for s in held_stems)
     for aid, ts in by_id.items():
