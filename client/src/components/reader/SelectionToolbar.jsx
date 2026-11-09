@@ -145,13 +145,11 @@ export default function SelectionToolbar({
   const [lookupOpen, setLookupOpen] = useState(false);
   const corpusMap = useCorpusTextMap(language);
 
-  // A new selection puts the popover away, unless the reader is in Word mode
-  // and clicked a word: then the entry for that word opens at once, which is
-  // what "Look up a word" promised (2026-11-08).
-  const selectionKey = `${selection?.refStart || ''}|${selection?.charStart ?? ''}|${selection?.text || ''}`
-    + `|${selection?.clickedWord || ''}|${(selection?.clickedWordRange || []).join('-')}`;
-  const clickedInWordMode = scope === 'word' && !!selection?.clickedWord;
-  useEffect(() => { setLookupOpen(clickedInWordMode); }, [selectionKey]);  // eslint-disable-line react-hooks/exhaustive-deps
+  // In Word mode the entry for the word in hand is open: on entering the
+  // mode, and on every click that lands on a word (each click is a new
+  // selection object, so clicking the same word again after Escape reopens
+  // it). Outside Word mode a new selection puts the popover away.
+  useEffect(() => { setLookupOpen(scope === 'word' && !!lookupWordOf(selection)); }, [selection, scope]);
 
   if (!selection) return null;
 
@@ -238,30 +236,29 @@ export default function SelectionToolbar({
         </button>
       )}
 
-      {scope === 'word' && word ? (
-        <button
-          onClick={() => setLookupOpen((o) => !o)}
-          aria-expanded={lookupOpen}
-          data-lookup-toggle=""
-          title="Dictionary entry for this word"
-          className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-800
-                     hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
-        >
-          Look up
-        </button>
-      ) : (
-        // The dictionary is one double-click away from any selection. Saying
-        // so here, in every state of the toolbar, is what makes it findable
-        // (the project lead met the toolbar in Line mode and never saw it).
-        <button
-          onClick={() => { onScope?.('word'); if (word) setLookupOpen(true); }}
-          title="Dictionary entry for the word you clicked"
-          className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-600
-                     hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400"
-        >
-          Look up a word
-        </button>
-      )}
+      {/* ONE SWITCH FOR WORD LOOKUP. Word scope is the lookup mode: while it
+          is on, every word clicked opens its dictionary entry. The switch
+          shows the state (filled when on), because a plain "Look up" button
+          that sat unlit while the mode was on read as "off" (the project
+          lead, 2026-11-08). Pressing it when on returns the toolbar to Line. */}
+      <button
+        onClick={() => {
+          if (scope === 'word') { onScope?.('line'); setLookupOpen(false); return; }
+          onScope?.('word');
+        }}
+        aria-pressed={scope === 'word'}
+        data-lookup-toggle=""
+        title={scope === 'word'
+          ? 'Word lookup is on: click any word for its dictionary entry. Press to turn it off.'
+          : 'Turn on word lookup, then click any word for its dictionary entry.'}
+        className={scope === 'word'
+          ? `rounded bg-red-700 px-3 py-1 text-xs font-medium text-white hover:bg-red-800
+             focus:outline-none focus:ring-2 focus:ring-red-400`
+          : `rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-600
+             hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400`}
+      >
+        {scope === 'word' ? 'Looking up words' : 'Look up words'}
+      </button>
       {lookupOpen && scope === 'word' && word && (
         <DefinitionPopover word={word} language={language || 'la'}
                            onClose={() => setLookupOpen(false)} />

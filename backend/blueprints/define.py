@@ -156,17 +156,38 @@ def fetch_logeion_definition(lemma, language):
             headers={'User-Agent': 'Tesserae/6.0'})
         with urllib.request.urlopen(req, timeout=4) as response:  # nosec B310
             data = json.loads(response.read().decode('utf-8'))
-        dicos = {d.get('dname'): d for d in (data.get('detail') or {}).get('dicos') or []}
-        for name in wanted:
-            entries = (dicos.get(name) or {}).get('es') or []
-            for html in entries:
-                text = re.sub(r'\s*\[cf\.[^\]]*\]', '', _strip_html(html))  # etymology
-                if text:
-                    if len(text) > MAX_DEFINITION:
-                        text = text[:MAX_DEFINITION].rstrip() + '…'
-                    return text, LOGEION_DISPLAY.get(name, name)
+        return logeion_entries(data, language)
     except Exception as e:
         logger.debug(f"Logeion lookup failed for {lemma}: {e}")
+    return None
+
+
+MAX_ENTRIES = 3
+
+
+def logeion_entries(data, language):
+    """(definition, dictionary name) from a Logeion detail record, or None.
+
+    A spelling can head more than one entry (Lewis and Short has lābor, to
+    slip, and lăbor, toil), and showing only the first sent a reader of
+    'labores' to the verb (2026-11-08). Up to MAX_ENTRIES entries of the first
+    dictionary that has any are returned, each cut to its share of
+    MAX_DEFINITION and separated by a blank line.
+    """
+    wanted = LOGEION_DICTIONARIES.get(language) or ()
+    dicos = {d.get('dname'): d for d in (data.get('detail') or {}).get('dicos') or []}
+    for name in wanted:
+        texts = []
+        for html in (dicos.get(name) or {}).get('es') or []:
+            text = re.sub(r'\s*\[cf\.[^\]]*\]', '', _strip_html(html))  # etymology
+            if text:
+                texts.append(text)
+        if not texts:
+            continue
+        texts = texts[:MAX_ENTRIES]
+        share = max(MAX_DEFINITION // len(texts), 120)
+        cut = [t if len(t) <= share else t[:share].rstrip() + '…' for t in texts]
+        return '\n\n'.join(cut), LOGEION_DISPLAY.get(name, name)
     return None
 
 
