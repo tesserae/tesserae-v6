@@ -4,6 +4,8 @@
 Inputs (environment variables):
   PR_FILES_JSON  - JSON list of changed files with additions/deletions/path
   PR_DIFF_PATH   - path to unified diff (used for some pattern checks)
+  PR_FILES_PATH  - path to the JSON file list (preferred over PR_FILES_JSON, which
+                   cannot hold a corpus import's list of files)
 
 Output (stdout): one of
   safe:docs            - docs-only change (only .md, .txt, .rst, LICENSE)
@@ -113,7 +115,12 @@ def is_patch_version_bump_diff(diff: str) -> bool:
 
 
 def main():
-    files = json.loads(os.environ.get("PR_FILES_JSON", "[]"))
+    files_path = os.environ.get("PR_FILES_PATH")
+    if files_path and os.path.exists(files_path):
+        with open(files_path, encoding="utf-8") as fh:
+            files = json.load(fh)
+    else:
+        files = json.loads(os.environ.get("PR_FILES_JSON", "[]"))
     diff_path = os.environ.get("PR_DIFF_PATH", "/tmp/pr.diff")
 
     if not files:

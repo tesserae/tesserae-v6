@@ -69,7 +69,10 @@ jobs:
         id: classify
         run: |
           set -euo pipefail
-          export PR_FILES_JSON="$(cat /tmp/pr_files.json)"
+          # The file list goes by path, not through the environment: a corpus
+          # import of 1,397 files made PR_FILES_JSON longer than one environment
+          # string may be, and python3 failed with "Argument list too long" (#1307).
+          export PR_FILES_PATH=/tmp/pr_files.json
           export PR_DIFF_PATH=/tmp/pr.diff
           verdict="$(python3 .github/scripts/claude_pr_safe_check.py)"
           echo "Verdict: $verdict"
