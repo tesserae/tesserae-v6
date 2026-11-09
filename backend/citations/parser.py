@@ -100,9 +100,16 @@ GENERIC_APPARATUS_STOPLIST = {
 }
 
 
+# Round 9b (2026-11-09): "il" is not a Roman numeral in any case (IL is not a
+# standard form), and a lowercase "li" is the Italian article, never 51 ("Per
+# il", "Per li" had been read as Plutarch's Pericles 49 and 51). A capital LI
+# stays a numeral.
+NOT_ROMAN = {"il", "IL", "Il", "iL", "li"}
+
+
 def is_roman_shaped(text):
     core = text.rstrip(".")
-    if not core or len(core) > 7:
+    if not core or len(core) > 7 or core in NOT_ROMAN:
         return False
     return all(c.upper() in ROMAN_CHARS for c in core)
 
