@@ -253,7 +253,7 @@ export const SEARCH_SCOPE = {
     name: 'Translation (Reader)',
     does: 'The English translation of the passage, where the site holds one.',
     scope: 'The translation lined up with the selected lines is shown beside the original, or the whole translation of the work on request.',
-    covers: 'Translations held for about 61 percent of Greek lines and 48 percent of Latin lines, as of August 2026.',
+    covers: 'Translations held for about 20 percent of Greek lines (November 2026) and 48 percent of Latin lines (August 2026).',
     limits: 'A translation is a published one, often a century old, and lines do not always match one to one.',
     measured: [TRANSLATION_ROW],
     helpSection: 'reader',
