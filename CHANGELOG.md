@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-09
+- Scholarship: a third citation index, the JSTOR text-analysis delivery, read when TESSERAE_CITATIONS_JSTOR names its file. Its articles are listed as citation and link back to JSTOR with no sentence, at JSTOR's request; the Scholarship-about page and Help say so. (#PR)
+
 ## 2026-11-08
 - Reader word lookup follows "see X" cross-references as well as "v. X" (Autenrieth writes "Πηληϊάδης: see Πηλείδης"). (#PR)
 - Reader word lookup: a form none of our tables knows (ψυχὰς, πολύτροπον, Πηληϊάδεω in Homer's first lines, amavisset) is parsed by Logeion and its headword looked up, so the entry comes back where the Wiktionary line "accusative plural of ψυχή" or nothing did. A short entry that only points at another (Troia, "v. Tros"; Διός, "gen. of Ζεύς") now carries the entry it points at after it. For Greek the two Homeric lexicons, Autenrieth and Cunliffe, answer when LSJ and Middle Liddell have nothing (the patronymics Πηληϊάδης and Ἀτρεΐδης). (#PR)
