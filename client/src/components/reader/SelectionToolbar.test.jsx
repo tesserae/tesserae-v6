@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import SelectionToolbar, { wordOf, scopeFor } from './SelectionToolbar';
+import SelectionToolbar, { wordOf, scopeFor, lookupWordOf } from './SelectionToolbar';
 import { rescope } from '../../utils/sentences';
 
 describe('wordOf', () => {
@@ -19,6 +19,20 @@ describe('wordOf', () => {
     expect(wordOf({ text: '' })).toBe(null);
     expect(wordOf({ text: '123' })).toBe(null);
     expect(wordOf(null)).toBe(null);
+  });
+});
+
+describe('lookupWordOf', () => {
+  it('prefers the whole word a sweep landed in over the swept letters', () => {
+    expect(lookupWordOf({ text: 'irumq', clickedWord: 'virumque' })).toBe('virumque');
+    expect(lookupWordOf({ text: 'Virumque', clickedWord: 'virumque' })).toBe('virumque');
+  });
+  it('keeps the swept word when the pointer was released on a different one', () => {
+    expect(lookupWordOf({ text: 'arma', clickedWord: 'cano' })).toBe('arma');
+  });
+  it('falls back to the clicked word for a plain click, and to nothing for a sweep of several words', () => {
+    expect(lookupWordOf({ text: '', clickedWord: 'cano' })).toBe('cano');
+    expect(lookupWordOf({ text: 'arma virumque' })).toBeNull();
   });
 });
 
