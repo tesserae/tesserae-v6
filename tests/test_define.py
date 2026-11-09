@@ -131,6 +131,32 @@ def test_latin_spellings_write_consonantal_u_as_v():
     assert D.latin_spellings('quis') == ['quis']
 
 
+def test_dictionary_spellings_try_a_capital_after_the_lower_case():
+    assert D.dictionary_spellings('troia', 'la') == ['troia', 'Troia']
+    assert D.dictionary_spellings('iuno', 'la') == ['iuno', 'Iuno']
+    assert D.dictionary_spellings('uir', 'la') == ['uir', 'vir', 'Uir', 'Vir']
+    assert D.dictionary_spellings('ἀχιλλεύς', 'grc') == ['ἀχιλλεύς', 'Ἀχιλλεύς']
+    assert D.dictionary_spellings('ζεύς', 'grc') == ['ζεύς', 'Ζεύς']
+
+
+def test_name_answers_with_the_capitalised_entry(client, monkeypatch):
+    """Lewis and Short answers 'Troia' and not 'troia'; the lemma, the link and
+    the entry come back in the dictionary's spelling."""
+    monkeypatch.setattr(D, '_known_latin_form', lambda f: f == 'troiae')
+    monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: 'troia')
+    asked = []
+    def fake(lemma, language):
+        asked.append(lemma)
+        return ('Troia, ae, f., Troy', 'Lewis and Short') if lemma == 'Troia' else None
+    monkeypatch.setattr(D, 'fetch_logeion_definition', fake)
+    r = client.get('/api/define?word=Troiae&language=la')
+    d = r.get_json()
+    assert asked == ['troia', 'Troia']
+    assert d['lemma'] == 'Troia'
+    assert d['definition'].startswith('Troia')
+    assert d['url'] == 'https://logeion.uchicago.edu/Troia'
+
+
 def test_enclitic_word_answers_with_the_base_lemma_in_dictionary_spelling(client, monkeypatch):
     table = {'uirum': 'uir', 'inferret': 'infero'}
     monkeypatch.setattr(D.hapax, 'get_dictionary_lemma', lambda w, lang: table.get(w, w))

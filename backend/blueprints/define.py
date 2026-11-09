@@ -234,6 +234,21 @@ def latin_spellings(lemma):
     return out
 
 
+def dictionary_spellings(lemma, language):
+    """The spellings to try at the dictionary, in order: the table's lower-case
+    lemma (for Latin, with consonantal u written v as well), then each with a
+    capital. Lewis and Short and LSJ file names under a capital (Troia, Iuno,
+    Ἀχιλλεύς) and answer nothing to the lower case, so 'Troiae' in the first
+    line of the Aeneid found no entry (2026-11-08)."""
+    base = latin_spellings(lemma) if language == 'la' else [lemma]
+    out = list(base)
+    for s in base:
+        c = s[:1].upper() + s[1:]
+        if c not in out:
+            out.append(c)
+    return out
+
+
 def dictionary_lemma(word, language):
     """(lemma, enclitic) for the word in its language."""
     if language == 'la':
@@ -245,9 +260,9 @@ def dictionary_lemma(word, language):
 
 def look_up(lemma, language):
     """(definition, dictionary, spelling) for a lemma, or (None, None, lemma).
-    Fetches upstream. For Latin the spellings in latin_spellings are tried in
-    turn, and the one the dictionary answered to is returned."""
-    spellings = latin_spellings(lemma) if language == 'la' else [lemma]
+    Fetches upstream. The spellings in dictionary_spellings are tried in turn,
+    and the one the dictionary answered to is returned."""
+    spellings = dictionary_spellings(lemma, language)
     for spelling in spellings:
         found = fetch_logeion_definition(spelling, language)
         if found:
