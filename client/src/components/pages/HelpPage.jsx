@@ -776,7 +776,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary, which catches allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in at most about one in eight works of the language, so the cutoff follows the size of each corpus: about 90 works for Latin, 110 for Greek, 20 for Coptic, and 3 to 5 for English, Hebrew, Persian and Urdu. A rare shared word is unlikely to be coincidence.</p>
+                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in at most about one in eight works of the language, so the cutoff follows the size of each corpus: about 90 works for Latin, 240 for Greek, 20 for Coptic, and 3 to 5 for English, Hebrew, Persian and Urdu. A rare shared word is unlikely to be coincidence.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Verbatim Quotation:</strong> Finds runs of three or more identical consecutive words, in every language. It carries the most weight of any channel, because an exact run is the strongest sign of quotation, and it matters most where authors quote their sources directly, as Coptic writers quote scripture without citation. See the <button type="button" onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic Search</button> section for an example.</p>
@@ -1800,8 +1800,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   Translation shows the aligned English where one exists, with
                   the translator named under it. Most are public domain. A few are open translations
                   used with attribution under their non-commercial terms (Silius Italicus books 9 to
-                  17, A. S. Kline). Coverage is partial (in August 2026, about 61 percent of the Greek lines and
-                  48 percent of the Latin lines), so some passages have none. The translators are listed on the{' '}
+                  17, A. S. Kline). Coverage is partial (in November 2026, about 20 percent of the Greek lines, most of the Greek added that
+                  month having none, and in August 2026, 48 percent of the Latin lines), so some passages have none. The translators are listed on the{' '}
                   <a href="/text-credits" className="text-red-600 hover:underline">Sources</a> page under About.
               </p>
               <p className="text-gray-700 mb-3">
@@ -2364,10 +2364,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    A large corpus: about 870 works (about 1,330 files, counting books held separately). Vocabulary, sound, meaning, and
+                    A large corpus: about 1,927 works (about 2,987 files, counting books held separately). Vocabulary, sound, meaning, and
                     rare-word channels all work. Searches are accent-insensitive, so you can enter text with or without
-                    diacritics. About half the Greek corpus is grammatically parsed (650 texts, Homer among them), so the
+                    diacritics. About half the Greek corpus is grammatically parsed (1,635 of the about 2,987 files, Homer among them), so the
                     syntax channels contribute where both texts are parsed and nothing where either is not.
+                    In November 2026 the Greek corpus gained about 1,030 works from the CLLG Freed Corpus: commentators on
+                    Aristotle, Byzantine historians, collections of fragments of Greek historians and of comic poets, scholia,
+                    and medical, mathematical and Christian writers. These new files have no grammar parse and almost no
+                    translation yet.
                     On 121 Homeric parallels in later epic, the search finds 69 percent searching whole works and
                     97 percent book by book (early 2026).
                   </p>
@@ -3321,7 +3325,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Greek: Partial</h4>
                 <p className="text-sm text-gray-700">
-                  650 of the about 1,330 Greek files in the corpus have been parsed (239,000+ lines), using Stanza with
+                  1,635 of the about 2,987 Greek files in the corpus have been parsed (558,000+ lines), using Stanza with
                   the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model. Homer is among them.
                   Syntax matching <strong>does</strong> work for Greek pairs where both texts are parsed, and contributes
                   nothing where either is not. The other channels run normally either way.
@@ -3498,7 +3502,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     electronic sources are the Perseus Digital Library and Open Greek and Latin (with its
                     Scaife and CSEL texts) for Greek and Latin, The Latin Library and Musisque Deoque for
                     Latin, Coptic Scriptorium for Coptic, Sefaria for Hebrew, the SBL Greek New Testament, Project Gutenberg
-                    for English, and open datasets and Wikisource for Persian and Urdu. The edition is the one
+                    for English, the CLLG Freed Corpus (Inria) for about 1,030 further Greek works (released under CC0, because
+                    French law gives no copyright in the text of a critical edition), and open datasets and Wikisource for Persian and Urdu. The edition is the one
                     the electronic source reproduces, often an older edition now in the public domain, and the
                     print source on the Text Credits page says which. A few works come under a license for
                     searching only, and their terms are listed there too.
@@ -3637,7 +3642,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
                     Coptic almost entirely (186 of 187 files), Latin for every file (1,889 of 1,889), and Greek for
-                    every file (1,635 of 1,635, Homer among them). One Latin line in the Natural History of Pliny
+                    1,635 of its 2,987 files (Homer among them, not the files added in November 2026). One Latin line in the Natural History of Pliny
                     (32.61) is too long for the parser and has none. A work added after the latest parse is not
                     covered until the parses are updated. English, Hebrew, Persian and Urdu are not parsed. Where a
                     text has no parse the syntax channel contributes nothing and the other channels run normally.
