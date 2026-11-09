@@ -4,6 +4,8 @@ import json
 import os
 
 import pytest
+import unicodedata
+import urllib.parse
 from flask import Flask
 
 import backend.blueprints.define as D
@@ -131,12 +133,13 @@ def test_latin_spellings_write_consonantal_u_as_v():
     assert D.latin_spellings('quis') == ['quis']
 
 
-def test_dictionary_spellings_try_a_capital_after_the_lower_case():
+def test_dictionary_spellings_try_a_capital_after_the_lower_case(greek):
     assert D.dictionary_spellings('troia', 'la') == ['troia', 'Troia']
     assert D.dictionary_spellings('iuno', 'la') == ['iuno', 'Iuno']
     assert D.dictionary_spellings('uir', 'la') == ['uir', 'vir', 'Uir', 'Vir']
-    assert D.dictionary_spellings('ἀχιλλεύς', 'grc') == ['ἀχιλλεύς', 'Ἀχιλλεύς']
-    assert D.dictionary_spellings('ζεύς', 'grc') == ['ζεύς', 'Ζεύς']
+    # Greek headwords carry their own case: a name comes back with its capital.
+    assert D.dictionary_spellings('ἀχιλλεύς', 'grc') == ['Ἀχιλλεύς']
+    assert D.dictionary_spellings('ζεύς', 'grc') == ['Ζεύς']
 
 
 def test_name_answers_with_the_capitalised_entry(client, monkeypatch):
@@ -155,6 +158,48 @@ def test_name_answers_with_the_capitalised_entry(client, monkeypatch):
     assert d['lemma'] == 'Troia'
     assert d['definition'].startswith('Troia')
     assert d['url'] == 'https://logeion.uchicago.edu/Troia'
+
+
+HEADWORDS = {'μηνισ': ['μῆνις'], 'θεα': ['θέα', 'θεά'], 'ζευσ': ['Ζεύς'], 'διοσ': ['δῖος', 'Δῖος', 'Διός'],
+             'αχιλλευσ': ['Ἀχιλλεύς'], 'αειδω': ['ἀείδω']}
+GREEK_TABLE = {'μηνιν': 'μηνισ', 'θεα': 'θεα', 'διοσ': 'ζευσ', 'αχιλληοσ': 'αχιλλευσ', 'αειδε': 'αειδω'}
+
+
+@pytest.fixture
+def greek(monkeypatch):
+    monkeypatch.setattr(D, '_headwords', dict(HEADWORDS))
+    monkeypatch.setattr(D.hapax, 'get_dictionary_lemma',
+                        lambda w, lang: GREEK_TABLE.get(w, w) if lang == 'grc' else w)
+
+
+def test_greek_form_writes_grave_as_acute_and_composes():
+    assert D.greek_form('θεὰ') == 'θεά'
+    assert D.greek_form('Διὸς') == 'Διός'
+    assert D.greek_form(unicodedata.normalize('NFD', 'μῆνιν')) == 'μῆνιν'
+    assert D.strip_greek('Μῆνιν') == 'μηνιν'
+    assert D.strip_greek('Ζεύς') == 'ζευσ'
+
+
+def test_greek_lemmas_give_the_accented_headwords(greek):
+    assert D.greek_lemmas('Μῆνιν') == ['μῆνις']            # the Iliad's first word
+    assert D.greek_lemmas('θεὰ') == ['θεά', 'θέα']           # the text's own accent leads
+    assert D.greek_lemmas('Διὸς') == ['Διός', 'Ζεύς', 'δῖος']   # itself a headword, then its lemma's, then the rest
+    assert D.greek_lemmas('Ἀχιλλῆος') == ['Ἀχιλλεύς']
+    assert D.greek_lemmas('ἄειδε') == ['ἀείδω']
+    assert D.greek_lemmas('Πηληϊάδεω') == ['Πηληϊάδεω']      # unknown: as written
+
+
+def test_greek_word_answers_with_the_headword_entry(client, greek, monkeypatch):
+    asked = []
+    def fake(lemma, language):
+        asked.append(lemma)
+        return ('μῆνις, ιος, ἡ, wrath', 'Liddell-Scott-Jones (LSJ)') if lemma == 'μῆνις' else None
+    monkeypatch.setattr(D, 'fetch_logeion_definition', fake)
+    d = client.get('/api/define?word=Μῆνιν&language=grc').get_json()
+    assert asked == ['μῆνις']
+    assert d['lemma'] == 'μῆνις'
+    assert d['definition'].startswith('μῆνις')
+    assert d['url'] == 'https://logeion.uchicago.edu/' + urllib.parse.quote('μῆνις', safe='')
 
 
 def test_enclitic_word_answers_with_the_base_lemma_in_dictionary_spelling(client, monkeypatch):

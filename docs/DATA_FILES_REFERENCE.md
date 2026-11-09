@@ -28,6 +28,7 @@ python scripts/download_data.py --check
 |-----------|------|----------|
 | `texts/` | ~308 MB | 3,531 `.tess` text files in eight language folders (Latin, Greek, English, Coptic, Hebrew, Italian, Old French, Middle High German). The Persian, Urdu and Arabic texts are not in git |
 | `data/lemma_tables/*.json` | ~40 MB | Lemma lookup tables (Latin, Greek) |
+| `data/lemma_tables/greek_headwords.json` | 2.6 MB | Accent-stripped Greek spelling to accented LSJ headwords, for the dictionary lookup (built by `scripts/corpus/build_greek_headwords.py`; license in `GREEK_HEADWORDS_LICENSE.txt`) |
 | `data/pedecerto/` | ~5 MB | Metrical scansion XML data |
 | `cache/` | ~5 MB | Pre-computed rare words and bigrams |
 | `backend/proper_names/` | ~400 KB | Greek-Latin proper name gazetteer (persons, deities, places) |
