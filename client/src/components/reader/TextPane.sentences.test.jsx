@@ -227,6 +227,32 @@ describe('the word under a plain click', () => {
     expect(sel.startIdx).toBe(2);
     expect(sel.text).toBe('');
     expect(sel.clickedWord).toBe('virumque');
+    expect(sel.clickedWordRange).toEqual(['Arma '.length, 'Arma virumque'.length]);
+  });
+
+  it('is marked in its line when the pane is in Word mode, and not otherwise', () => {
+    const selection = { startIdx: 2, endIdx: 2, refStart: UNITS[2].ref, refEnd: UNITS[2].ref, lineCount: 1,
+      text: '', clickedWord: 'virumque', clickedWordRange: [5, 13] };
+    const { container, rerender } = render(
+      <TextPane units={UNITS} language="la" selection={selection} onSelect={() => {}} markWord />);
+    const mark = container.querySelector('mark');
+    expect(mark && mark.textContent).toBe('virumque');
+    expect(container.querySelectorAll('[id^="line-"]')[2].textContent).toContain('Arma virumque cano, Troiae qui primus ab oris');
+    rerender(<TextPane units={UNITS} language="la" selection={selection} onSelect={() => {}} markWord={false} />);
+    expect(container.querySelector('mark')).toBeNull();
+  });
+
+  it('places the range inside a prose unit by the sentence offset', () => {
+    const onSelect = vi.fn();
+    const { container } = render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
+    const span = container.querySelectorAll('[data-sentence="1"]')[0];
+    const inSentence = 'Tiberii '.length;   // the caret before "Gaique"
+    document.caretRangeFromPoint = () => ({ startContainer: span.firstChild, startOffset: inSentence });
+    fireEvent.mouseDown(span, { button: 0 });
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    const sel = onSelect.mock.calls[0][0];
+    expect(sel.clickedWord).toBe('Gaique');
+    expect(PROSE.slice(sel.clickedWordRange[0], sel.clickedWordRange[1])).toBe('Gaique');
   });
 
   it('is absent for a click on punctuation or space, and for a swept selection', () => {
