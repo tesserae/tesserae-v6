@@ -201,9 +201,43 @@ describe('SelectionToolbar - Look up', () => {
       url: 'https://logeion.uchicago.edu/cano' });
     mount({ ...word, text: 'arma virumque cano', clickedWord: 'cano' }, 'word');
     expect(screen.getByRole('button', { name: 'Find “cano” in the corpus' })).toBeTruthy();
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up' }));
+    // In Word mode the clicked word's entry opens by itself.
     expect(await screen.findByText('cano, to sing')).toBeTruthy();
     expect(global.fetch.mock.calls[0][0]).toBe('/api/define?word=cano&language=la');
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up' }));
+    expect(screen.queryByText('cano, to sing')).toBeNull();
+  });
+
+  it('"Look up a word" opens the entry for the clicked word as soon as the scope is Word', async () => {
+    global.fetch = reply({ lemma: 'deus', definition: 'deus, a god', url: 'https://x.test/deus' });
+    const onScope = vi.fn();
+    const sel = { ...word, text: '', clickedWord: 'deos' };
+    const { rerender } = render(
+      <SelectionToolbar selection={sel} scope="line" onScope={onScope}
+                        work="vergil.aeneid.part.1.tess" language="la" onAct={() => {}} onClose={() => {}} />,
+    );
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Look up a word' }));
+    expect(onScope).toHaveBeenCalledWith('word');
+    rerender(
+      <SelectionToolbar selection={sel} scope="word" onScope={onScope}
+                        work="vergil.aeneid.part.1.tess" language="la" onAct={() => {}} onClose={() => {}} />,
+    );
+    expect(await screen.findByText('deus, a god')).toBeTruthy();
+  });
+
+  it('in Word mode, a click on another word opens that word\'s entry at once', async () => {
+    global.fetch = reply({ lemma: 'genus', definition: 'genus, birth', url: 'https://x.test/genus' });
+    const first = { ...word, text: '', clickedWord: 'deos', clickedWordRange: [12, 16] };
+    const { rerender } = render(
+      <SelectionToolbar selection={first} scope="word" onScope={() => {}}
+                        work="vergil.aeneid.part.1.tess" language="la" onAct={() => {}} onClose={() => {}} />,
+    );
+    rerender(
+      <SelectionToolbar selection={{ ...first, clickedWord: 'genus', clickedWordRange: [24, 29] }} scope="word" onScope={() => {}}
+                        work="vergil.aeneid.part.1.tess" language="la" onAct={() => {}} onClose={() => {}} />,
+    );
+    expect(await screen.findByText('genus, birth')).toBeTruthy();
+    expect(global.fetch.mock.calls.at(-1)[0]).toBe('/api/define?word=genus&language=la');
   });
 
   it('names the enclitic taken off a Latin word', async () => {

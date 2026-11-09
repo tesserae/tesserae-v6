@@ -57,11 +57,26 @@ export function wordAtPoint(x, y) {
   let b = offset;
   while (a > 0 && LETTER.test(t[a - 1])) a -= 1;
   while (b < t.length && LETTER.test(t[b])) b += 1;
-  return a < b ? t.slice(a, b) : null;   // null for a click on space or punctuation
+  // null for a click on space or punctuation
+  return a < b ? { word: t.slice(a, b), start: a, end: b, node } : null;
+}
+
+/** `text`, a slice of a unit beginning at character `base`, with the unit
+ *  range `range` ([start, end]) wrapped in a mark when it falls inside. */
+function marked(text, base, range) {
+  if (!range) return text;
+  const s = range[0] - base;
+  const e = range[1] - base;
+  if (s < 0 || e > text.length || s >= e) return text;
+  return [
+    text.slice(0, s),
+    <mark key="w" className="bg-red-200 text-inherit rounded-sm">{text.slice(s, e)}</mark>,
+    text.slice(e),
+  ];
 }
 
 export default function TextPane({ units, language, selection, onSelect, total, onMore,
-                                    reuseMarks, onReuseClick, documentsTrial }) {
+                                    reuseMarks, onReuseClick, documentsTrial, markWord }) {
   // On a phone: a narrower line-number column, a smaller gap and a hanging
   // indent, so the text has the width and a wrapped line reads as one line.
   const phone = useIsPhone();
@@ -115,10 +130,21 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       const top = el ? el.offsetTop + el.offsetHeight : 0;
       // A plain click (no text swept) still names the word under the
       // pointer, so the toolbar's Word scope and Look up work from one click.
-      const clickedWord = !native && e && lo === hi && Number.isFinite(e.clientX)
+      const hit = !native && e && lo === hi && Number.isFinite(e.clientX)
         ? wordAtPoint(e.clientX, e.clientY) : null;
-      const withWord = (extra) => (clickedWord ? { ...(extra || {}), clickedWord } : extra);
       const parts = lo === hi ? partsOf(units[lo]?.text) : null;
+      let wordFields = null;
+      if (hit) {
+        // The word's place in the unit's text, so the line can mark it: a
+        // verse line is one text node; a prose sentence span starts at its
+        // sentence's offset.
+        const sEl = hit.node.parentElement && hit.node.parentElement.closest
+          ? hit.node.parentElement.closest('[data-sentence]') : null;
+        const k = sEl ? Number(sEl.dataset.sentence) : NaN;
+        const base = parts && Number.isFinite(k) && parts[k] ? parts[k].start : 0;
+        wordFields = { clickedWord: hit.word, clickedWordRange: [base + hit.start, base + hit.end] };
+      }
+      const withWord = (extra) => (wordFields ? { ...(extra || {}), ...wordFields } : extra);
       if (!parts) { emit(lo, hi, top, native, withWord()); return; }
       // Inside one long unit: the sentences the click or the drag touched.
       const down = downRef.current && downRef.current.i === lo ? downRef.current.sent : null;
@@ -450,16 +476,20 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               <p className="m-0"
                  style={phone ? { textIndent: '-1em', [rtl ? 'paddingRight' : 'paddingLeft']: '1em' } : undefined}>
                 {(() => {
+                  // In Word mode the clicked word is marked in its line, so the
+                  // reader can see which word the toolbar is about (2026-11-08).
+                  const wr = markWord && selection && selection.startIdx === i
+                    && selection.endIdx === i ? selection.clickedWordRange : null;
                   // A long prose unit is drawn as its sentences (the text is
                   // unchanged), so one can be clicked, and the selected one lit.
-                  if (!parts) return u.text;
+                  if (!parts) return marked(u.text, 0, wr);
                   return parts.map((pt, k) => (
                     <span
                       key={pt.start}
                       data-sentence={k}
                       className={lit && k >= lit[0] && k <= lit[1] ? 'bg-red-100 rounded-sm' : undefined}
                     >
-                      {u.text.slice(pt.start, pt.end)}
+                      {marked(u.text.slice(pt.start, pt.end), pt.start, wr)}
                     </span>
                   ));
                 })()}

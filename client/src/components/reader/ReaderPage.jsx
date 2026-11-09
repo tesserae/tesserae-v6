@@ -6,7 +6,7 @@ import ReaderHeader from './ReaderHeader';
 import ReaderNav, { ReaderEndNav, ReaderFloatNav, ReaderPhoneTopButton, sectionsFor, bookFileFor, bookSections, storyNumberForRef } from './ReaderNav';
 import useTextStructure from '../../hooks/useTextStructure';
 import { useIsPhone } from '../../hooks/useIsPhone';
-import SelectionToolbar, { scopeFor } from './SelectionToolbar';
+import SelectionToolbar, { scopeFor, lookupWordOf } from './SelectionToolbar';
 import { rescope } from '../../utils/sentences';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
@@ -928,6 +928,7 @@ export default function ReaderPage() {
                 selection={selection}
                 reuseMarks={reuseMarks}
                 documentsTrial={documentsTrial}
+                markWord={scope === 'word'}
                 onReuseClick={(u, kind) => {
                   setReuseFirst(kind === 'documents' ? 'documents' : null);
                   const i = units.findIndex((x) => x.ref === u.ref);
@@ -941,7 +942,10 @@ export default function ReaderPage() {
                 onSelect={(sel) => {
                   setReuseFirst(null);
                   setSelection(sel);
-                  if (sel) setScope(scopeFor(sel));
+                  // Word mode stays Word while the reader clicks from word to
+                  // word; every click used to drop the toolbar back to Line, so
+                  // the mode never held (2026-11-08).
+                  if (sel) setScope(scope === 'word' && lookupWordOf(sel) ? 'word' : scopeFor(sel));
                   // One line asks for shared wording, which is what the
                   // popup offers for it, so the panel opens on Verbal
                   // Parallels; a span asks for similar passages. The panel

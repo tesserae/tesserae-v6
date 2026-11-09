@@ -145,9 +145,13 @@ export default function SelectionToolbar({
   const [lookupOpen, setLookupOpen] = useState(false);
   const corpusMap = useCorpusTextMap(language);
 
-  // A new selection puts the popover away.
-  const selectionKey = `${selection?.refStart || ''}|${selection?.charStart ?? ''}|${selection?.text || ''}`;
-  useEffect(() => { setLookupOpen(false); }, [selectionKey]);
+  // A new selection puts the popover away, unless the reader is in Word mode
+  // and clicked a word: then the entry for that word opens at once, which is
+  // what "Look up a word" promised (2026-11-08).
+  const selectionKey = `${selection?.refStart || ''}|${selection?.charStart ?? ''}|${selection?.text || ''}`
+    + `|${selection?.clickedWord || ''}|${(selection?.clickedWordRange || []).join('-')}`;
+  const clickedInWordMode = scope === 'word' && !!selection?.clickedWord;
+  useEffect(() => { setLookupOpen(clickedInWordMode); }, [selectionKey]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!selection) return null;
 
@@ -250,7 +254,7 @@ export default function SelectionToolbar({
         // so here, in every state of the toolbar, is what makes it findable
         // (the project lead met the toolbar in Line mode and never saw it).
         <button
-          onClick={() => onScope?.('word')}
+          onClick={() => { onScope?.('word'); if (word) setLookupOpen(true); }}
           title="Dictionary entry for the word you clicked"
           className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-600
                      hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400"
