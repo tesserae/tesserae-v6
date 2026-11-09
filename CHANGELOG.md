@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-09
+- Data operations: the three citation indexes rebuilt with recognizer rounds 9 and 9b and installed on 2026-11-09 (EJC 43,353, MUSE 29,895, JSTOR 769,269 citations). Record in docs/DATA_OPERATIONS.md. (#PR)
 - Citation recognizer round 9b, after reading the round 9 rebuild: the De inventione context needs "inventione" (the word "inventory" had satisfied it), the parser no longer reads "il" or a lowercase "li" as a Roman numeral (the Italian "Per il" had survived as Pericles 49 when Plutarch was named nearby), and a Eutropius locus beyond the Breviarium's ten books is dropped. (#PR)
 - Citation recognizer round 9, from the JSTOR index audit: a bare Per. needs Plutarch named ahead unless the locus has two levels (the Italian "Per il" had been read as Pericles 49), a bare inv. needs Cicero or the title named ahead (museum inventory numbers had been read as De inventione), and Eutrop. without Claudian named is Eutropius's Breviarium. Three context rules, no code change; the three indexes are rebuilt with them. (#PR)
 - Data operations: the JSTOR citation index (773,047 citations from 222,035 articles of 54 classics journals, 1832 to 2025, read under JSTOR's text-analysis terms) installed as the third index on 2026-11-09; shown as citation and link only. Record in docs/DATA_OPERATIONS.md. (#PR)
