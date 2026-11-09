@@ -39,7 +39,9 @@ def test_elided_article_is_no_roman_numeral(text):
 
 
 def test_lone_roman_numeral_without_apostrophe_still_counts():
-    assert _loci('Per. 50') == [('plutarch.pericles', '50')]
+    # Round 9: a bare one-level Per. needs Plutarch named ahead (the Italian
+    # "Per il" had been read as Pericles 49), so the author is written here.
+    assert _loci('Plutarch, Per. 50') == [('plutarch.pericles', '50')]
     assert _loci('Plut. Per. l') == [('plutarch.pericles', '50')]
 
 

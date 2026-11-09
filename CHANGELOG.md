@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-09
+- Citation recognizer round 9, from the JSTOR index audit: a bare Per. needs Plutarch named ahead unless the locus has two levels (the Italian "Per il" had been read as Pericles 49), a bare inv. needs Cicero or the title named ahead (museum inventory numbers had been read as De inventione), and Eutrop. without Claudian named is Eutropius's Breviarium. Three context rules, no code change; the three indexes are rebuilt with them. (#PR)
 - Scholarship: a JSTOR article's link opens on the citing page (the stable link with ?seq=, since the delivery carries no printed page numbers) and no page number is listed for it. (#PR)
 - Scholarship: a third citation index, the JSTOR text-analysis delivery, read when TESSERAE_CITATIONS_JSTOR names its file. Its articles are listed as citation and link back to JSTOR with no sentence, at JSTOR's request; the Scholarship-about page and Help say so. (#PR)
 
