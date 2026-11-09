@@ -92,6 +92,12 @@ body {
 .reader-text ::selection { background: transparent; }
 .reader-text ::-moz-selection { background: transparent; }
 
+/* In Word mode (the toolbar's "Looking up words") the letters being swept
+   show in the same red as the marked word, so a drag over part of a word is
+   visible while it happens; the whole word is what gets taken (2026-11-08). */
+.reader-text.reader-word-mode ::selection { background: #fecaca; }
+.reader-text.reader-word-mode ::-moz-selection { background: #fecaca; }
+
 /* On a phone the document never scrolls sideways (2026-10-11). After a tap
    on a reuse tile in the Reader, iOS Safari showed the whole page, menu
    included, shifted about a hundred pixels to the left: the visual viewport

@@ -255,7 +255,7 @@ describe('the word under a plain click', () => {
     expect(PROSE.slice(sel.clickedWordRange[0], sel.clickedWordRange[1])).toBe('Gaique');
   });
 
-  it('is absent for a click on punctuation or space, and for a swept selection', () => {
+  it('is absent for a click on punctuation or space', () => {
     const onSelect = vi.fn();
     render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
     const p = screen.getByText('Arma virumque cano, Troiae qui primus ab oris');
@@ -263,5 +263,72 @@ describe('the word under a plain click', () => {
     fireEvent.mouseDown(p, { button: 0 });
     fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
     expect(onSelect.mock.calls[0][0].clickedWord).toBeUndefined();
+  });
+
+  it('is the whole word when only some of its letters were swept', () => {
+    const onSelect = vi.fn();
+    render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
+    const p = screen.getByText('Arma virumque cano, Troiae qui primus ab oris');
+    document.caretRangeFromPoint = () => null;
+    fireEvent.mouseDown(p, { button: 0 });
+    window.getSelection().setBaseAndExtent(p.firstChild, 'Arma v'.length, p.firstChild, 'Arma virumq'.length);
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    const sel = onSelect.mock.calls[0][0];
+    expect(sel.text).toBe('irumq');
+    expect(sel.clickedWord).toBe('virumque');
+    expect(sel.clickedWordRange).toEqual(['Arma '.length, 'Arma virumque'.length]);
+  });
+
+  it('names the word a sweep begins before, not the one before the space', () => {
+    const onSelect = vi.fn();
+    render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
+    const p = screen.getByText('Arma virumque cano, Troiae qui primus ab oris');
+    document.caretRangeFromPoint = () => null;
+    fireEvent.mouseDown(p, { button: 0 });
+    window.getSelection().setBaseAndExtent(p.firstChild, 'Arma'.length, p.firstChild, 'Arma vir'.length);
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    expect(onSelect.mock.calls[0][0].clickedWord).toBe('virumque');
+  });
+
+  it('is absent for a sweep across several words', () => {
+    const onSelect = vi.fn();
+    render(<TextPane units={UNITS} language="la" selection={null} onSelect={onSelect} />);
+    const p = screen.getByText('Arma virumque cano, Troiae qui primus ab oris');
+    document.caretRangeFromPoint = () => null;
+    fireEvent.mouseDown(p, { button: 0 });
+    window.getSelection().setBaseAndExtent(p.firstChild, 0, p.firstChild, 'Arma virumque cano'.length);
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    expect(onSelect.mock.calls[0][0].clickedWord).toBeUndefined();
+  });
+
+  it('places a click after a marked word by the line, not by the text node', () => {
+    const onSelect = vi.fn();
+    const selection = { startIdx: 2, endIdx: 2, refStart: UNITS[2].ref, refEnd: UNITS[2].ref, lineCount: 1,
+      text: '', clickedWord: 'virumque', clickedWordRange: [5, 13] };
+    const { container } = render(
+      <TextPane units={UNITS} language="la" selection={selection} onSelect={onSelect} markWord />);
+    const p = container.querySelectorAll('[id^="line-"]')[2].querySelector('p');
+    const after = p.childNodes[2];   // the text node after <mark>virumque</mark>
+    expect(after.textContent.startsWith(' cano')).toBe(true);
+    document.caretRangeFromPoint = () => ({ startContainer: after, startOffset: 2 });
+    fireEvent.mouseDown(p, { button: 0 });
+    fireEvent.mouseUp(window, { clientX: 40, clientY: 10 });
+    const sel = onSelect.mock.calls[0][0];
+    expect(sel.clickedWord).toBe('cano');
+    expect(sel.clickedWordRange).toEqual(['Arma virumque '.length, 'Arma virumque cano'.length]);
+  });
+
+  it('drops the line band in Word mode and keeps it otherwise', () => {
+    const selection = { startIdx: 2, endIdx: 2, refStart: UNITS[2].ref, refEnd: UNITS[2].ref, lineCount: 1,
+      text: '', clickedWord: 'virumque', clickedWordRange: [5, 13] };
+    const { container, rerender } = render(
+      <TextPane units={UNITS} language="la" selection={selection} onSelect={() => {}} markWord />);
+    const line = () => container.querySelectorAll('[id^="line-"]')[2];
+    expect(line().className).not.toContain('bg-red-50');
+    expect(line().className).toContain('border-red-700');
+    expect(container.querySelector('.reader-word-mode')).not.toBeNull();
+    rerender(<TextPane units={UNITS} language="la" selection={selection} onSelect={() => {}} markWord={false} />);
+    expect(line().className).toContain('bg-red-50');
+    expect(container.querySelector('.reader-word-mode')).toBeNull();
   });
 });

@@ -51,14 +51,54 @@ export function wordAtPoint(x, y) {
     const r = document.caretRangeFromPoint(x, y);
     if (r) { node = r.startContainer; offset = r.startOffset; }
   }
+  return wordAtCaret(node, offset);
+}
+
+/** The run of letters around a caret (a text node and an offset), or null for
+ *  a caret on space or punctuation. */
+export function wordAtCaret(node, offset) {
   if (!node || node.nodeType !== 3) return null;
   const t = node.textContent || '';
   let a = offset;
   let b = offset;
   while (a > 0 && LETTER.test(t[a - 1])) a -= 1;
   while (b < t.length && LETTER.test(t[b])) b += 1;
-  // null for a click on space or punctuation
   return a < b ? { word: t.slice(a, b), start: a, end: b, node } : null;
+}
+
+/** The whole word a swept selection falls inside, or null. A drag over part
+ *  of a word ("irumq" out of "virumque") used to become the toolbar's word
+ *  and the dictionary's query, and with the browser's highlight hidden in the
+ *  Reader the reader could not see that only a few letters were swept (the
+ *  project lead, 2026-11-08). The word is expanded from the first letter
+ *  inside the selection, so a sweep that begins in the space before a word
+ *  still names that word and not the one before it. */
+export function wordAtSelection(sel) {
+  if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+  const r = sel.getRangeAt(0);
+  const node = r.startContainer;
+  if (!node || node.nodeType !== 3) return null;
+  const t = node.textContent || '';
+  let o = r.startOffset;
+  const stop = r.endContainer === node ? r.endOffset : t.length;
+  while (o < stop && !LETTER.test(t[o])) o += 1;
+  return o < stop ? wordAtCaret(node, o) : null;
+}
+
+/** Where a text node's text begins inside its unit's text: the lengths of the
+ *  text nodes before it in the same unit (or sentence span). A marked word
+ *  splits a line into three text nodes, so a hit's offsets are local to its
+ *  node and the mark landed on the wrong letters for every word after the
+ *  first (2026-11-08). */
+function textOffsetInUnit(node) {
+  const el = node && node.parentElement && node.parentElement.closest
+    ? node.parentElement.closest('[data-sentence], p') : null;
+  if (!el || typeof document === 'undefined' || !document.createTreeWalker) return 0;
+  const walker = document.createTreeWalker(el, 4 /* NodeFilter.SHOW_TEXT */);
+  let sum = 0;
+  let n = walker.nextNode();
+  while (n && n !== node) { sum += (n.textContent || '').length; n = walker.nextNode(); }
+  return n === node ? sum : 0;
 }
 
 /** `text`, a slice of a unit beginning at character `base`, with the unit
@@ -130,18 +170,23 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       const top = el ? el.offsetTop + el.offsetHeight : 0;
       // A plain click (no text swept) still names the word under the
       // pointer, so the toolbar's Word scope and Look up work from one click.
-      const hit = !native && e && lo === hi && Number.isFinite(e.clientX)
-        ? wordAtPoint(e.clientX, e.clientY) : null;
+      // A sweep inside one word (a drag over some of its letters, or a
+      // double-click) names the whole word the sweep falls in.
+      let hit = null;
+      if (lo === hi) {
+        if (!native && e && Number.isFinite(e.clientX)) hit = wordAtPoint(e.clientX, e.clientY);
+        else if (native && !/\s/.test(native)) hit = wordAtSelection(sel);
+      }
       const parts = lo === hi ? partsOf(units[lo]?.text) : null;
       let wordFields = null;
       if (hit) {
         // The word's place in the unit's text, so the line can mark it: a
-        // verse line is one text node; a prose sentence span starts at its
-        // sentence's offset.
+        // prose sentence span starts at its sentence's offset, and the hit's
+        // text node may begin after other nodes of the same line (a mark).
         const sEl = hit.node.parentElement && hit.node.parentElement.closest
           ? hit.node.parentElement.closest('[data-sentence]') : null;
         const k = sEl ? Number(sEl.dataset.sentence) : NaN;
-        const base = parts && Number.isFinite(k) && parts[k] ? parts[k].start : 0;
+        const base = (parts && Number.isFinite(k) && parts[k] ? parts[k].start : 0) + textOffsetInUnit(hit.node);
         wordFields = { clickedWord: hit.word, clickedWordRange: [base + hit.start, base + hit.end] };
       }
       const withWord = (extra) => (wordFields ? { ...(extra || {}), ...wordFields } : extra);
@@ -232,7 +277,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   return (
     <div
       ref={paneRef}
-      className={`flex-1 ${phone ? 'px-2 py-4' : 'px-6 py-6'} overflow-y-auto reader-text`}
+      className={`flex-1 ${phone ? 'px-2 py-4' : 'px-6 py-6'} overflow-y-auto reader-text${markWord ? ' reader-word-mode' : ''}`}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       {/* Gentium Book carries Latin, polytonic Greek and Cyrillic, and
@@ -271,11 +316,17 @@ export default function TextPane({ units, language, selection, onSelect, total, 
             && selection.startIdx === i && selection.endIdx === i
             ? sentenceRangeOf(selection, parts) : null;
           const partial = !!(lit && (lit[0] > 0 || lit[1] < parts.length - 1));
+          // In Word mode the clicked word is marked in its line, so the
+          // reader can see which word the toolbar is about (2026-11-08).
+          // The line then keeps its bar and loses its pink band: with the
+          // whole line pink the owner read a click as selecting the line.
+          const wr = markWord && selection && selection.startIdx === i
+            && selection.endIdx === i ? selection.clickedWordRange : null;
           return (
             <div
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
-              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? `${partial ? '' : 'bg-red-50 '}border-l-[3px] border-red-700 -ml-[3px] rounded-r` : ''}`}
+              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? `${partial || wr ? '' : 'bg-red-50 '}border-l-[3px] border-red-700 -ml-[3px] rounded-r` : ''}`}
               // The second column holds the "quoted in N works" mark. With the
               // documents trial on, a line can carry a second mark (the amber
               // inscriptions count) beside it, and 1.15rem fitted one mark only:
@@ -476,10 +527,6 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               <p className="m-0"
                  style={phone ? { textIndent: '-1em', [rtl ? 'paddingRight' : 'paddingLeft']: '1em' } : undefined}>
                 {(() => {
-                  // In Word mode the clicked word is marked in its line, so the
-                  // reader can see which word the toolbar is about (2026-11-08).
-                  const wr = markWord && selection && selection.startIdx === i
-                    && selection.endIdx === i ? selection.clickedWordRange : null;
                   // A long prose unit is drawn as its sentences (the text is
                   // unchanged), so one can be clicked, and the selected one lit.
                   if (!parts) return marked(u.text, 0, wr);

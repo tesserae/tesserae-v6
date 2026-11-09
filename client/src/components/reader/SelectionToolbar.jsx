@@ -62,11 +62,17 @@ export function wordOf(selection) {
   return t;
 }
 
-/** The word the Word scope works on: a double-clicked word, or else the word
- *  under a plain click (TextPane records it as clickedWord), so one click on a
- *  line and then "Look up a word" is enough. A plain click still seeds Line. */
+/** The word the Word scope works on. TextPane records the whole word a click
+ *  or a sweep landed in as clickedWord, and that is preferred: a drag over
+ *  some of a word's letters swept "irumq" out of "virumque", and the toolbar
+ *  searched and looked up the fragment (2026-11-08). The swept token itself
+ *  serves when no clicked word is recorded, or when the two are different
+ *  words (a sweep of several words with the pointer released on one). */
 export function lookupWordOf(selection) {
-  return wordOf(selection) || selection?.clickedWord || null;
+  const token = wordOf(selection);
+  const clicked = selection?.clickedWord || null;
+  if (token && clicked && clicked.toLowerCase().includes(token.toLowerCase())) return clicked;
+  return token || clicked;
 }
 
 /** A selection of three lines or more reads as a passage, one line as a line,

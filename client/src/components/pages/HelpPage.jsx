@@ -1760,8 +1760,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </ul>
               <p className="text-gray-700 mb-3">
                 Press <strong>Look up words</strong> in the toolbar and the switch turns red to show that word
-                lookup is on. Then click any word: it is marked in its line and a small box opens with its
-                dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones for Greek) and a{' '}
+                lookup is on. Then click any word, or drag over any part of it: the whole word is marked in its
+                line and a small box opens with its dictionary form, its entry (Lewis and Short for Latin, Liddell-Scott-Jones for Greek) and a{' '}
                 <strong>Full entry</strong> link. When a spelling heads more than one entry (<em>labor</em>,
                 to slip, and <em>labor</em>, toil) the box shows each in turn. Press the switch again, or choose
                 Line or Passage, to turn lookup off. A double-clicked word opens its entry too. A Latin word ending in
