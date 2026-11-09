@@ -1,6 +1,6 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-11-03",
+  "_last_updated": "2026-11-09",
   "bohairic.abdias.tess": {
     "display_author": "Bohairic Coptic",
     "display_work": "Obadiah"
@@ -1215,5 +1215,2107 @@
   },
   "novum_testamentum.petri_ii.tess": {
     "text_type": "prose"
+  },
+  "adamantius_judaeus.physiognomonica_tlg003.tess": {
+    "display_work": "Physiognomonica (epitome Matritensis)"
+  },
+  "aelius_herodianus.parekbolai_toy_megaloy_rematos.tess": {
+    "display_work": "Παρεκβολαὶ τοῦ μεγάλου ῥήματος"
+  },
+  "aelius_herodianus.peri_lexeos_ton_stichon.tess": {
+    "display_work": "Περὶ λέξεως τῶν στίχων"
+  },
+  "aesop.fabulae_tlg015.tess": {
+    "display_work": "Fabulae (dodecasyllabi)"
+  },
+  "agatharchides_historicus.fragmentum.tess": {
+    "display_author": "Agatharchides (historian)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "alexander_of_aphrodisias.aporiai_kai_lyseis.tess": {
+    "display_work": "Ἀπορίαι καὶ λύσεις (spurious)"
+  },
+  "alexander_of_aphrodisias.de_anima_libri_mantissa.tess": {
+    "display_work": "De Anima Libri Mantissa (spurious)"
+  },
+  "alexander_of_aphrodisias.ethika_problemata.tess": {
+    "display_work": "Ἠθικὰ προβλήματα (spurious)"
+  },
+  "alexander_of_aphrodisias.problemata.part.3.tess": {
+    "display_work": "Problemata (spurious)"
+  },
+  "alexander_of_aphrodisias.problemata.part.4.tess": {
+    "display_work": "Problemata (spurious)"
+  },
+  "alexander_of_aphrodisias.problemata.tess": {
+    "display_work": "Problemata (spurious)"
+  },
+  "alexis_comicus.fragmenta.tess": {
+    "display_author": "Alexis (comic poet)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "alexis_comicus.fragmenta_tlg005.tess": {
+    "display_author": "Alexis (comic poet)",
+    "display_work": "Fragmenta (TLG 0402.005)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "alexis_historicus.fragmenta.tess": {
+    "display_author": "Alexis (historian)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "ammonius.in_aristotelis_analytica_priora.tess": {
+    "display_work": "In Aristotelis Analytica Priora (spurious)"
+  },
+  "anatolius.peri_dekados_kai_ton_entos_aytes_arithmon.tess": {
+    "display_work": "Περὶ δεκάδος καὶ τῶν ἐντὸς αὐτῆς ἀριθμῶν"
+  },
+  "andron_historicus.fragmenta.tess": {
+    "display_author": "Andron (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "andron_historicus_2172.fragmentum.tess": {
+    "display_author": "Andron (historian, TLG 2172)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "andron_historicus_4347.fragmenta.tess": {
+    "display_author": "Andron (historian, TLG 4347)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "andron_incertus.fragmenta.tess": {
+    "display_author": "Andron (geographer)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "andronicus_rhodius.de_passionibus.tess": {
+    "display_work": "De Passionibus (spurious)"
+  },
+  "andronicus_rhodius.de_passionibus_tlg002.tess": {
+    "display_work": "De Passionibus (lib. 2) (spurious)"
+  },
+  "anonymi_medici.diagnosis_peri_ton_oxeon_kai_chronion_nosematon.tess": {
+    "display_work": "Διάγνωσις περὶ τῶν ὀξέων καὶ χρονίων νοσημάτων"
+  },
+  "anonymi_medici.onomata_ton_iatrikon_ergaleion_kata_stoicheia_ois_en_tais.tess": {
+    "display_work": "Ὀνόματα τῶν ἰατρικῶν ἐργαλείων κατὰ στοιχεῖα οἷς ἐν ταῖς χειρουργίαις χρώμεθα"
+  },
+  "anonymous.anonymi_in_analyticorum_posteriorum_librum_alterum.tess": {
+    "display_work": "Commentary on Aristotle's Posterior Analytics, Book 2"
+  },
+  "anonymous.fragmentum_commentarii_in_aristotelis_rhetorica.tess": {
+    "display_work": "Commentary on Aristotle's Rhetoric (fragment)"
+  },
+  "anonymous.fragmentum_paraphrasis_in_aristotelis_rhetorica.tess": {
+    "display_work": "Paraphrase of Aristotle's Rhetoric (fragment)"
+  },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium.part.0.tess": {
+    "display_work": "Commentary on Aristotle's Rhetoric"
+  },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium.part.2.tess": {
+    "display_work": "Commentary on Aristotle's Rhetoric"
+  },
+  "anonymous.in_aristotelis_artem_rhetoricam_commentarium.tess": {
+    "display_work": "Commentary on Aristotle's Rhetoric"
+  },
+  "anonymous.in_aristotelis_sophisticos_elenchos_paraphrasis.tess": {
+    "display_work": "Paraphrase of Aristotle's Sophistical Refutations"
+  },
+  "anonymous.in_ethica_nicomachea_ii_v_commentaria.tess": {
+    "display_work": "Commentary on Aristotle's Nicomachean Ethics, Books 2 to 5"
+  },
+  "anonymous.in_ethica_nicomachea_paraphrasis.tess": {
+    "display_work": "Paraphrase of Aristotle's Nicomachean Ethics"
+  },
+  "anonymous.in_ethica_nicomachea_vii_commentaria.tess": {
+    "display_work": "Commentary on Aristotle's Nicomachean Ethics, Book 7"
+  },
+  "anonymous.in_oppiani_halieutica_exegesis.tess": {
+    "display_work": "Exegesis of Oppian's Halieutica"
+  },
+  "anonymous.in_primum_librum_analyticorum_posteriorum_commentarium.tess": {
+    "display_work": "Commentary on Aristotle's Posterior Analytics, Book 1"
+  },
+  "anonymous.paraphrasis_categoriarum.tess": {
+    "display_work": "Paraphrase of Aristotle's Categories"
+  },
+  "anonymus_epicureus.fragmenta_tlg002.tess": {
+    "display_work": "Fragmenta (ad P. Herc. 176 pertinentia)"
+  },
+  "anthologiae_graecae_appendix.epigrammata_dedicatoria.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Dedicatory epigrams",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.epigrammata_demonstrativa.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Epideictic epigrams",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.epigrammata_exhortatoria_et_supplicatoria.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Epigrams of exhortation and supplication",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.epigrammata_irrisoria.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Mocking epigrams",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.epigrammata_sepulcralia.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Sepulchral epigrams",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.epigrammatis_addenda.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Additional epigrams",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.oracula.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Oracles",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "anthologiae_graecae_appendix.problemata_et_aenigmata.tess": {
+    "display_author": "Greek Anthology, Appendix",
+    "display_work": "Riddles and problems",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "antonius_hagiographus.vita_symeonis_stylitae_senioris.tess": {
+    "display_author": "Antonius (hagiographer)",
+    "year": 450,
+    "era": "Late Antique"
+  },
+  "antyllus.ek_toy_peri_klysmon_oti_dia_treis_aitias_paralambanontai.tess": {
+    "display_work": "Ἐκ τοῦ περὶ κλυσμῶν ὅτι διὰ τρεῖς αἰτίας παραλαμβάνονται"
+  },
+  "apocalypsis_joannis.apocalypsis_apocrypha_joannis_tlg002.tess": {
+    "display_work": "Apocalypsis Apocrypha Joannis (versio altera)"
+  },
+  "apocalypsis_joannis.apocalypsis_apocrypha_joannis_tlg003.tess": {
+    "display_work": "Apocalypsis Apocrypha Joannis (versio tertia)"
+  },
+  "apollodorus_comicus.fragmenta.tess": {
+    "display_author": "Apollodorus (comic poet)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "apollodorus_comicus_0413.fragmenta.tess": {
+    "display_author": "Apollodorus (comic poet, TLG 0413)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "apollodorus_grammaticus.fragmenta.tess": {
+    "display_author": "Apollodorus (grammarian)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "apollodorus_historicus.fragmenta.tess": {
+    "display_author": "Apollodorus (historian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "apollodorus_mechanicus.poliorcetica.tess": {
+    "display_author": "Apollodorus (writer on mechanics)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "apollonius_historicus.fragmenta.tess": {
+    "display_author": "Apollonius (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "apollonius_philosophus.apotelesmata.tess": {
+    "display_author": "Apollonius (philosopher)",
+    "display_work": "Apotelesmata (spurious)",
+    "year": 50,
+    "era": "Early Imperial"
+  },
+  "apollonius_philosophus.de_horis_diei_et_noctis.tess": {
+    "display_author": "Apollonius (philosopher)",
+    "display_work": "De Horis Diei et Noctis (spurious)",
+    "year": 50,
+    "era": "Early Imperial"
+  },
+  "aratus_historicus.fragmenta.tess": {
+    "display_author": "Aratus (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "arcadius.de_accentibus.tess": {
+    "display_work": "De Accentibus (spurious)"
+  },
+  "archelaus.archelaoy_philosophoy_peri_tes_theias_technes_dia_stichon.tess": {
+    "display_work": "Ἀρχελάου φιλοσόφου περὶ τῆς θείας τέχνης διὰ στίχων ἰάμβων"
+  },
+  "archestratus_parodius.fragmenta.tess": {
+    "display_author": "Archestratus (parodist)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "aristagoras_comicus.fragmenta.tess": {
+    "display_author": "Aristagoras (comic poet)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "aristagoras_historicus.fragmenta.tess": {
+    "display_author": "Aristagoras (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "aristocles_paradoxographus.fragmenta.tess": {
+    "display_author": "Aristocles (writer on marvels)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "aristocles_philosophus.fragmenta.tess": {
+    "display_author": "Aristocles (philosopher)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.1.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.10.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.11.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.12.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.13.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.14.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.15.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.16.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.17.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.18.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.19.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.2.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.20.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.21.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.22.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.23.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.24.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.3.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.4.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.5.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.6.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.7.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.8.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.part.9.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_grammaticus.de_signis_odysseae.tess": {
+    "display_author": "Aristonicus (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "aristonicus_historicus.fragmenta.tess": {
+    "display_author": "Aristonicus (historian)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "aristophanes.fragmenta_tlg017.tess": {
+    "display_work": "Fragmenta (TLG 0019.017)"
+  },
+  "aristophanes_grammaticus.aristophanis_historiae_animalium_epitome_subjunctis_aeliani.tess": {
+    "display_author": "Aristophanes (grammarian)",
+    "display_work": "Aristophanis Historiae Animalium Epitome Subjunctis Aeliani Timothei Aliorumque Eclogis",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "aristophanes_historicus.fragmenta.tess": {
+    "display_author": "Aristophanes (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "aristoxenus_comicus.fragmentum.tess": {
+    "display_author": "Aristoxenus (comic poet)",
+    "year": -600,
+    "era": "Archaic"
+  },
+  "artemon_grammaticus.fragmenta.tess": {
+    "display_author": "Artemon (grammarian)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "artemon_historicus.fragmenta.tess": {
+    "display_author": "Artemon (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "artemon_historicus_2392.fragmenta.tess": {
+    "display_author": "Artemon (historian, TLG 2392)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "asclepiades_grammaticus.fragmenta.tess": {
+    "display_author": "Asclepiades (grammarian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "asclepiades_grammaticus_2423.fragmentum.tess": {
+    "display_author": "Asclepiades (grammarian, TLG 2423)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "asclepiades_mythographus.fragmenta.tess": {
+    "display_author": "Asclepiades (mythographer)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "astrampsychus_magus.oracula.tess": {
+    "display_author": "Astrampsychus (magus)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "athanasius.commentarius_de_templo_athenarum.tess": {
+    "display_work": "Commentarius de Templo Athenarum (spurious)"
+  },
+  "athanasius.de_virginitate.tess": {
+    "display_work": "De Virginitate (spurious)"
+  },
+  "athanasius.dialogus_athanasii_et_zacchaei.tess": {
+    "display_work": "Dialogus Athanasii et Zacchaei (spurious)"
+  },
+  "athanasius.doctrina_ad_antiochum_ducem.tess": {
+    "display_work": "Doctrina ad Antiochum Ducem (spurious)"
+  },
+  "athanasius.quaestio_136_e_quaestionibus_ad_antiochum_ducem.tess": {
+    "display_work": "Quaestio 136 e Quaestionibus ad Antiochum Ducem (spurious)"
+  },
+  "athanasius.quaestio_136_e_quaestionibus_ad_antiochum_ducem_tlg025.tess": {
+    "display_work": "Quaestio 136 E Quaestionibus ad Antiochum Ducem (e cod. Guelferbytano-Gudiano 51) (spurious)"
+  },
+  "athanasius.sermo_exhortatorius.tess": {
+    "display_work": "Sermo Exhortatorius (spurious)"
+  },
+  "athanasius.sermo_major_de_fide.tess": {
+    "display_work": "Sermo Major de Fide (spurious)"
+  },
+  "athanasius.syntagma_ad_monachos.tess": {
+    "display_work": "Syntagma ad Monachos (spurious)"
+  },
+  "athanasius.syntagma_ad_monachos_tlg127.tess": {
+    "display_work": "Syntagma ad Monachos (e cod. Vat. gr. 733) (spurious)"
+  },
+  "athenaeus_mechanicus.de_machinis.tess": {
+    "display_author": "Athenaeus (writer on mechanics)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "autocrates_comicus.fragmenta.tess": {
+    "display_author": "Autocrates (comic poet)",
+    "year": -400,
+    "era": "Classical"
+  },
+  "autocrates_historicus.fragmenta.tess": {
+    "display_author": "Autocrates (historian)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "basil_of_caesarea.expositio_fidei_nicaenae.tess": {
+    "display_work": "Expositio Fidei Nicaenae (spurious)"
+  },
+  "bato_comicus.fragmenta.tess": {
+    "display_author": "Bato (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "bato_historicus.fragmenta.tess": {
+    "display_author": "Bato (historian)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "bion_historicus.fragmenta.tess": {
+    "display_author": "Bion (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "bion_historicus_1871.fragmenta.tess": {
+    "display_author": "Bion (historian, TLG 1871)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "biton.kataskeyai_polemikon_organon_kai_katapaltikon.tess": {
+    "display_work": "Κατασκευαὶ πολεμικῶν ὀργάνων καὶ καταπαλτικῶν"
+  },
+  "bolus.peri_sympatheion_kai_antipatheion.tess": {
+    "display_work": "Περὶ συμπαθειῶν καὶ ἀντιπαθειῶν (sub nomine Democriti)"
+  },
+  "callippus_comicus.fragmenta.tess": {
+    "display_author": "Callippus (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "callippus_historicus.fragmentum.tess": {
+    "display_author": "Callippus (historian)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "claudius_ptolemaeus.procheiron_kanonon_diataxis_kai_psephophoria.tess": {
+    "display_work": "Προχείρων κανόνων διάταξις καὶ ψηφοφορία"
+  },
+  "clement_of_rome.epistulae_de_virginitate.part.1.tess": {
+    "display_work": "Epistulae de Virginitate (spurious)"
+  },
+  "clement_of_rome.epistulae_de_virginitate.part.2.tess": {
+    "display_work": "Epistulae de Virginitate (spurious)"
+  },
+  "clement_of_rome.epistulae_de_virginitate.tess": {
+    "display_work": "Epistulae de Virginitate (spurious)"
+  },
+  "clement_of_rome.pseudo_clementina.tess": {
+    "display_work": "Pseudo-Clementina (epitome by Symeon Metaphrastes)"
+  },
+  "clement_of_rome.pseudo_clementina_tlg012.tess": {
+    "display_work": "Pseudo-Clementina (pre-Metaphrastic epitome of the deeds of Peter)"
+  },
+  "crates_comicus.fragmenta.tess": {
+    "display_author": "Crates (comic poet)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "crates_historicus.fragmenta.tess": {
+    "display_author": "Crates (historian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "cratinus.fragmenta_tlg005.tess": {
+    "display_work": "Fragmenta (TLG 0434.005)"
+  },
+  "crito_comicus.fragmenta.tess": {
+    "display_author": "Crito (comic poet)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "crito_historicus.fragmenta.tess": {
+    "display_author": "Crito (historian)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "cyril_of_jerusalem.homilia_aquae_in_vinum_conversae.tess": {
+    "display_work": "Homilia Aquae in Vinum Conversae (spurious)"
+  },
+  "daimachus_historicus.fragmenta.tess": {
+    "display_author": "Daimachus (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "daimachus_historicus_2482.fragmenta.tess": {
+    "display_author": "Daimachus (historian, TLG 2482)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "damigeron_magus.de_lapidibus.tess": {
+    "display_author": "Damigeron (magus)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "demetrius_comicus.fragmenta.tess": {
+    "display_author": "Demetrius (comic poet)",
+    "year": -400,
+    "era": "Classical"
+  },
+  "demetrius_grammaticus.fragmenta.tess": {
+    "display_author": "Demetrius (grammarian)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "demetrius_historicus.fragmenta.tess": {
+    "display_author": "Demetrius (historian)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "demetrius_historicus_2511.fragmenta.tess": {
+    "display_author": "Demetrius (historian, TLG 2511)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "demetrius_rhetor.formae_epistolicae.tess": {
+    "display_author": "Demetrius (rhetorician)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "demetrius_rhetor.formae_epistolicae_tlg002.tess": {
+    "display_author": "Demetrius (rhetorician)",
+    "display_work": "Formae Epistolicae (duo exempla spuria)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "demosthenes_epicus.fragmenta.tess": {
+    "display_author": "Demosthenes (epic poet)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "didymus_the_blind.dialexis_montanistae_et_orthodoxi.tess": {
+    "display_work": "Dialexis Montanistae et Orthodoxi (spurious)"
+  },
+  "diodorus_comicus.fragmenta.tess": {
+    "display_author": "Diodorus (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "diodorus_periegeta.fragmenta.tess": {
+    "display_author": "Diodorus (travel writer)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "diodorus_rhetor.fragmentum_de_viris_duobus.tess": {
+    "display_author": "Diodorus (rhetorician)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "dionysius_comicus.fragmenta.tess": {
+    "display_author": "Dionysius (comic poet)",
+    "year": -400,
+    "era": "Classical"
+  },
+  "dionysius_historicus.fragmenta.tess": {
+    "display_author": "Dionysius (historian)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "dionysius_historicus_1328.fragmenta.tess": {
+    "display_author": "Dionysius (historian, TLG 1328)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "dionysius_historicus_2354.fragmenta.tess": {
+    "display_author": "Dionysius (historian, TLG 2354)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "dionysius_historicus_2466.fragmenta.tess": {
+    "display_author": "Dionysius (historian, TLG 2466)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "diophantus_comicus.fragmentum.tess": {
+    "display_author": "Diophantus (comic poet)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "diophantus_historicus.fragmenta.tess": {
+    "display_author": "Diophantus (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "epiphanius.de_fide.tess": {
+    "display_work": "De Fide (spurious)"
+  },
+  "epiphanius.de_mensuris_et_ponderibus_tlg037.tess": {
+    "display_work": "De Mensuris et Ponderibus (excerptum Graecum 3)"
+  },
+  "epiphanius.de_mensuris_et_ponderibus_tlg038.tess": {
+    "display_work": "De Mensuris et Ponderibus (excerptum Graecum 4)"
+  },
+  "epiphanius.de_prophetarum_vita_et_obitu.tess": {
+    "display_work": "De Prophetarum Vita et Obitu (spurious)"
+  },
+  "epiphanius.de_prophetarum_vita_et_obitu_tlg022.tess": {
+    "display_work": "De Prophetarum Vita et Obitu (recensio altera) (spurious)"
+  },
+  "epiphanius.de_trinitate.tess": {
+    "display_work": "De Trinitate (spurious)"
+  },
+  "epiphanius.enumeratio_lxxii_prophetarum_et_prophetissarum.tess": {
+    "display_work": "Enumeratio LXXII Prophetarum et Prophetissarum (spurious)"
+  },
+  "epiphanius.index_apostolorum.tess": {
+    "display_work": "Index Apostolorum (spurious)"
+  },
+  "epiphanius.index_discipulorum.tess": {
+    "display_work": "Index Discipulorum (spurious)"
+  },
+  "epiphanius.nomina_apostolorum.tess": {
+    "display_work": "Nomina Apostolorum (spurious)"
+  },
+  "epiphanius.notitiae_episcopatuum.tess": {
+    "display_work": "Notitiae Episcopatuum (spurious)"
+  },
+  "euboeus_parodius.fragmenta.tess": {
+    "display_author": "Euboeus (parodist)",
+    "year": -400,
+    "era": "Classical"
+  },
+  "euclid.data_tlg008.tess": {
+    "display_work": "Data (demonstrationes alterae)"
+  },
+  "euclid.phaenomena_tlg013.tess": {
+    "display_work": "Phaenomena (recensio b)"
+  },
+  "euclid.phaenomena_tlg014.tess": {
+    "display_work": "Phaenomena (demonstrationes alterae recensionis b)"
+  },
+  "euclid.sectio_canonis.tess": {
+    "display_work": "Sectio Canonis (spurious)"
+  },
+  "eudemus.peri_lexeon_retorikon.tess": {
+    "display_work": "Περὶ λέξεων ῥητορικῶν (excerpta)"
+  },
+  "eudoxus_astronomus.ars_astronomica.tess": {
+    "display_author": "Eudoxus (astronomer)",
+    "display_work": "Ars Astronomica (spurious)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "eudoxus_comicus.fragmenta.tess": {
+    "display_author": "Eudoxus (comic poet)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "eudoxus_historicus.fragmenta.tess": {
+    "display_author": "Eudoxus (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "eusebius_caesarea.demonstratio_evangelica_tlg006.tess": {
+    "display_work": "Demonstratio Evangelica (fragmenta libri xv)"
+  },
+  "eusebius_caesarea.generalis_elementaria_introductio_tlg024.tess": {
+    "display_work": "Generalis Elementaria Introductio (fragmenta)"
+  },
+  "eustathius.homilia_christologica_in_lazarum_mariam_et_martham.tess": {
+    "display_work": "Homilia Christologica in Lazarum Mariam et Martham (spurious)"
+  },
+  "eustratius.in_aristotelis_analyticorum_posteriorum_librum_secundum.tess": {
+    "display_work": "In Aristotelis Analyticorum Posteriorum Librum Secundum Commentarium"
+  },
+  "evagrius_scholasticus.aliae_sententiae.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "evagrius_scholasticus.capita_paraenetica.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "evagrius_scholasticus.de_magistris_et_discipulis.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "evagrius_scholasticus.expositio_in_proverbia_salomonis.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "evagrius_scholasticus.sententiae_ad_monachos.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "evagrius_scholasticus.sententiae_ad_virginem.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "evagrius_scholasticus.spiritales_sententiae_per_alphabeticum_dispositae.tess": {
+    "display_author": "Evagrius Ponticus",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "galen.in_hippocratis_vel_polybi_opus_de_salubri_victus_ratione.tess": {
+    "display_work": "In Hippocratis Vel Polybi Opus de Salubri Victus Ratione Privatorum Commentarius (+ Galeni in"
+  },
+  "geminus.fragmenta_optica.tess": {
+    "display_work": "Fragmenta Optica (doubtful)"
+  },
+  "georgius_pachymeres.syggraphikai_istoriai.tess": {
+    "display_work": "Συγγραφικαὶ ἱστορίαι (libri vii de Andronico Palaeologo)"
+  },
+  "glaucus_historicus.fragmenta.tess": {
+    "display_author": "Glaucus (historian)",
+    "year": 50,
+    "era": "Early Imperial"
+  },
+  "glaucus_historicus_4391.fragmenta.tess": {
+    "display_author": "Glaucus (historian, TLG 4391)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "gregory_of_nyssa.inventio_imaginis_in_camulianis.tess": {
+    "display_work": "Inventio Imaginis in Camulianis (spurious)"
+  },
+  "gregory_thaumaturgus.eis_to_oyden_eidolon_en_kosmo.tess": {
+    "display_work": "Εἰς τὸ οὐδὲν εἴδωλον ἐν κόσμῳ (fragmentum)"
+  },
+  "hegemon_parodius.fragmentum.tess": {
+    "display_author": "Hegemon (parodist)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "hegemon_parodius.fragmentum_tlg003.tess": {
+    "display_author": "Hegemon (parodist)",
+    "display_work": "Fragmentum (TLG 0463.003)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "hegesippus_comicus.fragmenta.tess": {
+    "display_author": "Hegesippus (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "hegesippus_historicus.fragmenta.tess": {
+    "display_author": "Hegesippus (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "heliodorus_periegeta.fragmenta.tess": {
+    "display_author": "Heliodorus (travel writer)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "heliodorus_poeta.eliodoroy_philosophoy_pros_theodosion_ton_megan_basilea_peri.tess": {
+    "display_author": "Heliodorus (alchemical poet)",
+    "display_work": "Ἡλιοδώρου φιλοσόφου πρὸς Θεοδόσιον τὸν μέγαν βασιλέα περὶ τῆς τῶν φιλοσόφων μυστικῆς",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "heliodorus_tragicus.italika_thaymata.tess": {
+    "display_author": "Heliodorus (tragic poet)",
+    "display_work": "Ἰταλικὰ θαύματα",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "heraclides_comicus.fragmentum.tess": {
+    "display_author": "Heraclides (comic poet)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "heraclides_grammaticus.fragmenta.tess": {
+    "display_author": "Heraclides (grammarian)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "heraclides_historicus.fragmenta.tess": {
+    "display_author": "Heraclides (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "hero_of_alexandria.cheiroballistras_kataskeye_kai_symmetria.tess": {
+    "display_work": "Χειροβαλλίστρας κατασκευὴ καὶ συμμετρία"
+  },
+  "hierocles.ethike_stoicheiosis.tess": {
+    "display_work": "Ἠθικὴ στοιχείωσις"
+  },
+  "hierotheus.ierotheoy_philosophoy_peri_tes_theias_kai_ieras_technes_dia.tess": {
+    "display_work": "Ἱεροθέου φιλοσόφου περὶ τῆς θείας καὶ ἱερᾶς τέχνης διὰ στίχων ἰάμβων"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.part.1.tess": {
+    "display_author": "Hipparchus (astronomer)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.part.2.tess": {
+    "display_author": "Hipparchus (astronomer)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.part.3.tess": {
+    "display_author": "Hipparchus (astronomer)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "hipparchus_astronomus.in_arati_et_eudoxi_phaenomena_commentariorum_libri_iii.tess": {
+    "display_author": "Hipparchus (astronomer)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "hipparchus_comicus.fragmenta.tess": {
+    "display_author": "Hipparchus (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "hippolytus.contra_beronem_et_heliconem.tess": {
+    "display_work": "Contra Beronem et Heliconem (spurious)"
+  },
+  "hippolytus.de_benedictione_balaam_tlg046.tess": {
+    "display_work": "De Benedictione Balaam (fragmenta ap. Irenaeum)"
+  },
+  "hippolytus.de_consummatione_mundi.tess": {
+    "display_work": "De Consummatione Mundi (spurious)"
+  },
+  "hippolytus.de_theophania.tess": {
+    "display_work": "De Theophania (doubtful)"
+  },
+  "hippolytus.fragmenta_in_genesim_tlg005.tess": {
+    "display_work": "Fragmenta in Genesim (spurious)"
+  },
+  "hippolytus.fragmenta_in_proverbia_tlg014.tess": {
+    "display_work": "Fragmenta in Proverbia (doubtful)"
+  },
+  "hippolytus.fragmenta_in_proverbia_tlg015.tess": {
+    "display_work": "Fragmenta in Proverbia (spurious)"
+  },
+  "hippolytus.fragmenta_in_psalmos_tlg012.tess": {
+    "display_work": "Fragmenta in Psalmos (spurious)"
+  },
+  "hippolytus.fragmenta_varia.tess": {
+    "display_work": "Fragmenta Varia (doubtful)"
+  },
+  "hippolytus.fragmentum_de_engastrimytho.tess": {
+    "display_work": "Fragmentum de Engastrimytho (spurious)"
+  },
+  "hippolytus.fragmentum_in_ecclesiasten.tess": {
+    "display_work": "Fragmentum in Ecclesiasten (spurious)"
+  },
+  "hippolytus.fragmentum_in_matthaeum_6_11.tess": {
+    "display_work": "Fragmentum in Matthaeum 6.11 (spurious)"
+  },
+  "hippolytus.in_evangelium_joannis_et_de_resurrectione_lazari.tess": {
+    "display_work": "In Evangelium Joannis et de Resurrectione Lazari (doubtful)"
+  },
+  "hippolytus.narratio_de_virgine_corinthiaca.tess": {
+    "display_work": "Narratio de Virgine Corinthiaca (doubtful)"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.part.1.tess": {
+    "display_work": "Recensio α sive Recensio vetusta"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.part.2.tess": {
+    "display_work": "Recensio α sive Recensio vetusta"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.part.3.tess": {
+    "display_work": "Recensio α sive Recensio vetusta"
+  },
+  "historia_alexandri_magni.recensio_a_sive_recensio_vetusta.tess": {
+    "display_work": "Recensio α sive Recensio vetusta"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.1.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.10.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.11.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.12.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.13.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.2.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.3.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.4.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.5.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.6.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.7.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.8.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.part.9.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "ignatius.epistulae_interpolatae_et_epistulae_suppositiciae.tess": {
+    "display_work": "Epistulae Interpolatae et Epistulae Suppositiciae (spurious)"
+  },
+  "joannes_of_gaza.ekphrasis_toy_kosmikoy_pinakos.tess": {
+    "display_work": "Ἔκφρασις τοῦ κοσμικοῦ πίνακος"
+  },
+  "joannes_philoponus.in_aristotelis_analytica_posteriora_commentaria_tlg004.tess": {
+    "display_work": "In Aristotelis Analytica Posteriora Commentaria (TLG 4015.004)"
+  },
+  "joannes_protospatharius.exegesis_physike_ton_emeron_esiodoy.tess": {
+    "display_work": "Ἐξήγησις φυσικὴ τῶν ἡμερῶν Ἡσιόδου"
+  },
+  "joannes_zonaras.epitome_historiarum_tlg002.tess": {
+    "display_work": "Epitome Historiarum (lib. 13-18)"
+  },
+  "joannes_zonaras.epitome_historiarum_tlg003.tess": {
+    "display_work": "Epitome Historiarum (lib. 12, clausula varia) (doubtful)"
+  },
+  "leo_historicus.fragmenta.tess": {
+    "display_author": "Leo (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "leo_historicus_1978.fragmenta.tess": {
+    "display_author": "Leo (historian, TLG 1978)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "leo_historicus_2186.fragmentum.tess": {
+    "display_author": "Leo (historian, TLG 2186)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "lesbonax.politikos.tess": {
+    "display_work": "Πολιτικός"
+  },
+  "lesbonax.protreptikos_a.tess": {
+    "display_work": "Προτρεπτικὸς A"
+  },
+  "lesbonax.protreptikos_b.tess": {
+    "display_work": "Προτρεπτικὸς B"
+  },
+  "lexica_segueriana.collectio_verborum_utilium_e_differentibus_rhetoribus_et.tess": {
+    "display_work": "Collectio verborum utilium e differentibus rhetoribus et sapientibus multis"
+  },
+  "manetho_astrologus.apotelesmatica.part.1.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.part.2.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.part.3.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.part.4.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.part.5.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.part.6.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.part.t.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_astrologus.apotelesmatica.tess": {
+    "display_author": "Manetho (astrologer)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "manetho_historicus.fragmenta.tess": {
+    "display_author": "Manetho (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "martyrium_ignatii.martyrium_ignatii_antiocheni_tlg002.tess": {
+    "display_work": "Martyrium Ignatii Antiocheni (martyrium Romanum)"
+  },
+  "matron_parodius.convivium_atticum.tess": {
+    "display_author": "Matron (parodist)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "matron_parodius.fragmenta.tess": {
+    "display_author": "Matron (parodist)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "maximus.peri_katarchon.tess": {
+    "display_work": "Περὶ καταρχῶν"
+  },
+  "maximus.peri_katarchon_tlg002.tess": {
+    "display_work": "Περὶ καταρχῶν (epitome)"
+  },
+  "melampus.peri_elaion_toy_somatos_pros_ptolemaion_basilea.tess": {
+    "display_work": "Περὶ ἐλαιῶν τοῦ σώματος πρὸς Πτολεμαῖον βασιλέα"
+  },
+  "melampus.peri_palmon_archomenoy_apo_kephales_eos_podon.tess": {
+    "display_work": "Περὶ παλμῶν ἀρχομένου ἀπὸ κεφαλῆς ἕως ποδῶν (e cod. Berol. 1577)"
+  },
+  "melampus.peri_palmon_mantike_pros_ptolemaion_basilea.tess": {
+    "display_work": "Περὶ παλμῶν μαντικὴ πρὸς Πτολεμαῖον βασιλέα (versio A)"
+  },
+  "melampus.peri_palmon_ti_semainoysin_en_ekasto_merei.tess": {
+    "display_work": "Περὶ παλμῶν τί σημαίνουσιν ἐν ἑκάστῳ μέρει (versio P)"
+  },
+  "menecrates_historicus.fragmenta.tess": {
+    "display_author": "Menecrates (historian)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "menecrates_historicus_2475.fragmentum.tess": {
+    "display_author": "Menecrates (historian, TLG 2475)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "menecrates_historicus_4345.fragmentum.tess": {
+    "display_author": "Menecrates (historian, TLG 4345)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "menecrates_historicus_4346.fragmenta.tess": {
+    "display_author": "Menecrates (historian, TLG 4346)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "metrodorus_historicus.fragmenta.tess": {
+    "display_author": "Metrodorus (historian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "metrodorus_philosophus.fragmenta.tess": {
+    "display_author": "Metrodorus (philosopher)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "michael_glycas.annales_tlg002.tess": {
+    "display_work": "Annales (lectiones variae)"
+  },
+  "minucianus_junior.peri_epicheirematon.tess": {
+    "display_work": "Περὶ ἐπιχειρημάτων"
+  },
+  "mnesimachus_comicus.fragmenta.tess": {
+    "display_author": "Mnesimachus (comic poet)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "mnesimachus_historicus.fragmenta.tess": {
+    "display_author": "Mnesimachus (historian)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "nepualius.peri_ton_kata_antipatheian_kai_sympatheian.tess": {
+    "display_work": "Περὶ τῶν κατὰ ἀντιπάθειαν καὶ συμπάθειαν"
+  },
+  "nicander_grammaticus.fragmenta.tess": {
+    "display_author": "Nicander (grammarian)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "nicander_historicus.fragmenta.tess": {
+    "display_author": "Nicander (historian)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "nicias_historicus.fragmentum.tess": {
+    "display_author": "Nicias (historian)",
+    "year": 250,
+    "era": "Later Imperial"
+  },
+  "nicias_incertus.epigrammata.part.16.tess": {
+    "display_author": "Nicias (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "nicias_incertus.epigrammata.part.6.tess": {
+    "display_author": "Nicias (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "nicias_incertus.epigrammata.part.7.tess": {
+    "display_author": "Nicias (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "nicias_incertus.epigrammata.part.9.tess": {
+    "display_author": "Nicias (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "nicias_incertus.epigrammata.tess": {
+    "display_author": "Nicias (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "nicolaus_comicus.fragmenta.tess": {
+    "display_author": "Nicolaus (comic poet)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "nicolaus_historicus.fragmenta.tess": {
+    "display_author": "Nicolaus (historian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "nicolaus_rhetor.progymnasmata.tess": {
+    "display_author": "Nicolaus (rhetorician)",
+    "year": 450,
+    "era": "Late Antique"
+  },
+  "nicolaus_rhetor.progymnasmata_tlg002.tess": {
+    "display_author": "Nicolaus (rhetorician)",
+    "display_work": "Progymnasmata (TLG 2904.002)",
+    "year": 450,
+    "era": "Late Antique"
+  },
+  "nicolaus_rhetor.progymnasmata_tlg003.tess": {
+    "display_author": "Nicolaus (rhetorician)",
+    "display_work": "Progymnasmata (caput περὶ συγκρίσεως) (e cod. Brit. Mus. addit. 11889)",
+    "year": 450,
+    "era": "Late Antique"
+  },
+  "ocellus.de_universi_natura.tess": {
+    "display_work": "De Universi Natura (spurious)"
+  },
+  "ocellus.fragmenta.tess": {
+    "display_work": "Fragmenta (spurious)"
+  },
+  "origen.commentarii_in_epistulam_ad_romanos_tlg037.tess": {
+    "display_work": "Commentarii in Epistulam ad Romanos (e cod. Vindob. gr. 166)"
+  },
+  "origen.fragmenta_in_jeremiam_tlg084.tess": {
+    "display_work": "Fragmenta in Jeremiam (e Philocalia)"
+  },
+  "origen.philocalia_sive_ecloga_de_operibus_origenis_a_basilio_et.tess": {
+    "display_work": "Philocalia sive Ecloga de Operibus Origenis a Basilio et Gregorio Nazianzeno Facta (cap. 1-27)"
+  },
+  "origen.scholia_in_apocalypsem_tlg043.tess": {
+    "display_work": "Scholia in Apocalypsem (scholia 28-38)"
+  },
+  "pancrates_epicus.fragmentum.tess": {
+    "display_author": "Pancrates (epic poet)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "pancrates_epicus.testimonium.tess": {
+    "display_author": "Pancrates (epic poet)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "pancrates_incertus.epigrammata.part.6.tess": {
+    "display_author": "Pancrates (epigrammatist)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "pancrates_incertus.epigrammata.part.7.tess": {
+    "display_author": "Pancrates (epigrammatist)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "pancrates_incertus.epigrammata.tess": {
+    "display_author": "Pancrates (epigrammatist)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "pausanias_historicus.fragmenta.tess": {
+    "display_author": "Pausanias (historian)",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "phaedimus_epicus.fragmentum.tess": {
+    "display_author": "Phaedimus (epic poet)",
+    "year": 200,
+    "era": "Later Imperial"
+  },
+  "phaedimus_incertus.epigrammata.part.13.tess": {
+    "display_author": "Phaedimus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "phaedimus_incertus.epigrammata.part.6.tess": {
+    "display_author": "Phaedimus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "phaedimus_incertus.epigrammata.part.7.tess": {
+    "display_author": "Phaedimus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "phaedimus_incertus.epigrammata.tess": {
+    "display_author": "Phaedimus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "philippus_comicus.fragmentum.tess": {
+    "display_author": "Philippus (comic poet)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "philippus_historicus.fragmenta.tess": {
+    "display_author": "Philippus (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "philostephanus_comicus.fragmentum.tess": {
+    "display_author": "Philostephanus (comic poet)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "philostephanus_historicus.fragmenta.tess": {
+    "display_author": "Philostephanus (historian)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "photius.lexicon.tess": {
+    "display_work": "Lexicon (letters Ε to Ω)"
+  },
+  "phrynichus_comicus.fragmenta.tess": {
+    "display_author": "Phrynichus (comic poet)",
+    "year": -450,
+    "era": "Classical"
+  },
+  "phrynichus_incertus.praeparatio_sophistica.tess": {
+    "display_author": "Phrynichus (Atticist)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "phrynichus_incertus.praeparatio_sophistica_tlg005.tess": {
+    "display_author": "Phrynichus (Atticist)",
+    "display_work": "Praeparatio Sophistica (fragmenta)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "plato_comicus.fragmenta.tess": {
+    "display_author": "Plato (comic poet)",
+    "year": -400,
+    "era": "Classical"
+  },
+  "plato_comicus.fragmentum.tess": {
+    "display_author": "Plato (comic poet)",
+    "year": -400,
+    "era": "Classical"
+  },
+  "plutarch.de_proverbiis_alexandrinorum.tess": {
+    "display_work": "De Proverbiis Alexandrinorum (spurious)"
+  },
+  "polystratus.peri_alogoy_kataphroneseos.tess": {
+    "display_work": "Περὶ ἀλόγου καταφρονήσεως (P. Herc. 336 1150)"
+  },
+  "porphyry.in_aristotelis_categorias_expositio_per_interrogationem_et.tess": {
+    "display_work": "In Aristotelis Categorias Expositio per Interrogationem et Responsionem"
+  },
+  "posidippus_comicus.fragmenta.tess": {
+    "display_author": "Posidippus (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "posidippus_incertus.epigrammata.part.12.tess": {
+    "display_author": "Posidippus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "posidippus_incertus.epigrammata.part.16.tess": {
+    "display_author": "Posidippus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "posidippus_incertus.epigrammata.part.5.tess": {
+    "display_author": "Posidippus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "posidippus_incertus.epigrammata.part.7.tess": {
+    "display_author": "Posidippus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "posidippus_incertus.epigrammata.part.9.tess": {
+    "display_author": "Posidippus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "posidippus_incertus.epigrammata.tess": {
+    "display_author": "Posidippus (epigrammatist)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "procopius_rhetor.horologium.tess": {
+    "display_author": "Procopius (rhetorician)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "procopius_rhetor.refutatio_procli.tess": {
+    "display_author": "Procopius (rhetorician)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "pseudodioscorides.de_iis_quae_virus_ejaculantur_animalibus_libellus_in_quo_et.tess": {
+    "display_work": "De Iis, Quae Virus Ejaculantur, Animalibus Libellus, in Quo et de Rabioso Cane (+ Theriaca)"
+  },
+  "pseudogalen.de_victus_ratione_in_morbis_acutis_ex_hippocratis_sententia.tess": {
+    "display_work": "De Victus Ratione in Morbis Acutis ex Hippocratis Sententia Liber"
+  },
+  "pseudohippocrates.ermeneia_peri_energon_lithon.tess": {
+    "display_work": "Ἑρμηνεία περὶ ἐνεργῶν λίθων"
+  },
+  "ptolemaeus_grammaticus.de_differentia_vocabulorum.tess": {
+    "display_author": "Ptolemaeus (grammarian)",
+    "display_work": "De differentia vocabulorum (spurious)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "ptolemaeus_historicus.fragmenta.tess": {
+    "display_author": "Ptolemaeus (historian)",
+    "year": -200,
+    "era": "Hellenistic"
+  },
+  "scholia.in_aeschylum_persas.tess": {
+    "display_author": "Scholia on Aeschylus",
+    "display_work": "Persians (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_aeschylum_persas_tlg020.tess": {
+    "display_author": "Scholia on Aeschylus",
+    "display_work": "Persians (marginal arguments and interlinear glosses)",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_aeschylum_persas_tlg021.tess": {
+    "display_author": "Scholia on Aeschylus",
+    "display_work": "Persians (later scholia)",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_aeschylum_prometheum_vinctum.tess": {
+    "display_author": "Scholia on Aeschylus",
+    "display_work": "Prometheus Bound (later scholia)",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_euclidem_euclidis_catoptrica.tess": {
+    "display_author": "Scholia on Euclid",
+    "display_work": "Catoptrica (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_euclidem_euclidis_data.tess": {
+    "display_author": "Scholia on Euclid",
+    "display_work": "Data (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_euclidem_euclidis_data_et_catoptrica.tess": {
+    "display_author": "Scholia on Euclid",
+    "display_work": "Data and Catoptrica (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_euclidem_euclidis_optica.tess": {
+    "display_author": "Scholia on Euclid",
+    "display_work": "Optics (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_euclidem_euclidis_phaenomena.tess": {
+    "display_author": "Scholia on Euclid",
+    "display_work": "Phaenomena (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_euclidem_opticorum_recensionem_theonis.tess": {
+    "display_author": "Scholia on Euclid",
+    "display_work": "Optics, Theon's recension (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_hesiodum_opera_et_dies.tess": {
+    "display_author": "Scholia on Hesiod",
+    "display_work": "Works and Days",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.1.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.10.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.11.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.12.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.13.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.14.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.15.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.16.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.17.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.18.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.19.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.2.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.20.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.21.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.22.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.23.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.24.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.3.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.4.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.5.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.6.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.7.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.8.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.part.9.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_hypotheses_in_iliadem.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad, Hypotheses (D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.1.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.10.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.11.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.12.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.13.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.14.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.15.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.16.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.17.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.18.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.19.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.2.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.20.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.21.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.22.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.23.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.24.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.3.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.4.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.5.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.6.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.7.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.8.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.part.9.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_homerum_iliadem.tess": {
+    "display_author": "Scholia on Homer",
+    "display_work": "Iliad (old scholia and D scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_isocratem.tess": {
+    "display_author": "Scholia on Isocrates",
+    "display_work": "Speeches (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_oppianum_cynegetica.part.1.tess": {
+    "display_author": "Scholia on Oppian",
+    "display_work": "Cynegetica",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_oppianum_cynegetica.part.2.tess": {
+    "display_author": "Scholia on Oppian",
+    "display_work": "Cynegetica",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_oppianum_cynegetica.part.3.tess": {
+    "display_author": "Scholia on Oppian",
+    "display_work": "Cynegetica",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_oppianum_cynegetica.part.4.tess": {
+    "display_author": "Scholia on Oppian",
+    "display_work": "Cynegetica",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_oppianum_cynegetica.tess": {
+    "display_author": "Scholia on Oppian",
+    "display_work": "Cynegetica",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_oppianum_halieutica.tess": {
+    "display_author": "Scholia on Oppian",
+    "display_work": "Halieutica",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_pausaniam_pausaniae_periegesin.tess": {
+    "display_author": "Scholia on Pausanias",
+    "display_work": "Description of Greece",
+    "year": 550,
+    "era": "Late Antique"
+  },
+  "scholia.in_pindarum.tess": {
+    "display_author": "Scholia on Pindar",
+    "display_work": "Odes (Patmos scholia)",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_pindarum_nemea_et_isthmia.tess": {
+    "display_author": "Scholia on Pindar",
+    "display_work": "Nemean and Isthmian Odes",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_pindarum_olympia_et_pythia.tess": {
+    "display_author": "Scholia on Pindar",
+    "display_work": "Olympian and Pythian Odes (later scholia)",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_pindarum_paeanes.tess": {
+    "display_author": "Scholia on Pindar",
+    "display_work": "Paeans (papyrus scholia)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "scholia.in_pindarum_pythia_v_vii.tess": {
+    "display_author": "Scholia on Pindar",
+    "display_work": "Pythian Odes 5 to 7",
+    "year": 1300,
+    "era": "Byzantine"
+  },
+  "scholia.in_sophoclem.tess": {
+    "display_author": "Scholia on Sophocles",
+    "display_work": "Plays (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "scholia.in_xenophontem_anabasin_cyri.tess": {
+    "display_author": "Scholia on Xenophon",
+    "display_work": "Anabasis (old scholia)",
+    "year": 500,
+    "era": "Late Antique"
+  },
+  "socrates_historicus.fragmenta.tess": {
+    "display_author": "Socrates (historian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "socrates_historicus_1679.fragmenta.tess": {
+    "display_author": "Socrates (historian, TLG 1679)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "sosicrates_comicus.fragmenta.tess": {
+    "display_author": "Sosicrates (comic poet)",
+    "year": -250,
+    "era": "Hellenistic"
+  },
+  "sosicrates_historicus.fragmenta.tess": {
+    "display_author": "Sosicrates (historian)",
+    "year": -150,
+    "era": "Hellenistic"
+  },
+  "speusippus.epistula_ad_philippum_regem.tess": {
+    "display_work": "Epistula ad Philippum Regem (spurious)"
+  },
+  "stephanus_comicus.fragmentum.tess": {
+    "display_author": "Stephanus (comic poet)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "stephanus_grammaticus.in_artem_rhetoricam_commentaria.tess": {
+    "display_author": "Stephanus (grammarian)",
+    "year": 1150,
+    "era": "Byzantine"
+  },
+  "stephanus_medicus.collyrium_ophthalmicum.tess": {
+    "display_author": "Stephanus (physician)",
+    "year": 600,
+    "era": "Late Antique"
+  },
+  "stephanus_medicus_0736.in_magni_sophistae_librum_de_urinis.tess": {
+    "display_author": "Stephanus (physician, TLG 0736)",
+    "year": 650,
+    "era": "Byzantine"
+  },
+  "stephanus_philosophus.in_aristotelis_librum_de_interpretatione_commentarium.tess": {
+    "display_author": "Stephanus (philosopher)",
+    "year": 650,
+    "era": "Byzantine"
+  },
+  "syrianus.commentarium_in_hermogenis_librum_peri_ideon.tess": {
+    "display_work": "Commentarium in Hermogenis librum περὶ ἰδεῶν"
+  },
+  "syrianus.commentarium_in_hermogenis_librum_peri_staseon.tess": {
+    "display_work": "Commentarium in Hermogenis librum περὶ στάσεων"
+  },
+  "syrianus.praefatio_in_hermogenis_librum_peri_ideon.tess": {
+    "display_work": "Praefatio in Hermogenis librum περὶ ἰδεῶν (fort. auctore Phoebammone partim) (spurious)"
+  },
+  "testamentum_abrahae.testamentum_abrahae_tlg002.tess": {
+    "display_work": "Testamentum Abrahae (recensio B)"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg002.tess": {
+    "display_work": "Testamentum Salomonis (recensiones A et B) (mss. HIPQ)"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg003.tess": {
+    "display_work": "Testamentum Salomonis (recensio A) (mss. HI)"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg004.tess": {
+    "display_work": "Testamentum Salomonis (recensio A) (ms. L)"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg005.tess": {
+    "display_work": "Testamentum Salomonis (recensio C, I.1-3) (mss. VW)"
+  },
+  "testamentum_salomonis.testamentum_salomonis_tlg006.tess": {
+    "display_work": "Testamentum Salomonis (recensio C) (mss. VWSTU)"
+  },
+  "teucer_astrologus.de_duodecim_signis.tess": {
+    "display_author": "Teucer (astrologer)",
+    "year": 50,
+    "era": "Early Imperial"
+  },
+  "teucer_historicus.fragmenta.tess": {
+    "display_author": "Teucer (historian)",
+    "year": -50,
+    "era": "Hellenistic"
+  },
+  "themistius.quae_fertur_in_aristotelis_analyticorum_priorum_librum_i.tess": {
+    "display_work": "Quae Fertur in Aristotelis Analyticorum Priorum Librum I Paraphrasis"
+  },
+  "theodoret.quaestiones_et_responsiones_ad_orthodoxos.tess": {
+    "display_work": "Quaestiones et Responsiones ad Orthodoxos (doubtful)"
+  },
+  "theodosius_astronomus.de_diebus_et_noctibus.tess": {
+    "display_author": "Theodosius (astronomer)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "theodosius_astronomus.de_habitationibus.tess": {
+    "display_author": "Theodosius (astronomer)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "theodosius_astronomus.sphaerica.tess": {
+    "display_author": "Theodosius (astronomer)",
+    "year": -100,
+    "era": "Hellenistic"
+  },
+  "theodosius_grammaticus.de_dialectis.tess": {
+    "display_author": "Theodosius (grammarian)",
+    "display_work": "De Dialectis (spurious)",
+    "year": 400,
+    "era": "Late Antique"
+  },
+  "theodosius_grammaticus.epitome_catholicae_herodiani.tess": {
+    "display_author": "Theodosius (grammarian)",
+    "display_work": "Epitome Catholicae Herodiani (spurious)",
+    "year": 400,
+    "era": "Late Antique"
+  },
+  "theodosius_grammaticus.peri_grammatikes.tess": {
+    "display_author": "Theodosius (grammarian)",
+    "display_work": "Περὶ γραμματικῆς (fort. auctore Theodoro Prodromo) (spurious)",
+    "year": 400,
+    "era": "Late Antique"
+  },
+  "theodosius_grammaticus.peri_kliseos_ton_eis_on_barytonon.tess": {
+    "display_author": "Theodosius (grammarian)",
+    "display_work": "Περὶ κλίσεως τῶν εἰς ων βαρυτόνων (e cod. Haun. 1965)",
+    "year": 400,
+    "era": "Late Antique"
+  },
+  "theodosius_grammaticus.peri_kliseos_ton_eis_on_oxytonon.tess": {
+    "display_author": "Theodosius (grammarian)",
+    "display_work": "Περὶ κλίσεως τῶν εἰς ων ὀξυτόνων (e cod. Haun. 1965)",
+    "year": 400,
+    "era": "Late Antique"
+  },
+  "theodosius_grammaticus.peri_tonoy.tess": {
+    "display_author": "Theodosius (grammarian)",
+    "display_work": "Περὶ τόνου (fort. auctore Theodoro Prodromo) (spurious)",
+    "year": 400,
+    "era": "Late Antique"
+  },
+  "theon_grammaticus.fragmenta.tess": {
+    "display_author": "Theon (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "theon_grammaticus.testimonia.tess": {
+    "display_author": "Theon (grammarian)",
+    "year": 0,
+    "era": "Early Imperial"
+  },
+  "theon_philosophus.de_utilitate_mathematicae.tess": {
+    "display_author": "Theon (philosopher)",
+    "year": 150,
+    "era": "Early Imperial"
+  },
+  "theophilus_comicus.fragmenta.tess": {
+    "display_author": "Theophilus (comic poet)",
+    "year": -350,
+    "era": "Classical"
+  },
+  "theophilus_historicus.fragmenta.tess": {
+    "display_author": "Theophilus (historian)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "theophrastus_poeta.theophrastoy_philosophoy_peri_tes_theias_technes_dia_stichon.tess": {
+    "display_author": "Theophrastus (alchemical poet)",
+    "display_work": "Θεοφράστου φιλοσόφου περὶ τῆς θείας τέχνης διὰ στίχων ἰάμβων",
+    "year": 650,
+    "era": "Byzantine"
+  },
+  "timaeus_sophista.lexicon_platonicum.tess": {
+    "display_author": "Timaeus (sophist)",
+    "year": 350,
+    "era": "Late Antique"
+  },
+  "timotheus_comicus.fragmenta.tess": {
+    "display_author": "Timotheus (comic poet)",
+    "year": -300,
+    "era": "Hellenistic"
+  },
+  "timotheus_grammaticus.excerpta_ex_libris_de_animalibus.tess": {
+    "display_author": "Timotheus (grammarian)",
+    "year": 550,
+    "era": "Late Antique"
+  },
+  "timotheus_historicus.fragmenta.tess": {
+    "display_author": "Timotheus (historian)",
+    "year": 100,
+    "era": "Early Imperial"
+  },
+  "tryphon_i_grammaticus.peri_pathon.tess": {
+    "display_work": "Περὶ παθῶν"
+  },
+  "vitae_aesopi.biblion_mythikon_toy_aisopoy_eikonizon_apo_ton_alogon_zoon.tess": {
+    "display_work": "Βιβλίον μυθικὸν τοῦ Αἰσώπου, εἰκονίζον ἀπὸ τῶν ἀλόγων ζῴων πρὸς τὰς τῆς ἀνθρωπίνης φύσεως"
+  },
+  "vitae_prophetarum.de_prophetarum_vita_et_obitu_tlg002.tess": {
+    "display_work": "De Prophetarum Vita et Obitu (recensio anonyma)"
+  },
+  "vitae_prophetarum.de_prophetarum_vita_et_obitu_tlg003.tess": {
+    "display_work": "De Prophetarum Vita et Obitu (recensio scholiis Hesychii aliorumque patrum in prophetas adjecta)"
   }
 }

@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-09
+- CLLG Freed Corpus group one, records for the 1,038 Greek texts staged in #1307: 1,038 credit rows in `backend/text_sources.json` (print source from each TEI header, CC0 text with CC BY 4.0 metadata), 1,038 descriptions in `data/text_descriptions.json`, 661 author date entries and 27 work date entries in `backend/author_dates.json`, display names for 412 files in `backend/text_metadata_overrides.json` (scholia, anonymous commentaries, the Greek Anthology Appendix, authors that share a name, spurious and doubtful works marked), a row in `data/sources_credits.json`, and the Greek figures in Help and the search scope boxes brought to 1,940 works in 3,021 files (the Greek translation share falls from about 79 to about 20 percent, and the parsed share to 1,635 of 3,021 files). (#PR)
+
 ## 2026-11-08
 - Reader word lookup follows "see X" cross-references as well as "v. X" (Autenrieth writes "Πηληϊάδης: see Πηλείδης"). (#PR)
 - Reader word lookup: a form none of our tables knows (ψυχὰς, πολύτροπον, Πηληϊάδεω in Homer's first lines, amavisset) is parsed by Logeion and its headword looked up, so the entry comes back where the Wiktionary line "accusative plural of ψυχή" or nothing did. A short entry that only points at another (Troia, "v. Tros"; Διός, "gen. of Ζεύς") now carries the entry it points at after it. For Greek the two Homeric lexicons, Autenrieth and Cunliffe, answer when LSJ and Middle Liddell have nothing (the patronymics Πηληϊάδης and Ἀτρεΐδης). (#PR)

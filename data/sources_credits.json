@@ -44,6 +44,17 @@
     "notes": "The Wikisource pages for Gregory of Tours, Geoffrey of Monmouth and Valla name no print edition. Translations aligned to these texts: the English Dominican Fathers (Summa Theologiae, 1920 to 1922) from Project Gutenberg, Ernest Brehaut (Gregory of Tours, selections, 1916) from Project Gutenberg, and Christopher B. Coleman (Valla, 1922) from Project Gutenberg, all public domain. Servius, Geoffrey, the Gesta Romanorum and Milton have no aligned translation."
   },
   {
+    "collection": "Literary texts",
+    "name": "CLLG Freed Corpus (Inria): Greek texts of 2026-11-09",
+    "url": "https://gitlab.inria.fr/almanach/cllg/freed-corpus",
+    "licence_name": "CC0 1.0 (texts), CC BY 4.0 (citation structure and metadata)",
+    "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "version": "commit 281049a3, 2026-11-09",
+    "retrieved": "2026-11-09",
+    "what_we_use": "The Greek text of 1,038 works (1,385 files, counting books held separately), about 13.1 million words, from the TLG CD-ROM E texts that Diogenes converted to TEI and the Corpus Liberatum Linguae Graecae (CLLG) reworked. Only works whose printed edition dates before 1930 are used, and only works we did not already hold. They include the commentators on Aristotle (Alexander, Simplicius, Philoponus, Ammonius and others), the Byzantine historians of the Bonn corpus, 283 fragment collections of Greek historians from Müller's Fragmenta Historicorum Graecorum, 148 collections of comic fragments from Kock, 24 sets of scholia, medical writers (Galen, Paul of Aegina, Aetius), Christian writers (Origen, Eusebius, Hippolytus, Epiphanius, Athanasius) and the Greek mathematicians. Notes, apparatus and headings are left out.",
+    "notes": "The text is released under CC0 1.0. The CLLG relies on French law, under which the text of a critical edition is not protected by copyright (Paris Court of Appeal, 9 June 2017, Garnier v. Droz). The citation structure and the metadata are released under CC BY 4.0 by the CLLG (director Thibault Clérice), and this credit gives that attribution. Each work's row on the Text Credits page names the file and the printed edition. The CLLG files carry no English translations, and none of these works has an aligned translation yet."
+  },
+  {
     "collection": "Inscriptions and papyri",
     "name": "Epigraphic Database Heidelberg (EDH)",
     "url": "https://edh.ub.uni-heidelberg.de/",
