@@ -251,6 +251,7 @@ def test_cross_reference_targets():
     assert D.cross_reference('Διός [ῐ], gen. of Ζεύς.', 'Διός') == 'Ζεύς'
     assert D.cross_reference('sŭpĕri, ōrum, v. superus.', 'superi') == 'superus'
     assert D.cross_reference('multum, adv., v. multus fin.', 'multum') == 'multus'
+    assert D.cross_reference('Πηληϊάδης : see Πηλείδης.', 'Πηληϊάδης') == 'Πηλείδης'   # Autenrieth's form
     assert D.cross_reference('x' * 300 + ' v. alius', 'y') is None          # a full article
     assert D.cross_reference('ămo, āvi, ātum, to love\n\nămo 2', 'amo') is None  # several entries
     assert D.cross_reference('Tros, v. Tros', 'Tros') is None               # points at itself
