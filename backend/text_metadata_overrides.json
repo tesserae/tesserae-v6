@@ -1279,12 +1279,12 @@
     "era": "Classical"
   },
   "andron_historicus_2172.fragmentum.tess": {
-    "display_author": "Andron (historian, TLG 2172)",
+    "display_author": "Andron (historian)",
     "year": -100,
     "era": "Hellenistic"
   },
   "andron_historicus_4347.fragmenta.tess": {
-    "display_author": "Andron (historian, TLG 4347)",
+    "display_author": "Andron (historian)",
     "year": -350,
     "era": "Classical"
   },
@@ -1415,7 +1415,7 @@
     "era": "Hellenistic"
   },
   "apollodorus_comicus_0413.fragmenta.tess": {
-    "display_author": "Apollodorus (comic poet, TLG 0413)",
+    "display_author": "Apollodorus (comic poet)",
     "year": -300,
     "era": "Hellenistic"
   },
@@ -1647,7 +1647,7 @@
     "era": "Classical"
   },
   "artemon_historicus_2392.fragmenta.tess": {
-    "display_author": "Artemon (historian, TLG 2392)",
+    "display_author": "Artemon (historian)",
     "year": -150,
     "era": "Hellenistic"
   },
@@ -1657,7 +1657,7 @@
     "era": "Hellenistic"
   },
   "asclepiades_grammaticus_2423.fragmentum.tess": {
-    "display_author": "Asclepiades (grammarian, TLG 2423)",
+    "display_author": "Asclepiades (grammarian)",
     "year": 0,
     "era": "Early Imperial"
   },
@@ -1735,7 +1735,7 @@
     "era": "Hellenistic"
   },
   "bion_historicus_1871.fragmenta.tess": {
-    "display_author": "Bion (historian, TLG 1871)",
+    "display_author": "Bion (historian)",
     "year": -350,
     "era": "Classical"
   },
@@ -1805,7 +1805,7 @@
     "era": "Classical"
   },
   "daimachus_historicus_2482.fragmenta.tess": {
-    "display_author": "Daimachus (historian, TLG 2482)",
+    "display_author": "Daimachus (historian)",
     "year": -250,
     "era": "Hellenistic"
   },
@@ -1830,7 +1830,7 @@
     "era": "Hellenistic"
   },
   "demetrius_historicus_2511.fragmenta.tess": {
-    "display_author": "Demetrius (historian, TLG 2511)",
+    "display_author": "Demetrius (historian)",
     "year": -350,
     "era": "Classical"
   },
@@ -1879,17 +1879,17 @@
     "era": "Hellenistic"
   },
   "dionysius_historicus_1328.fragmenta.tess": {
-    "display_author": "Dionysius (historian, TLG 1328)",
+    "display_author": "Dionysius (historian)",
     "year": -350,
     "era": "Classical"
   },
   "dionysius_historicus_2354.fragmenta.tess": {
-    "display_author": "Dionysius (historian, TLG 2354)",
+    "display_author": "Dionysius (historian)",
     "year": -200,
     "era": "Hellenistic"
   },
   "dionysius_historicus_2466.fragmenta.tess": {
-    "display_author": "Dionysius (historian, TLG 2466)",
+    "display_author": "Dionysius (historian)",
     "year": -450,
     "era": "Classical"
   },
@@ -1999,7 +1999,7 @@
     "era": "Early Imperial"
   },
   "glaucus_historicus_4391.fragmenta.tess": {
-    "display_author": "Glaucus (historian, TLG 4391)",
+    "display_author": "Glaucus (historian)",
     "year": -450,
     "era": "Classical"
   },
@@ -2213,12 +2213,12 @@
     "era": "Classical"
   },
   "leo_historicus_1978.fragmenta.tess": {
-    "display_author": "Leo (historian, TLG 1978)",
+    "display_author": "Leo (historian)",
     "year": -300,
     "era": "Hellenistic"
   },
   "leo_historicus_2186.fragmentum.tess": {
-    "display_author": "Leo (historian, TLG 2186)",
+    "display_author": "Leo (historian)",
     "year": 0,
     "era": "Early Imperial"
   },
@@ -2316,17 +2316,17 @@
     "era": "Classical"
   },
   "menecrates_historicus_2475.fragmentum.tess": {
-    "display_author": "Menecrates (historian, TLG 2475)",
+    "display_author": "Menecrates (historian)",
     "year": -350,
     "era": "Classical"
   },
   "menecrates_historicus_4345.fragmentum.tess": {
-    "display_author": "Menecrates (historian, TLG 4345)",
+    "display_author": "Menecrates (historian)",
     "year": -200,
     "era": "Hellenistic"
   },
   "menecrates_historicus_4346.fragmenta.tess": {
-    "display_author": "Menecrates (historian, TLG 4346)",
+    "display_author": "Menecrates (historian)",
     "year": 150,
     "era": "Early Imperial"
   },
@@ -2984,7 +2984,7 @@
     "era": "Hellenistic"
   },
   "socrates_historicus_1679.fragmenta.tess": {
-    "display_author": "Socrates (historian, TLG 1679)",
+    "display_author": "Socrates (historian)",
     "year": -50,
     "era": "Hellenistic"
   },
@@ -3017,7 +3017,7 @@
     "era": "Late Antique"
   },
   "stephanus_medicus_0736.in_magni_sophistae_librum_de_urinis.tess": {
-    "display_author": "Stephanus (physician, TLG 0736)",
+    "display_author": "Stephanus (physician)",
     "year": 650,
     "era": "Byzantine"
   },
