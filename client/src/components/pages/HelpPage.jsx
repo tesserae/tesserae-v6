@@ -2364,14 +2364,14 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    A large corpus: about 1,927 works (about 2,987 files, counting books held separately). Vocabulary, sound, meaning, and
+                    A large corpus: about 1,950 works (2,986 files, counting books held separately). Vocabulary, sound, meaning, and
                     rare-word channels all work. Searches are accent-insensitive, so you can enter text with or without
-                    diacritics. About half the Greek corpus is grammatically parsed (1,635 of the about 2,987 files, Homer among them), so the
-                    syntax channels contribute where both texts are parsed and nothing where either is not.
+                    diacritics. Every Greek file is grammatically parsed (about 1.8 million lines), so the
+                    syntax channels contribute to every Greek pair.
                     In November 2026 the Greek corpus gained about 1,030 works from the CLLG Freed Corpus: commentators on
                     Aristotle, Byzantine historians, collections of fragments of Greek historians and of comic poets, scholia,
-                    and medical, mathematical and Christian writers. These new files have no grammar parse and almost no
-                    translation yet.
+                    and medical, mathematical and Christian writers. These new files are parsed and indexed in every
+                    store, with almost no translation yet.
                     On 121 Homeric parallels in later epic, the search finds 69 percent searching whole works and
                     97 percent book by book (early 2026).
                   </p>
@@ -3309,9 +3309,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Latin: Full Coverage</h4>
                 <p className="text-sm text-gray-700">
-                  <strong>1,433 of about 1,830 Latin files</strong> (639,000+ lines) have been parsed for syntactic
+                  <strong>Every Latin file</strong> (1,889 files, about 1.08 million lines) has been parsed for syntactic
                   dependencies using LatinPipe, a Latin dependency parser. Syntax matching works for any pair of
-                  parsed texts. Works added since the parse contribute nothing to the syntax channels until they are parsed.
+                  Latin texts. A work added since the parse contributes nothing to the syntax channels until it is parsed.
                 </p>
               </div>
 
@@ -3322,13 +3322,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
-              <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Greek: Partial</h4>
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Greek: Full Coverage</h4>
                 <p className="text-sm text-gray-700">
-                  1,635 of the about 2,987 Greek files in the corpus have been parsed (558,000+ lines), using Stanza with
-                  the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model. Homer is among them.
-                  Syntax matching <strong>does</strong> work for Greek pairs where both texts are parsed, and contributes
-                  nothing where either is not. The other channels run normally either way.
+                  <strong>Every Greek file</strong> (2,986 files, about 1.8 million lines, since 9 November 2026) has been parsed, using Stanza with
+                  the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model.
+                  Syntax matching works for any pair of Greek texts. A work added after the latest parse contributes
+                  nothing to the syntax channels until it is parsed.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
@@ -3642,7 +3642,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
                     Coptic almost entirely (186 of 187 files), Latin for every file (1,889 of 1,889), and Greek for
-                    1,635 of its 2,987 files (Homer among them, not the files added in November 2026). One Latin line in the Natural History of Pliny
+                    every file (2,986 of 2,986, the files added in November 2026 included). One Latin line in the Natural History of Pliny
                     (32.61) is too long for the parser and has none. A work added after the latest parse is not
                     covered until the parses are updated. English, Hebrew, Persian and Urdu are not parsed. Where a
                     text has no parse the syntax channel contributes nothing and the other channels run normally.

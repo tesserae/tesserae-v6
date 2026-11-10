@@ -85,6 +85,24 @@ def test_write_rows_adds_and_leaves_old_rows():
     assert stats['new_entities'][0][1] == 'nm:zz' and db.execute('select max(eid) from entities').fetchone()[0] == 2
 
 
+def test_new_name_id_already_in_the_store_gets_a_run_suffix():
+    """A run after 2026-10-25 meets the 'nm:KEY:n1' ids that run filed; the new cluster numbered 1 again
+    for the same key must not collide (the Greek group one build of 2026-11-10 failed on this)."""
+    db = sqlite3.connect(':memory:')
+    db.executescript(ei.SCHEMA)
+    db.execute('alter table mention_rows add column line_ref TEXT')
+    db.execute('alter table mention_rows add column form_key TEXT')
+    db.execute("insert into entities values (1,'nm:abraa:n1','name','Abraam','names',NULL,NULL,NULL,NULL,'abraa',0,3)")
+    db.execute("insert into entities values (2,'nm:abraa:n1:b2','name','Abraamius','names',NULL,NULL,NULL,NULL,'abraa',0,1)")
+    wmeta = {'new:fine:0': ('grc', 'new', 'n 1', 'n 2')}
+    stats = nw.write_rows(db, [], [], [('abraa:n1', 'new:fine:0', 'Ἀβραάμιος', 'abraamios', 'new_carve')],
+                          {'abraa:n1': collections.Counter({'Ἀβραάμιος': 1})}, wmeta, lambda tag: tag.split(':')[0],
+                          lambda forms: ('Abraamios', None, 'Ἀβραάμιος'))
+    assert stats['new_entities'][0][1] == 'nm:abraa:n1:b3'
+    assert db.execute('select count(*) from entities').fetchone()[0] == 3
+    assert db.execute("select count(distinct entity_id) from entities").fetchone()[0] == 3
+
+
 def test_abbreviation_forms_are_found_by_the_data():
     texts = {
         'w1': 'Et Matth. XII dicitur, et iterum Matth. 5 legitur.',

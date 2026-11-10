@@ -7,6 +7,12 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-10
+- Data operations: the 1,025 Greek works of the CLLG Freed Corpus group one (1,351 files, 1,127,684 lines) carried through every search and content store on production, 2026-11-09 14:36 to 2026-11-10 04:48: lemma caches, the Greek index (2,986 texts), bigrams, line vectors, the grammar parse (every Greek file), 275,848 passage windows described and encoded (1,006,240 windows live), word index and vocabulary, window names, People & Places, the Greek reuse table, the connection map, the Greek text archive. Record in docs/DATA_OPERATIONS.md. (#PR)
+- Help: the Greek corpus paragraph, the syntax coverage box and the parsing FAQ now say every Greek file is parsed (2,986 files, about 1.8 million lines) and describe the November 2026 additions. (#PR)
+- People & Places new-works builder: a new name id already in the store (the 2026-10-25 run filed 2,344 `nm:KEY:nN` ids and a later run numbers its clusters from 1 again) gets a run suffix instead of failing the build; test added. (#PR)
+- Coverage check: a whole work whose windows belong to its parts, when every part is under the ten-line window minimum, is exempt from the connection map column as it already was from the window columns. (#PR)
+
 ## 2026-11-09
 - Data operations: the three citation indexes rebuilt with recognizer rounds 9 and 9b and installed on 2026-11-09 (EJC 43,353, MUSE 29,895, JSTOR 769,269 citations). Record in docs/DATA_OPERATIONS.md. (#PR)
 - Citation recognizer round 9b, after reading the round 9 rebuild: the De inventione context needs "inventione" (the word "inventory" had satisfied it), the parser no longer reads "il" or a lowercase "li" as a Roman numeral (the Italian "Per il" had survived as Pericles 49 when Plutarch was named nearby), and a Eutropius locus beyond the Breviarium's ten books is dropped. (#PR)
