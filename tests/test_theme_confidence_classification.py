@@ -65,29 +65,31 @@ def test_degenerate_coherence_is_low():
 # narrow it without a test failure pointing here.
 
 def test_head_weak_is_the_refit_value():
-    # 2026-10-12 refit against the 693,611-window index: see the HEAD_WEAK
-    # comment in backend/passage_index.py and docs/DECISIONS.md, 2026-10-12.
-    assert HEAD_WEAK == 0.060
+    # 2026-11-10 refit against the 1,006,240-window index: see the HEAD_WEAK
+    # comment in backend/passage_index.py and docs/DECISIONS.md, 2026-11-10
+    # (0.060 was the 2026-10-12 value, against 693,611 windows).
+    assert HEAD_WEAK == 0.066
 
 
 def test_head_strong_unchanged_by_the_refit():
     assert HEAD_STRONG == 0.1006
 
 
-def test_historical_subjects_with_relevant_lists_are_not_low():
-    # Measured 2026-10-12: "establishment of democracy" 0.0669 (7 of the top
-    # ten about the subject), "the sack of a city" 0.0607, "a tyrant
-    # overthrown" 0.0661. All read 'low' under the 0.0738 of 2026-10-08.
-    for head_lift in (0.0669, 0.0607, 0.0661):
+def test_present_subjects_at_the_refit_floor_are_moderate():
+    # Measured 2026-11-10 on the 1,006,240-window index: "exile" 0.0661 and
+    # "plague" 0.0663 (57-query set), "establishment of democracy" 0.0669
+    # (2026-10-12). All at or above the 0.066 floor.
+    for head_lift in (0.0661, 0.0663, 0.0669):
         assert _confidence_level(head_lift, 0.91) == 'moderate'
 
 
 def test_just_below_the_refit_floor_is_low():
-    # "a revolt of slaves", 0.0551: the lowest of the sixty historical
-    # subjects, and the price of the floor (its list was relevant too).
-    assert _confidence_level(0.0551, 0.9155) == 'low'
-    assert _confidence_level(0.0599, 0.90) == 'low'
-    assert _confidence_level(0.060, 0.90) == 'moderate'
+    # The price of the 2026-11-10 floor: "the underworld" 0.0601 and "a plague"
+    # 0.0637 (57-query set, both held by the corpus) read "Closest passages".
+    assert _confidence_level(0.0601, 0.9155) == 'low'
+    assert _confidence_level(0.0637, 0.90) == 'low'
+    assert _confidence_level(0.0659, 0.90) == 'low'
+    assert _confidence_level(0.066, 0.90) == 'moderate'
 
 
 def test_the_three_rescued_latin_queries_are_now_moderate():
