@@ -155,7 +155,7 @@ def _write_cap_file(data, now):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(tmp, 'w', encoding='utf-8') as fh:
             json.dump({'computed_epoch': now, 'data': data}, fh)
-        os.chmod(tmp, 0o664)
+        os.chmod(tmp, 0o664)  # nosec B103 -- group-writable on purpose: the tessdev group (Apache workers and the maintainers) shares cache/
         os.replace(tmp, path)
     except OSError:
         logger.warning('[SCOPE] could not write %s', path, exc_info=True)
