@@ -24,6 +24,7 @@ import os
 import re
 import threading
 import time
+import unicodedata
 
 import requests
 
@@ -1246,8 +1247,8 @@ def citation_index(a, limit=40):
     """Articles in the offline index that cite the passage, grouped by
     article with the pages and sentences, newest first. The EJC index and,
     when TESSERAE_CITATIONS_EXTRA or TESSERAE_CITATIONS_JSTOR names a file,
-    the Project MUSE and JSTOR indexes are read separately and listed
-    together."""
+    the Project MUSE and JSTOR indexes are read separately; up to `limit`
+    articles from each are listed together, newest first."""
     extra = _extra_index_path()
     jstor = _jstor_index_path()
     have_ejc = os.path.exists(CITATION_INDEX)
@@ -1262,14 +1263,75 @@ def citation_index(a, limit=40):
     jstor_articles = _index_articles(jstor, 'jstor', *args) if jstor else {}
     if ejc_articles is None and not muse_articles and not jstor_articles:
         return {'available': False, 'results': [], 'reason': 'The citation index could not be read.'}
+    # Each index is cut to `limit` on its own, newest first, and the three are then
+    # listed together: every EJC article is older than 1923, so one combined cut
+    # would drop the only articles that carry sentences whenever forty newer MUSE
+    # and JSTOR articles cite the passage (2026-11-10). `total` counts before the cut.
+    def newest(d):
+        return sorted((d or {}).values(), key=lambda x: (-(x['year'] or 0), x['title'] or ''))[:limit]
     found = list((ejc_articles or {}).values()) + list((muse_articles or {}).values()) + list((jstor_articles or {}).values())
-    out = sorted(found, key=lambda x: (-(x['year'] or 0), x['title'] or ''))
+    out = sorted(newest(ejc_articles) + newest(muse_articles) + newest(jstor_articles),
+                 key=lambda x: (-(x['year'] or 0), x['title'] or ''))
     note = 'From the full text of journals before 1923 (JSTOR Early Journal Content, on the Internet Archive), indexed by passage with the citation extractor.'
     if extra:
         note += ' Project MUSE journals from 1996 on are read under the library\'s license; one sentence is shown per citation.'
     if jstor:
         note += ' JSTOR journals are read under JSTOR\'s text-analysis terms; each citing article is listed with a link and no excerpt.'
-    return {'available': True, 'results': out[:limit], 'total': len(found), 'note': note}
+    return {'available': True, 'results': out, 'total': len(found), 'note': note}
+
+
+_LEADING_ARTICLES = ('the', 'a', 'an', 'der', 'die', 'das', 'le', 'la', 'les', 'il', 'lo', 'gli', 'el')
+_STABLE_RE = re.compile(r'/stable/(10\.\d+/[^/?#\s]+|[^/?#\s]+)', re.I)  # JSTOR links also take the form /stable/10.2307/<id>
+_SOURCE_PREFERENCE = {'ejc': 0, 'muse': 1, 'jstor': 2}
+
+
+def _stable_id(art):
+    """The JSTOR stable id of a result, from a jstor_id field, a /stable/ link
+    (the EJC rows' url_jstor, the JSTOR rows' url) or a 10.2307 DOI."""
+    jid = str(art.get('jstor_id') or '').strip()
+    if jid:
+        return jid.lower()
+    for field in ('url_jstor', 'url'):
+        m = _STABLE_RE.search(art.get(field) or '')
+        if m:
+            found = m.group(1).lower()
+            return found[len('10.2307/'):] if found.startswith('10.2307/') else found
+    doi = (art.get('doi') or '').strip().lower()
+    if doi.startswith('10.2307/'):
+        return doi[len('10.2307/'):]
+    return ''
+
+
+def _title_year(art):
+    t = unicodedata.normalize('NFKD', art.get('title') or '')
+    t = ''.join(ch for ch in t if not unicodedata.combining(ch)).lower()
+    words = re.findall(r'[a-z0-9]+', t)
+    if len(words) > 1 and words[0] in _LEADING_ARTICLES:
+        words = words[1:]
+    return ''.join(words), art.get('year') or ''
+
+
+def article_keys(art):
+    """Every key an article can be recognized by, best first: ('id', stable id),
+    ('doi', lowercased DOI), ('title', normalized title, year)."""
+    keys = []
+    sid = _stable_id(art)
+    if sid:
+        keys.append(('id', sid))
+    doi = (art.get('doi') or '').strip().lower()
+    if doi:
+        keys.append(('doi', doi))
+    title, year = _title_year(art)
+    if title:
+        keys.append(('title', title, year))
+    return keys
+
+
+def article_key(art):
+    """The key that names one article across the EJC, MUSE and JSTOR indexes:
+    the JSTOR stable id, else the DOI, else the normalized title with the year."""
+    keys = article_keys(art)
+    return keys[0] if keys else ('title', '', art.get('year') or '')
 
 
 CITING_MAX_RANGES = 25
@@ -1285,6 +1347,7 @@ def citing_articles(work, ranges, limit=40):
     Newest first, then by the number of passages cited."""
     ranges = list(ranges or [])[:CITING_MAX_RANGES]
     merged = {}
+    alias = {}
     available = False
     note = ''
     for ref_start, ref_end in ranges:
@@ -1295,17 +1358,32 @@ def citing_articles(work, ranges, limit=40):
         note = res.get('note') or note
         for art in res.get('results') or []:
             source = art.get('source') if art.get('source') in ('muse', 'jstor') else 'ejc'
-            key = art.get('doi') or (source, art.get('title'))
+            # One article held by two indexes is one item. The primary key is
+            # article_key; a MUSE row has a DOI only and its JSTOR twin a stable
+            # id, so every key of the article is looked up, and a title-and-year
+            # match counts only for a title of 12 letters or more (not "Notes").
+            keys = article_keys(art)
+            usable = [k for k in keys if k[0] != 'title' or len(k[1]) >= 12]
+            key = next((alias[k] for k in usable if k in alias), None)
+            if key is None:
+                key = article_key(art)
+            for k in usable or keys[:1]:
+                alias.setdefault(k, key)
+            link = art.get('url') or art.get('url_jstor') or art.get('url_ia')
             item = merged.get(key)
             if item is None:
                 item = merged[key] = {
                     'title': art.get('title'), 'authors': art.get('authors') or [], 'year': art.get('year'),
-                    'journal': art.get('venue'), 'url': art.get('url') or art.get('url_jstor') or art.get('url_ia'),
+                    'journal': art.get('venue'), 'url': link,
                     'source': source, 'cites': [], 'sentences': []}
+            elif _SOURCE_PREFERENCE[source] < _SOURCE_PREFERENCE[item['source']]:
+                # kept item: source ejc if any member is EJC (its sentences show), else muse, else jstor
+                item.update(source=source, url=link or item['url'], title=art.get('title') or item['title'],
+                            authors=art.get('authors') or item['authors'], journal=art.get('venue') or item['journal'])
             if ref_start not in item['cites']:
                 item['cites'].append(ref_start)
-                if source == 'ejc' and art.get('snippet'):
-                    item['sentences'].append({'ref': ref_start, 'text': art['snippet']})
+            if source == 'ejc' and art.get('snippet') and not any(x['ref'] == ref_start for x in item['sentences']):
+                item['sentences'].append({'ref': ref_start, 'text': art['snippet']})
     if not available:
         return {'available': False, 'results': [], 'total': 0, 'note': ''}
     out = sorted(merged.values(), key=lambda x: (-(x['year'] or 0), -len(x['cites']), x['title'] or ''))

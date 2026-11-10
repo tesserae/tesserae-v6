@@ -12,6 +12,7 @@ behind each, are in docs/DECISIONS.md.
 - Help: the Greek corpus paragraph, the syntax coverage box and the parsing FAQ now say every Greek file is parsed (2,986 files, about 1.8 million lines) and describe the November 2026 additions. (#PR)
 - People & Places new-works builder: a new name id already in the store (the 2026-10-25 run filed 2,344 `nm:KEY:nN` ids and a later run numbers its clusters from 1 again) gets a run suffix instead of failing the build; test added. (#PR)
 - Coverage check: a whole work whose windows belong to its parts, when every part is under the ten-line window minimum, is exempt from the connection map column as it already was from the window columns. (#PR)
+- The Scholarship tab lists an article held by more than one citation index once (one key function, `article_key`: the JSTOR stable id, else the DOI, else normalized title and year; EJC sentences kept) and lists up to forty articles from each index instead of cutting the combined list at forty, which had dropped the pre-1923 articles with sentences. The Events relink script reads the JSTOR index too (`--jstor-index`). Help text updated. (#1316)
 
 ## 2026-11-09
 - Data operations: the three citation indexes rebuilt with recognizer rounds 9 and 9b and installed on 2026-11-09 (EJC 43,353, MUSE 29,895, JSTOR 769,269 citations). Record in docs/DATA_OPERATIONS.md. (#PR)

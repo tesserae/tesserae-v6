@@ -3769,7 +3769,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 library&rsquo;s agreement, a second index reads the journals on Project MUSE from 1996 on under that license
                 and lists each article that cites the passage with one sentence and a DOI link. A third index reads the classics
                 journals on JSTOR under JSTOR&rsquo;s text-analysis terms and lists each citing article as a citation and a link
-                back to JSTOR, with no sentence shown, at JSTOR&rsquo;s request. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
+                back to JSTOR, with no sentence shown, at JSTOR&rsquo;s request. The tab lists up to forty articles from each of
+                the three sources, newest first, so the older articles with sentences are not crowded out by newer ones, and an
+                article held by more than one source (the same article is often on JSTOR and in one of the other two) is listed once. The RIS export goes to the clipboard, read by Zotero&rsquo;s File menu, Import from Clipboard,
                 or as a file. A commentary note cites the edition the text comes from, with the passage it comments on. The
                 HathiTrust link runs the same search in that library&rsquo;s book scans and tells you which books and page
                 numbers mention the citation, without showing you the text itself.
