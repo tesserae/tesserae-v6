@@ -228,8 +228,12 @@ Stage E. Downloads, records and checks
     changed, `curl` the languages route.
 26. Checks: `scripts/reference_search_check.py`, the coverage check
     (`scripts/corpus/verify_text_coverage.py --language <lang> <work>`, exit 0),
-    the golden requests, and one search with the new text from the page a
-    reader uses.
+    the golden requests, one search with the new text from the page a
+    reader uses, and the Help table "What each language has"
+    (`/api/scope/capabilities`, cached an hour in
+    `cache/language_capabilities.json`; delete that file after the install so
+    the table shows the new state at once) with the language's dots as they
+    should be after the import.
 27. Records: a dated entry in this file with each step's result, a CHANGELOG
     line, and the working list updated with anything left.
 28. Nothing to do for the nightly warm-up or Tessa's reading of Help, which
