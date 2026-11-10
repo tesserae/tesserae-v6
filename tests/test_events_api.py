@@ -405,3 +405,96 @@ def test_leiden_texts_reads_the_display_store(tmp_path, monkeypatch):
     assert documents.leiden_texts(['edr:aEDR107014', 'edh:none']) == {'edr:aEDR107014': '[---]uf [--- IIvir(i)] (duoviri)'}
     monkeypatch.setenv('TESSERAE_DOCUMENTS_LEIDEN', str(tmp_path / 'missing.sqlite'))
     assert documents.leiden_texts(['edr:aEDR107014']) == {}
+
+
+@pytest.fixture
+def capped(db, tmp_path, monkeypatch):
+    """A copy of the store with 60 invented article rows over three passages
+    (and a span), mixed verdicts and years, plus one commentary row."""
+    import shutil
+    import sqlite3
+    path = str(tmp_path / 'capped.sqlite')
+    shutil.copy(db, path)
+    c = sqlite3.connect(path)
+    cols = [r[1] for r in c.execute('PRAGMA table_info(scholarship)')]
+    for col in ('passage_rank', 'passage_ref', 'scope'):
+        if col not in cols:
+            c.execute(f'ALTER TABLE scholarship ADD COLUMN {col}')
+    if 'verdict' not in [r[1] for r in c.execute('PRAGMA table_info(scholarship_relevance)')]:
+        c.execute('DROP TABLE IF EXISTS scholarship_relevance')
+        c.execute('CREATE TABLE scholarship_relevance (event_id TEXT, url TEXT, title TEXT, verdict TEXT, reason TEXT, model TEXT, judged_at TEXT)')
+    eid = c.execute('SELECT id FROM events ORDER BY id LIMIT 1').fetchone()[0]
+    c.execute('DELETE FROM scholarship WHERE event_id = ?', (eid,))
+    refs = {3: 'xen. 2.1', 1: 'thuc. 7.1', 2: 'hdt. 6.1'}   # rank -> ref: groups must follow rank, not name
+    verdicts = ['YES', 'PARTLY', None, 'NO']
+    for n in range(60):
+        rank = (1, 2, 3)[n % 3]
+        year = 1950 + (n * 7) % 60
+        v = verdicts[n % 4]
+        title, url = f'Invented article {n}', f'http://example.test/{n}'
+        c.execute('INSERT INTO scholarship (event_id, kind, title, page_ref, url, passage_rank, passage_ref, scope) VALUES (?,?,?,?,?,?,?,?)',
+                  (eid, 'article', title, f'A. Writer Journal of Tests {year}, p. {n}; cites {refs[rank]}', url, rank, refs[rank], 'passage'))
+        if v:
+            c.execute('INSERT INTO scholarship_relevance VALUES (?,?,?,?,?,?,?)', (eid, url, title, v, 'r', 'm', 't'))
+    c.execute('INSERT INTO scholarship (event_id, kind, title, page_ref, url, passage_rank, passage_ref, scope) VALUES (?,?,?,?,?,?,?,?)',
+              (eid, 'commentary', 'Invented commentary', 'on 1', None, 1, refs[1], 'passage'))
+    c.commit()
+    c.close()
+    monkeypatch.setenv('TESSERAE_EVENTS_DB', path)
+    from backend.app import app
+    app.config['TESTING'] = True
+    return app.test_client(), eid
+
+
+def test_scholarship_default_cut_is_fifty_in_verdict_then_year_order(capped):
+    client, eid = capped
+    d = client.get(f'/api/events/{eid}').get_json()
+    arts = [r for r in d['scholarship'] if r['kind'] == 'article']
+    assert len(arts) == 50 and d['scholarship_total'] == 60
+    assert [r for r in d['scholarship'] if r['kind'] == 'commentary']      # returned, not counted
+    band = {'yes': 0, 'partly': 1, None: 2, 'no': 3}
+    keys = [(band[r.get('relevance')], -r['year']) for r in arts]
+    assert keys == sorted(keys)
+    assert [r.get('relevance') for r in arts][:15] == ['yes'] * 15
+    assert all(r['year'] and 1950 <= r['year'] < 2010 for r in arts)
+
+
+def test_scholarship_groups_follow_passage_rank_and_hold_each_row_once(capped):
+    client, eid = capped
+    d = client.get(f'/api/events/{eid}').get_json()
+    groups = d['scholarship_by_passage']
+    assert [g['passage_ref'] for g in groups] == ['thuc. 7.1', 'hdt. 6.1', 'xen. 2.1']
+    rows = [r for g in groups for r in g['rows']]
+    assert len(rows) == 50 and len({r['url'] for r in rows}) == 50
+    assert all(r['passage_ref'] == g['passage_ref'] for g in groups for r in g['rows'])
+
+
+def test_scholarship_limit_parameter_and_cap(capped):
+    client, eid = capped
+    d = client.get(f'/api/events/{eid}?scholarship_limit=10').get_json()
+    assert len([r for r in d['scholarship'] if r['kind'] == 'article']) == 10 and d['scholarship_total'] == 60
+    d = client.get(f'/api/events/{eid}?scholarship_limit=9999').get_json()
+    assert len([r for r in d['scholarship'] if r['kind'] == 'article']) == 60      # capped at 500, only 60 exist
+    assert E._scholarship_limit.__globals__['SCHOLARSHIP_LIMIT_MAX'] == 500
+    d = client.get(f'/api/events/{eid}?scholarship_limit=abc').get_json()
+    assert len([r for r in d['scholarship'] if r['kind'] == 'article']) == 50
+
+
+def test_cut_and_group_caps_at_five_hundred_and_groups_span_and_loose_rows_last():
+    rows = [{'kind': 'article', 'title': f't{n}', 'url': f'u{n}', 'page_ref': f'J {1900 + n % 100}',
+             'passage_rank': None, 'passage_ref': None} for n in range(600)]
+    rows += [{'kind': 'article', 'title': 'S', 'url': 'us', 'page_ref': None, 'passage_rank': None,
+              'passage_ref': 'thuc. 6.1-7.2', 'scope': 'span'},
+             {'kind': 'article', 'title': 'P', 'url': 'up', 'page_ref': None, 'passage_rank': 4,
+              'passage_ref': 'thuc. 7.1', 'scope': 'passage'}]
+    shown, total, groups = E._cut_and_group(rows, 500)
+    assert total == 602 and len(shown) == 500
+    assert [g['passage_ref'] for g in groups][-1] is None
+    shown, total, groups = E._cut_and_group(rows, 602)
+    assert [g.get('scope') for g in groups] == [None, 'span', None] and groups[-1]['passage_ref'] is None
+
+
+def test_article_year_reads_the_year_in_page_ref():
+    assert E.article_year('Edwin L. Brown American Journal of Archaeology 1972; cites Strabo 9.5.16') == 1972
+    assert E.article_year('The Classical Journal 1922, p. 1178; cites Met. 1, 11') == 1922
+    assert E.article_year(None) is None and E.article_year('p. 12') is None

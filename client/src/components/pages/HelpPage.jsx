@@ -2000,6 +2000,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 whatever the Collections switches say. The Events entry is marked Beta in the top row while
                 its lists are checked.
               </p>
+              <p className="text-gray-700 mb-4" id="event-scholarship">
+                The Scholarship tab of an event lists up to fifty articles that cite the event&rsquo;s passages,
+                grouped by the passage each one cites. The articles the relevance check marked relevant come
+                first and the newest come first within that. A line under the list gives how many articles
+                there are in all, and the Reader&rsquo;s Scholarship tab on each passage has the rest.
+              </p>
               <p className="text-gray-700 mb-4" id="event-coins">
                 The Coins tab lists up to twelve coin types struck from three years before the event to five
                 years after it, ranked by how close each coin is in meaning to the event&rsquo;s name and

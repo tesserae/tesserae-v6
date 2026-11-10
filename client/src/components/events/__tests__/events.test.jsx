@@ -482,6 +482,60 @@ describe('the focus view', () => {
     expect(await screen.findByText(/A Commentary on Herodotus/)).toBeTruthy();
   });
 
+  const art = (title, rank, ref, extra = {}) => ({ kind: 'article', title, page_ref: 'Journal of Tests 1990', url: null,
+    passage_rank: rank, passage_ref: ref, scope: 'passage', ...extra });
+
+  it('shows the groups under passage headings with the count line pointing to the Reader when articles were left out', async () => {
+    const detail = {
+      ...DETAIL,
+      scholarship: [art('First invented', 1, 'hdt. 6.111.1-6.113.2'), art('Second invented', 2, 'nep. milt. 5.1'),
+                    art('Span invented', null, 'hdt. 6.1-7.2', { scope: 'span' }),
+                    { kind: 'commentary', title: 'How and Wells: note', page_ref: 'hdt. 6.112.1', url: null }],
+      scholarship_total: 1204,
+      scholarship_by_passage: [
+        { passage_ref: 'hdt. 6.111.1-6.113.2', rows: [art('First invented', 1, 'hdt. 6.111.1-6.113.2')] },
+        { passage_ref: 'nep. milt. 5.1', rows: [art('Second invented', 2, 'nep. milt. 5.1')] },
+        { passage_ref: 'hdt. 6.1-7.2', scope: 'span', rows: [art('Span invented', null, 'hdt. 6.1-7.2', { scope: 'span' })] },
+      ],
+    };
+    mockApi(undefined, detail);
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByRole('heading', { name: '6.111.1 to 6.113.2' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: '5.1' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /Elsewhere within 6\.1 to 7\.2/ })).toBeTruthy();
+    expect(screen.getByText('First invented')).toBeTruthy();
+    expect(screen.getByTestId('scholarship-count').textContent)
+      .toBe("Showing 3 of 1,204 articles. The full list for each passage is in the Reader's Scholarship tab.");
+    const link = screen.getByRole('link', { name: "Reader's Scholarship tab" });
+    expect(link.getAttribute('href')).toContain('/read?work=herodotus.histories.tess');
+    expect(link.getAttribute('href')).toContain('tab=scholarship');
+  });
+
+  it('says only how many articles there are when none were left out, and uses the singular for one', async () => {
+    const one = {
+      ...DETAIL,
+      scholarship: [art('Only invented', 1, 'hdt. 6.111.1-6.113.2')],
+      scholarship_total: 1,
+      scholarship_by_passage: [{ passage_ref: 'hdt. 6.111.1-6.113.2', rows: [art('Only invented', 1, 'hdt. 6.111.1-6.113.2')] }],
+    };
+    mockApi(undefined, one);
+    const { unmount } = render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByTestId('scholarship-count').textContent).toBe('1 article.');
+    expect(screen.queryByRole('link', { name: "Reader's Scholarship tab" })).toBeNull();
+    unmount();
+    const two = { ...one, scholarship: [art('A', 1, 'hdt. 6.111.1-6.113.2'), art('B', 1, 'hdt. 6.111.1-6.113.2')], scholarship_total: 2,
+                  scholarship_by_passage: [{ passage_ref: 'hdt. 6.111.1-6.113.2', rows: [art('A', 1, 'x 1.1'), art('B', 1, 'x 1.1')] }] };
+    mockApi(undefined, two);
+    render(<EventsPage setPageType={() => {}} />);
+    await screen.findByRole('heading', { name: 'Battle of Marathon' });
+    await userEvent.click(screen.getByRole('tab', { name: /Scholarship/ }));
+    expect(screen.getByTestId('scholarship-count').textContent).toBe('2 articles.');
+  });
+
   it('shows no Cite control on a commentary row without an edition', async () => {
     mockApi();
     render(<EventsPage setPageType={() => {}} />);
