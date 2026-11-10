@@ -208,3 +208,43 @@ def test_scholarship_span_group_follows_and_is_not_repeated(stores, monkeypatch,
     assert [r for r in rows if r[3] == 'span'] == [('Elsewhere', None, 'thuc. 6.30-6.52', 'span')]
     assert sum(1 for r in rows if r[0] == 'Same') == 3          # once per leading passage, never again in the span group
     assert 'ejc span: 1 distinct articles, 1 rows' in capsys.readouterr().out
+
+
+def test_scholarship_reads_a_third_index_and_lists_a_shared_article_once(stores, monkeypatch, capsys):
+    from backend import scholarship as S
+    c = sqlite3.connect(stores['ev'])
+    c.execute("INSERT INTO passages VALUES ('E1', 1, 'thucydides.history', '7.1', '7.5', 'yes')")
+    c.commit()
+    c.close()
+    ejc = stores['tmp'] / 'citations.db'
+    ejc.write_bytes(b'')
+    jstor = stores['tmp'] / 'citations_jstor.db'
+    jstor.write_bytes(b'')
+    seen = {}
+
+    def fake_index(a, limit=40):
+        seen['jstor'] = os.environ.get(S.CITATIONS_JSTOR_ENV)
+        return {'results': [
+            {'title': 'Invented ejc article', 'url': 'u1', 'url_jstor': 'https://www.jstor.org/stable/11', 'authors': ['A'],
+             'year': 1900, 'source': 'citation_index'},
+            {'title': 'Invented ejc article', 'url': 'https://www.jstor.org/stable/11?seq=3', 'authors': ['A'],
+             'year': 1900, 'source': 'jstor'},
+            {'title': 'Invented jstor one', 'url': 'https://www.jstor.org/stable/12?seq=1', 'authors': ['B'],
+             'year': 1950, 'source': 'jstor'},
+            {'title': 'Invented jstor two', 'url': 'https://www.jstor.org/stable/13?seq=1', 'authors': ['C'],
+             'year': 1951, 'source': 'jstor'}]}
+
+    monkeypatch.setattr(S, 'passage_names', lambda work, a, b=None: {'work': work})
+    monkeypatch.setattr(S, 'citation_index', fake_index)
+    monkeypatch.delenv(S.CITATIONS_JSTOR_ENV, raising=False)
+    out = str(stores['tmp'] / 'rel3.sqlite')
+    R.main([stores['ev'], out, '--citation-index', str(ejc)])      # the JSTOR file beside it is found
+    text = capsys.readouterr().out
+    assert seen['jstor'] == str(jstor)
+    assert 'ejc passage: 1 distinct articles, 1 rows' in text
+    assert 'jstor passage: 2 distinct articles, 2 rows' in text and 'muse passage: 0 distinct articles, 0 rows' in text
+    assert 'Invented' not in text
+    n = sqlite3.connect(out).execute("SELECT COUNT(*) FROM scholarship WHERE kind='article'").fetchone()[0]
+    assert n == 3
+    R.main([stores['ev'], out, '--citation-index', str(ejc), '--jstor-index', ''])
+    assert seen['jstor'] is None

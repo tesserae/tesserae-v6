@@ -2,6 +2,7 @@
 """Tie each scholarship article on an event page to the passage that brings it in.
 
   relink_scholarship.py INPUT.sqlite OUTPUT.sqlite [--citation-index PATH] [--extra-index PATH]
+                         [--jstor-index PATH]
 
 The loader that wrote `scholarship` dropped the link between an article and the
 passage it cites. This rebuilds the table with two more columns, passage_rank
@@ -14,10 +15,17 @@ passage whose range holds the commentary's reference, else rank NULL.
 The citation indexes are opened read-only. Default: the production EJC file
 /var/www/tesseraev6_flask/data/citation_index/citations.db and, when it exists
 beside it, the Project MUSE file citations_muse.db (--extra-index PATH names
-another, --extra-index '' reads the EJC file alone). The backend reads the MUSE
-index only through the environment variable TESSERAE_CITATIONS_EXTRA, which this
-script sets before it asks, so one run joins both. The summary prints how many
-distinct articles, and how many rows, come from each index.
+another, --extra-index '' reads the EJC file alone) and the JSTOR file
+citations_jstor.db (--jstor-index PATH names another, --jstor-index '' reads
+none). The backend reads the MUSE index only through the environment variable
+TESSERAE_CITATIONS_EXTRA and the JSTOR index only through TESSERAE_CITATIONS_JSTOR,
+which this script sets before it asks, so one run joins all three. An article held
+by more than one index (every EJC article is also on JSTOR; the MUSE journals are
+also on JSTOR under other DOIs) is one row per (event, passage), keyed by
+backend.scholarship.article_key and kept as the EJC row if there is one, else
+the MUSE row, else the JSTOR row. The summary prints how many distinct articles,
+and how many rows, come from each index. It names no title, because the MUSE and
+JSTOR indexes hold licensed material.
 
 Each row also carries `scope`. 'passage' is an article that cites one of the event's
 leading passages itself (as before). 'span' is an article that cites anywhere within the
@@ -41,11 +49,42 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 DEFAULT_INDEX = '/var/www/tesseraev6_flask/data/citation_index/citations.db'
 MAX_ARTICLES = 100000
 EXTRA_NAME = 'citations_muse.db'
+JSTOR_NAME = 'citations_jstor.db'
+SOURCES = ('ejc', 'muse', 'jstor')
 
 
 def default_extra(citation_index):
     p = os.path.join(os.path.dirname(os.path.abspath(citation_index)), EXTRA_NAME)
     return p if os.path.exists(p) else ''
+
+
+def default_jstor(citation_index):
+    p = os.path.join(os.path.dirname(os.path.abspath(citation_index)), JSTOR_NAME)
+    return p if os.path.exists(p) else ''
+
+
+def source_of(r):
+    return r.get('source') if r.get('source') in ('muse', 'jstor') else 'ejc'
+
+
+def one_per_article(results, S):
+    """The results with an article held by several indexes kept once, the EJC member
+    in preference to MUSE and MUSE to JSTOR. An article is recognized by any of
+    its S.article_keys (a MUSE row has a DOI only, its JSTOR twin a stable id); a
+    title-and-year match counts only for a title of 12 letters or more."""
+    kept, alias = [], {}
+    for r in results:
+        keys = S.article_keys(r)
+        usable = [k for k in keys if k[0] != 'title' or len(k[1]) >= 12] or keys[:1]
+        idx = next((alias[k] for k in usable if k in alias), None)
+        if idx is None:
+            idx = len(kept)
+            kept.append(r)
+        elif SOURCES.index(source_of(r)) < SOURCES.index(source_of(kept[idx])):
+            kept[idx] = r
+        for k in usable:
+            alias.setdefault(k, idx)
+    return kept
 
 
 def article_row(r):
@@ -124,6 +163,7 @@ def main(argv=None):
     ap.add_argument('output')
     ap.add_argument('--citation-index', default=DEFAULT_INDEX)
     ap.add_argument('--extra-index', default=None)
+    ap.add_argument('--jstor-index', default=None)
     a = ap.parse_args(argv)
     from backend import scholarship as S
     S.CITATION_INDEX = a.citation_index
@@ -136,7 +176,14 @@ def main(argv=None):
         os.environ[S.CITATIONS_EXTRA_ENV] = extra
     else:
         os.environ.pop(S.CITATIONS_EXTRA_ENV, None)
-    print(f'EJC index {S.CITATION_INDEX}; extra index {extra or "none"}')
+    jstor = default_jstor(a.citation_index) if a.jstor_index is None else a.jstor_index
+    if jstor and not os.path.exists(jstor):
+        sys.exit(f'JSTOR citation index not found: {jstor}')
+    if jstor:
+        os.environ[S.CITATIONS_JSTOR_ENV] = jstor
+    else:
+        os.environ.pop(S.CITATIONS_JSTOR_ENV, None)
+    print(f'EJC index {S.CITATION_INDEX}; extra index {extra or "none"}; JSTOR index {jstor or "none"}')
     per_source = {}
 
     shutil.copyfile(a.input, a.output)
@@ -154,10 +201,10 @@ def main(argv=None):
     n_span = 0
 
     def tally(r, title, scope):
-        src = 'muse' if r.get('source') == 'muse' else 'ejc'
+        src = source_of(r)
         d = per_source.setdefault((src, scope), {'rows': 0, 'articles': set()})
         d['rows'] += 1
-        d['articles'].add((r.get('url') or '', title))
+        d['articles'].add(S.article_key(r))
     events = [r[0] for r in c.execute('SELECT id FROM events')]
     for eid in events:
         first = set()
@@ -169,7 +216,7 @@ def main(argv=None):
             if key not in cache:
                 try:
                     pn = S.passage_names(p['work'], p['ref_start'], p['ref_end'])
-                    cache[key] = S.citation_index(pn, limit=MAX_ARTICLES).get('results', [])
+                    cache[key] = one_per_article(S.citation_index(pn, limit=MAX_ARTICLES).get('results', []), S)
                 except Exception as e:  # a passage the lookup cannot place has no articles
                     print(f'  {eid} {p["work"]} {p["ref_start"]}: {type(e).__name__}: {e}', file=sys.stderr)
                     cache[key] = []
@@ -178,22 +225,23 @@ def main(argv=None):
                 c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?,?)',
                           (eid, 'article', title, page_ref, r.get('url'), p['rank'], passage_ref(p), 'passage'))
                 n_article += 1
-                first.add((r.get('url') or '', title))
+                first.add(S.article_key(r))
                 tally(r, title, 'passage')
         for work, lo, hi in span_of(plist):
             key = ('span', work, lo, hi)
             if key not in cache:
                 try:
-                    cache[key] = S.citation_index(S.passage_names(work, lo, hi), limit=MAX_ARTICLES).get('results', [])
+                    cache[key] = one_per_article(
+                        S.citation_index(S.passage_names(work, lo, hi), limit=MAX_ARTICLES).get('results', []), S)
                 except Exception as e:
                     print(f'  {eid} span {work} {lo}-{hi}: {type(e).__name__}: {e}', file=sys.stderr)
                     cache[key] = []
             ref = passage_ref({'ref_start': lo, 'ref_end': hi})
             for r in cache[key]:
                 title, page_ref = article_row(r)
-                if (r.get('url') or '', title) in first:
+                if S.article_key(r) in first:
                     continue
-                first.add((r.get('url') or '', title))
+                first.add(S.article_key(r))
                 c.execute('INSERT INTO scholarship VALUES (?,?,?,?,?,?,?,?)',
                           (eid, 'article', title, page_ref, r.get('url'), None, ref, 'span'))
                 n_span += 1
@@ -211,13 +259,14 @@ def main(argv=None):
     c.commit()
     after = c.execute('SELECT COUNT(*) FROM scholarship').fetchone()[0]
     print(f'scholarship rows before {before}, after {after} ({n_article} article, {n_span} article within the span, {n_comm} commentary)')
-    for src in ('ejc', 'muse'):
+    for src in SOURCES:
         for scope in ('passage', 'span'):
             d = per_source.get((src, scope), {'rows': 0, 'articles': ()})
             print(f'  {src} {scope}: {len(d["articles"])} distinct articles, {d["rows"]} rows')
     with_sch = c.execute('SELECT COUNT(DISTINCT event_id) FROM scholarship').fetchone()[0]
     print(f'events with any scholarship row: {with_sch} of {len(events)}')
-    rows = c.execute("SELECT kind, passage_rank, passage_ref, title FROM scholarship WHERE event_id = 'Q18001862' "
+    # kind, rank and passage only: a title here could be licensed text from the MUSE or JSTOR index
+    rows = c.execute("SELECT kind, passage_rank, passage_ref FROM scholarship WHERE event_id = 'Q18001862' "
                      'ORDER BY passage_rank').fetchall()
     print(f'Q18001862 (Siege of Corfinium): {len(rows)} rows')
     for r in rows:
