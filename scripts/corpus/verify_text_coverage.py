@@ -423,8 +423,12 @@ def main():
         parts_of_whole = [f for f in files_all if f.startswith(base + '.part.')] if not is_part else []
         part_lines = {pf[:-5]: count_lines(f'texts/{lang}/{pf}') for pf in parts_of_whole}
         r.update(window_flags(base, whole, is_part, n_lines, part_lines, win_counts, desc_counts, vec_counts))
-        # a text too short for passage windows cannot appear in the connection map
-        r['connmap'] = True if (is_part or n_lines < MIN_WINDOW_LINES) else (whole in conn_works)
+        # a text too short for passage windows cannot appear in the connection map; nor can a whole work
+        # whose windows belong to its parts when every part is too short (scholia.in_homerum_hypotheses_in_iliadem,
+        # 56 lines in 24 parts of two or three lines, found by the group one check of 2026-11-10)
+        no_window_parts = bool(part_lines) and win_counts.get(base, 0) == 0 and all(
+            n < MIN_WINDOW_LINES for n in part_lines.values())
+        r['connmap'] = True if (is_part or n_lines < MIN_WINDOW_LINES or no_window_parts) else (whole in conn_works)
         g = genres.get(fn) or genres.get(whole + '.tess')
         r['genres'] = (g is not None) if lang == 'la' else True     # genre table is Latin-only
         r['type'] = fn in text_types

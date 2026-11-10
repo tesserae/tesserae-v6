@@ -280,6 +280,10 @@ def write_rows(db, list_rows, placed_names, new_rows, new_names, wmeta, key_of_t
     stats = {}
     # new entities
     max_eid = db.execute('select max(eid) from entities').fetchone()[0]
+    # entity_id is unique in the store. A run after 2026-10-25 meets the 'nm:KEY:nN' ids
+    # that run filed for the same keys (the new clusters are numbered from 1 again), so an
+    # id already taken gets a run suffix: 'nm:KEY:n1', then 'nm:KEY:n1:b2', ':b3' and so on.
+    taken = {r[0] for r in db.execute('select entity_id from entities')}
     tag_eid = {}
     new_entities = []
     n_by_tag = collections.Counter(t for t, _w, _r, _f, _h in new_rows)
@@ -290,6 +294,11 @@ def write_rows(db, list_rows, placed_names, new_rows, new_names, wmeta, key_of_t
         label, la, grc = labels_of(forms)
         label = label or forms.most_common(1)[0][0]
         entity_id = 'nm:' + tag
+        b = 2
+        while entity_id in taken:
+            entity_id = f'nm:{tag}:b{b}'
+            b += 1
+        taken.add(entity_id)
         k = key_of_tag(tag)
         db.execute('insert into entities values (?,?,?,?,?,?,?,?,?,?,?,?)',
                    (max_eid, entity_id, 'name', label, 'names', None, None, None, None, k, 0, n_by_tag[tag]))
