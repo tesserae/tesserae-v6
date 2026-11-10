@@ -15,6 +15,7 @@ import os
 import sqlite3
 
 from backend.logging_config import get_logger
+from backend.work_names import base_work
 
 logger = get_logger('language_capabilities')
 
@@ -80,8 +81,8 @@ def _lang_of(wid, work_lang):
     """Language of a window id '<work>:<kind>:<n>'; a part ('x.part.5') falls back to its whole work."""
     work = wid.rsplit(':', 2)[0]
     lang = work_lang.get(work)
-    if lang is None and '.part.' in work:
-        lang = work_lang.get(work.split('.part.')[0])
+    if lang is None:
+        lang = work_lang.get(base_work(work))
     return lang
 
 
