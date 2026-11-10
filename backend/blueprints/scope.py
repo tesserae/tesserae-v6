@@ -113,3 +113,34 @@ def scope_counts():
         _cache['data'] = build()
         _cache['at'] = now
     return jsonify(_cache['data'])
+
+
+_CAP_TTL = 3600
+_cap_cache = {'at': 0.0, 'data': None}
+
+
+def reset_capabilities_cache():
+    _cap_cache['at'] = 0.0
+    _cap_cache['data'] = None
+
+
+def _capabilities_inputs():
+    """Languages, served cross-language pairs and held pairs, as /api/languages answers them."""
+    from backend.blueprints import meta
+    body = meta.api_languages().get_json()
+    return body['languages'], body.get('crosslingual_pairs', []), body.get('crosslingual_held', [])
+
+
+@scope_bp.route('/scope/capabilities')
+def scope_capabilities():
+    """Which of twelve capabilities each served language has (backend/language_capabilities.py).
+    Cached in the process for an hour because the checks touch many files."""
+    from backend import language_capabilities
+    now = time.time()
+    if _cap_cache['data'] is None or now - _cap_cache['at'] > _CAP_TTL:
+        langs, pairs, held = _capabilities_inputs()
+        data = language_capabilities.build(langs, pairs, held)
+        data['computed_at'] = time.strftime('%Y-%m-%d', time.gmtime(now))
+        _cap_cache['data'] = data
+        _cap_cache['at'] = now
+    return jsonify(_cap_cache['data'])

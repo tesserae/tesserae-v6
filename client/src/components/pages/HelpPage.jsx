@@ -6,6 +6,7 @@ import { RequestDialog } from '../common';
 import { allMeasuredRows } from '../../data/searchScope';
 import { fetchLanguages, postJsonTo } from '../../utils/api';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import LanguageCapabilities from './LanguageCapabilities';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -257,6 +258,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'objects', label: 'Objects', group: 'People, Places & Things' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
+    { id: 'language-capabilities', label: 'What each language has', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
     { id: 'hebrew', label: 'Hebrew', group: 'Languages' },
     { id: 'persian', label: 'Persian', group: 'Languages' },
@@ -3285,6 +3287,20 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   official Tesserae figures, so treat them like any AI output you would check before relying on it.
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeSection === 'language-capabilities' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">What each language has</h3>
+              <p className="text-gray-700 mb-4">
+                This table shows what the site can do in each language today. A filled dot means the capability is in
+                place for every text, a half dot (a red ring) means it is in place for part of the texts, with the share
+                on hover, and an open gray dot means not yet. The open dots are where help is welcome: to offer it,
+                use the <a href="/requests" className="text-red-600 hover:underline">Requests</a> page
+                (the Requests button in the header).
+              </p>
+              <LanguageCapabilities />
             </div>
           )}
 
