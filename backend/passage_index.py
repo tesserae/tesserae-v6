@@ -148,7 +148,10 @@ STRONG_COMBINED = 1.83
 # fit this file actually uses.
 # UPDATED 2026-10-12 to 693,611, the production index after the full
 # prose-windows run, at the HEAD_WEAK refit of that date (see below).
-FITTED_AT_WINDOWS = 693611
+# UPDATED 2026-11-10 to 1,006,240, the production index after the 1,025 Greek
+# works of the CLLG Freed Corpus (group one), at the HEAD_WEAK refit of that
+# date (see below).
+FITTED_AT_WINDOWS = 1006240
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
 # EVERYTHING BELOW, to the next blank line after "update both constants
 # together", is history about MODERATE_COMBINED/STRONG_COMBINED and the
@@ -1496,8 +1499,34 @@ DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the quer
 # 0.907 for absent, too close to split them. The owner's reading of the
 # band under this change, 2026-10-12: a good list labelled low "is deflating
 # to the user"; the label is now "Closest passages".
-HEAD_WEAK = 0.060               # below this, the top ten are not a group
-HEAD_STRONG = 0.1006           # above every absent subject in every probe set (unchanged 2026-10-12: the highest absent head lift is now 0.0800, on the 57 set)
+#
+# HEAD_WEAK REFIT 2026-11-10, against the production index after the Greek
+# group one import (1,006,240 windows, 45% past the 693,611 of the fit above,
+# so _calibration_drift() had marked every answer provisional since 2026-11-09).
+# Measured read-only with evaluation/scripts/calibrate_confidence.py on the
+# 178-query set and the 57-query combined_confidence.json (raw per-query
+# figures in ~/tesserae-backups/import_2026-11-09_grc/derived/, private). On
+# the larger index absent subjects lift more (the highest absent head lift is
+# now 0.0844, "soldiers fire machine guns from trenches", Latin and Greek;
+# 0.0809 for the ether query on the 57 set) and one-word present queries less
+# ("war" 0.0452, "love" 0.0529), so 0.060 scored 82.0% on the 178 set and
+# 71.9% on the 57 set. The sweep (0.040 to 0.120 by 0.001, accuracy = present
+# subjects at or above the floor plus absent subjects below it):
+#
+#     HEAD_WEAK     178-set    57-set    both sets together
+#     0.060 (old)    80.9%     71.9%     78.7%
+#     0.065          83.1%     78.9%     82.1%
+#     0.066          83.1%     78.9%     83.0%   (best single value)
+#     0.070          74.2%     73.7%     74.0%
+#
+# 0.066 is the best value over both sets together. What it costs: present
+# subjects between 0.060 and 0.066 read "Closest passages" instead of
+# 'moderate' ("the underworld" 0.0601, "a plague" 0.0637 on the 57 set);
+# "exile" (0.0661) and "plague" (0.0663) stay 'moderate'. HEAD_STRONG stays
+# above every absent subject. The owner chose the refit on 2026-11-10
+# ("Refit."), with the figures above.
+HEAD_WEAK = 0.066               # below this, the top ten are not a group
+HEAD_STRONG = 0.1006           # above every absent subject in every probe set (unchanged 2026-10-12 and 2026-11-10: the highest absent head lift is now 0.0844, on the 178 set)
 
 # PERVASIVE THEMES, FITTED ON LATIN AND GREEK, MISREAD IN A LYRIC CORPUS
 # (2026-10-08). head_lift and coherence above were measured against the whole,

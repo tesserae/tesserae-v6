@@ -8,6 +8,44 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-11-10: the Theme Search floor is refitted to the index after the Greek group one import
+- Scope: Theme Search over the whole corpus (`/theme-search`), every
+  language. The band within one work is unchanged.
+- The problem. The floor between the lowest band ("Closest passages") and
+  the moderate band was fitted on 2026-10-12 against an index of 693,611
+  passage windows. The 1,025 Greek works of the CLLG Freed Corpus (group
+  one) took the index to 1,006,240 on 2026-11-09, 45 percent past the fit,
+  so every answer opened with the sentence that the bands were provisional.
+- Measurement. The 178-query probe set of 2026-10-08 and the 57-query set,
+  run read-only against the live index with
+  `evaluation/scripts/calibrate_confidence.py` on 2026-11-10 (raw per-query
+  figures kept outside the repository). On the larger index subjects the
+  corpus does not hold lift more (the highest, "soldiers fire machine guns
+  from trenches", reaches 0.0844 in Latin and Greek) and one-word held
+  subjects lift less ("war" 0.0452, "love" 0.0529). At the 2026-10-12 floor
+  of 0.060 the sets scored 82.0 and 71.9 percent (86.0 and 77.2 at the fit).
+  The sweep of the floor over both sets together:
+
+  | Floor | 178-query set | 57-query set | both sets |
+  |---|---|---|---|
+  | 0.060 (2026-10-12 value) | 80.9% | 71.9% | 78.7% |
+  | 0.065 | 83.1% | 78.9% | 82.1% |
+  | 0.066 | 83.1% | 78.9% | 83.0% |
+  | 0.070 | 74.2% | 73.7% | 74.0% |
+
+- Decision. The floor moves to 0.066 and the recorded index size to
+  1,006,240, so the provisional sentence goes. The strong band's floor
+  (0.1006) stays above every absent subject and is unchanged. What the
+  change costs: held subjects whose head lift falls between 0.060 and 0.066
+  now read "Closest passages" ("the underworld" 0.0601, "a plague" 0.0637
+  on the 57-query set); "exile" (0.0661) and "plague" (0.0663) stay
+  moderate. The owner chose the refit on 2026-11-10 with these figures.
+- Where to find the data: the probe sets in `evaluation/probe_sets/`, the
+  constants and the sweep in the HEAD_WEAK comment of
+  `backend/passage_index.py`, the pinned values in
+  `tests/test_theme_confidence_classification.py`.
+
+
 ## 2026-11-07: a text's prose or poetry label comes from one explicit table, and the guessing rules only propose a value for a new text
 
 The label sets the word-distance limit in Line Search and the matcher (poetry 10 words, prose 4) and is shown in Browse Corpus. It was worked out for every request by a cascade: an override in `text_metadata_overrides.json`, then poetry name markers, prose author and marker lists, the median line length, and a language default. Most of the 82 corrections of 2026-11-07 (#1289, issue #1288) came from the guessing steps: a marker such as `fall` matched Quintus Smyrnaeus, and the line-length rule misread a file that puts a whole poem on one line. From this change every text has an entry in `data/text_types.json` with its label and the `source` of its first value (override, marker, line_length, default, or reviewed when a person set it). `detect_text_type` returns the override if it carries a label (the admin panel still edits that file), then the table's entry, then the cascade for a file that has no entry yet. The first table was filled from the cascade as it stood, so no label on the live site changed. The cascade stays, as the proposal `scripts/corpus/text_types.py fill` makes for a new text, which a person reads and corrects; `check` fails until every file has an entry, and the coverage check has a required `type` column. Decided by the project lead on 2026-11-07.
