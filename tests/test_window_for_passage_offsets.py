@@ -1,4 +1,5 @@
 """window_for_passage picks the prose piece holding a selected sentence (2026-10-11)."""
+from passage_records_helper import install_records  # noqa: E402
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend import passage_index as pi  # noqa: E402
@@ -22,7 +23,7 @@ RECS = [
 
 
 def _install(monkeypatch, records):
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_by_work', {pi._norm_work(TAC): list(range(len(records)))})
     monkeypatch.setattr(pi, '_prose_works', {TAC})
     monkeypatch.setattr(pi, '_ensure_loaded', lambda: None)

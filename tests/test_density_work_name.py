@@ -15,6 +15,7 @@ while precomputing the cache: the same text answered with 4 windows under
 The Reader strips the suffix before it asks, so no reader saw this. Anything
 else calling the endpoint did.
 """
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -38,7 +39,7 @@ RECORDS = [
 @pytest.fixture
 def index(tmp_path, monkeypatch):
     """A tiny index, and a cache directory of its own."""
-    monkeypatch.setattr(passage_index, '_records', RECORDS)
+    install_records(monkeypatch, passage_index, RECORDS)
     by_work = {}
     for i, r in enumerate(RECORDS):
         by_work.setdefault(passage_index._norm_work(r['work']), []).append(i)
@@ -110,7 +111,7 @@ UNBUILT = [
 
 @pytest.fixture
 def unbuilt_index(tmp_path, monkeypatch):
-    monkeypatch.setattr(passage_index, '_records', UNBUILT)
+    install_records(monkeypatch, passage_index, UNBUILT)
     by_work = {}
     for i, r in enumerate(UNBUILT):
         by_work.setdefault(passage_index._norm_work(r['work']), []).append(i)

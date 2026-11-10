@@ -1,6 +1,7 @@
 """Theme Search lexical boost (2026-09-20): a word index over the
 descriptions adds LEXICAL_BETA x normalised BM25 to matching windows; it is
 skipped when the index is missing or built for a different set of windows."""
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -40,7 +41,7 @@ def fake_index(tmp_path, monkeypatch):
     assert n == 3
     monkeypatch.setattr(PI, '_LEX_PATH', str(out))
     monkeypatch.setattr(PI, '_DATA_DIR', str(tmp_path))   # the index's source file lives here
-    monkeypatch.setattr(PI, '_records', RECORDS)
+    install_records(monkeypatch, PI, RECORDS)
     monkeypatch.setattr(PI, '_lex_state', {'checked': False, 'ok': False, 'row_by_id': None})
     monkeypatch.delenv('THEME_LEXICAL', raising=False)
     return out
@@ -67,7 +68,7 @@ def test_function_words_alone_give_no_boost(fake_index):
 
 def test_missing_index_means_no_boost(tmp_path, monkeypatch):
     monkeypatch.setattr(PI, '_LEX_PATH', str(tmp_path / 'absent.sqlite'))
-    monkeypatch.setattr(PI, '_records', RECORDS)
+    install_records(monkeypatch, PI, RECORDS)
     monkeypatch.setattr(PI, '_lex_state', {'checked': False, 'ok': False, 'row_by_id': None})
     scores = np.array([0.5, 0.5, 0.5, -1.0])
     assert PI._lexical_boost('storm at sea', scores) == 0
@@ -76,7 +77,7 @@ def test_missing_index_means_no_boost(tmp_path, monkeypatch):
 def test_stale_index_is_refused(fake_index, monkeypatch):
     # the index describes 3 windows; pretend the passage index now has 400 described
     big = [{'id': f'x{i}:fine:0', 'desc': {'gist': 'filler'}} for i in range(400)]
-    monkeypatch.setattr(PI, '_records', big)
+    install_records(monkeypatch, PI, big)
     monkeypatch.setattr(PI, '_lex_state', {'checked': False, 'ok': False, 'row_by_id': None})
     scores = np.full(400, 0.5)
     assert PI._lexical_boost('storm at sea', scores) == 0

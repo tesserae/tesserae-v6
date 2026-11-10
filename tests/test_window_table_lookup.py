@@ -1,4 +1,5 @@
 """The prepared-window lookup answers exactly as the full scan over a work's windows did (2026-10-27)."""
+from passage_records_helper import install_records  # noqa: E402
 import os
 import random
 import sys
@@ -12,7 +13,7 @@ def _reference(work, ref_start, ref_end, prefer='fine', char_start=None):
     """The scan window_for_passage made before the table (kept here as the specification)."""
     wid_work = work_id(work)
     group = pi._by_work.get(pi._norm_work(work)) or []
-    exact = [row for row in group if pi._records[row].get('work') == wid_work]
+    exact = [row for row in group if pi._work(row) == wid_work]
     rows = exact if (is_part(wid_work) and exact) else group
     if not rows:
         return None
@@ -20,7 +21,7 @@ def _reference(work, ref_start, ref_end, prefer='fine', char_start=None):
     want_end = pi._ref_coords_in(work, ref_end) or want
     best, best_key = None, None
     for row in rows:
-        r = pi._records[row]
+        r = pi._record(row)
         want_scale = 'prose' if (prefer == 'fine' and r.get('work') in pi._prose_works) else prefer
         if want_scale and r.get('scale') != want_scale:
             continue
@@ -81,7 +82,7 @@ def _install(monkeypatch, records, prose=()):
     by = {}
     for i, r in enumerate(records):
         by.setdefault(pi._norm_work(r['work']), []).append(i)
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_by_work', by)
     monkeypatch.setattr(pi, '_prose_works', set(prose))
     monkeypatch.setattr(pi, '_ensure_loaded', lambda: None)

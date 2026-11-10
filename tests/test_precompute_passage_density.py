@@ -10,6 +10,7 @@ monkeypatched compute function, so a "cached" decision never actually calls
 backend.passage_index.connection_density() or
 backend.lexical_density.line_density().
 """
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -65,7 +66,7 @@ def _stub_records(monkeypatch, records):
     monkeypatch.setitem(passage_index._state, 'loaded', True)
     monkeypatch.setitem(passage_index._state, 'ok', True)
     monkeypatch.setitem(passage_index._state, 'error', None)
-    monkeypatch.setattr(passage_index, '_records', records)
+    install_records(monkeypatch, passage_index, records)
     monkeypatch.setattr(passage_index, '_ensure_loaded', lambda: None)
 
 

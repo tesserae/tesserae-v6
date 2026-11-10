@@ -1,4 +1,5 @@
 """window_for_passage compares every reference coordinate and stays in the named book (2026-10-06)."""
+from passage_records_helper import install_records  # noqa: E402
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend import passage_index as pi  # noqa: E402
@@ -8,7 +9,7 @@ def _install(monkeypatch, records):
     by = {}
     for i, r in enumerate(records):
         by.setdefault(pi._norm_work(r['work']), []).append(i)
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_by_work', by)
     monkeypatch.setattr(pi, '_ensure_loaded', lambda: None)
     monkeypatch.setitem(pi._state, 'ok', True)

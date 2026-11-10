@@ -1,5 +1,6 @@
 """Windows of scale "prose": a work that has them is ranked, covered and mapped at
 that scale, and its fine windows are left out; other works are unchanged."""
+from passage_records_helper import install_records  # noqa: E402
 import os
 import sys
 
@@ -36,12 +37,12 @@ RECS = [
 
 
 def _install(monkeypatch, scores_for_query):
-    works, shadowed = pi._compute_prose_sets(RECS)
+    install_records(monkeypatch, pi, RECS)
+    works, shadowed = pi._compute_prose_sets()
     by = {}
     for i, r in enumerate(RECS):
         by.setdefault(pi._norm_work(r['work']), []).append(i)
     emb = np.eye(len(RECS), dtype=np.float32)
-    monkeypatch.setattr(pi, '_records', RECS)
     monkeypatch.setattr(pi, '_ids', [r['id'] for r in RECS])
     monkeypatch.setattr(pi, '_emb', emb)
     monkeypatch.setattr(pi, '_by_work', by)
@@ -59,8 +60,9 @@ def _install(monkeypatch, scores_for_query):
     monkeypatch.setattr(pi, '_naming', lambda w: {})
 
 
-def test_prose_sets():
-    works, shadowed = pi._compute_prose_sets(RECS)
+def test_prose_sets(monkeypatch):
+    install_records(monkeypatch, pi, RECS)
+    works, shadowed = pi._compute_prose_sets()
     assert works == {TAC}
     assert shadowed == {0}
 
@@ -126,8 +128,8 @@ def test_mentions_list_pieces_of_a_chapter_and_skips_the_fine_window(monkeypatch
         {'id': 'p2', 'work': TAC, 'scale': 'prose', 'sub': 2, 'ref_start': 'Tac. Ann. 4.1',
          'ref_end': 'Tac. Ann. 4.1', 'desc': {'gist': 'Sejanus commands the guard.'}},
     ]
-    works, shadowed = pi._compute_prose_sets(recs)
-    monkeypatch.setattr(pi, '_records', recs)
+    install_records(monkeypatch, pi, recs)
+    works, shadowed = pi._compute_prose_sets()
     monkeypatch.setattr(pi, '_by_work', {pi._norm_work(TAC): [0, 1, 2]})
     monkeypatch.setattr(pi, '_prose_works', works)
     monkeypatch.setattr(pi, '_shadowed', shadowed)

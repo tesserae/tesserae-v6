@@ -4,6 +4,7 @@ Runs with no built index: the passage index's module state is stubbed in the
 way tests/test_passages_works_route.py does, and the embedding step is replaced
 with fixed scores.
 """
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -42,7 +43,7 @@ def _stub_index(monkeypatch):
     monkeypatch.setitem(passage_index._state, 'loaded', True)
     monkeypatch.setitem(passage_index._state, 'ok', True)
     monkeypatch.setitem(passage_index._state, 'error', None)
-    monkeypatch.setattr(passage_index, '_records', RECORDS)
+    install_records(monkeypatch, passage_index, RECORDS)
     by_work = {}
     for i, r in enumerate(RECORDS):
         by_work.setdefault(passage_index._norm_work(r['work']), []).append(i)

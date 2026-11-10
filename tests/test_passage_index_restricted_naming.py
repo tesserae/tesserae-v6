@@ -3,6 +3,7 @@ Comparison all build their result cards through (backend/passage_index.py),
 must flag a restricted work and carry its credit line -- that is the single
 integration point for all three of the content-search surfaces at once.
 """
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -58,7 +59,7 @@ def test_result_card_carries_the_flag_through(fixture_registry, monkeypatch):
     """_result (Similar Passages' and Theme Comparison's actual card builder)
     pulls in _naming's output, so the flag reaches both without either
     needing its own lookup."""
-    monkeypatch.setattr(pi, '_records', [
+    install_records(monkeypatch, pi, [
         {'id': 'w1', 'work': 'heldwork.history', 'scale': 'fine', 'language': 'la',
          'ref_start': 'held. hist. 1', 'ref_end': 'held. hist. 1', 'desc': {}},
     ])

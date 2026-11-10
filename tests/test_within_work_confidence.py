@@ -3,6 +3,7 @@
 No built index: module state is stubbed as tests/test_theme_search_within.py
 does, with twenty windows of one work and fixed scores.
 """
+from passage_records_helper import install_records  # noqa: E402
 import os
 import sys
 
@@ -30,7 +31,7 @@ def _stub(monkeypatch, scores):
     monkeypatch.setitem(pi._state, 'loaded', True)
     monkeypatch.setitem(pi._state, 'ok', True)
     monkeypatch.setitem(pi._state, 'error', None)
-    monkeypatch.setattr(pi, '_records', recs)
+    install_records(monkeypatch, pi, recs)
     by_work = {}
     for i, r in enumerate(recs):
         by_work.setdefault(pi._norm_work(r['work']), []).append(i)

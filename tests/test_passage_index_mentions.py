@@ -2,6 +2,7 @@
 
 A fixture index of eight windows over two works, no built index needed.
 """
+from passage_records_helper import install_records  # noqa: E402
 import os
 import sys
 
@@ -37,7 +38,7 @@ def index(monkeypatch):
     monkeypatch.setitem(pi._state, 'loaded', True)
     monkeypatch.setitem(pi._state, 'ok', True)
     monkeypatch.setitem(pi._state, 'error', None)
-    monkeypatch.setattr(pi, '_records', RECORDS)
+    install_records(monkeypatch, pi, RECORDS)
     by_work = {}
     for i, r in enumerate(RECORDS):
         by_work.setdefault(pi._norm_work(r['work']), []).append(i)
@@ -102,7 +103,7 @@ def test_one_entry_per_passage_across_scales(monkeypatch):
     coarse = dict(_rec(8, 'la/tac.ann.part.1.tess', 'tac. ann. 1.24', participants='Sejanus'))
     coarse['scale'] = 'coarse'
     records = RECORDS + [coarse]
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     by_work = {}
     for i, r in enumerate(records):
         by_work.setdefault(pi._norm_work(r['work']), []).append(i)
@@ -211,7 +212,7 @@ GREEK_TEXT = {'g0': 'ἔλεγε δὲ Περικλῆς τάδε καὶ Περ
 
 @pytest.fixture
 def greek(monkeypatch):
-    monkeypatch.setattr(pi, '_records', GREEK)
+    install_records(monkeypatch, pi, GREEK)
     monkeypatch.setattr(pi, '_by_work', {'grc/thuc': [0, 1, 2]})
     from backend import window_texts
     monkeypatch.setattr(window_texts, 'texts_for',

@@ -8,6 +8,7 @@ saved work is the only thing that changed:
   * the whole-index sort is done once and handed to every ranking
   * passage texts are read by several threads and come back the same
 """
+from passage_records_helper import install_records  # noqa: E402
 import os
 import sqlite3
 
@@ -111,7 +112,7 @@ def test_rank_with_a_given_order_equals_rank_without(monkeypatch):
                 'desc': {'gist': 'x', 'themes': [], 'mode': None,
                          'names_in_text': None, 'names_unverified': []}}
                for i in range(60)]
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     scores = rng.random(60).astype(np.float32)
     plain = pi._rank(scores, 12, per_work=2, baseline=0.0)
     given = pi._rank(scores, 12, per_work=2, baseline=0.0, order=np.argsort(-scores))

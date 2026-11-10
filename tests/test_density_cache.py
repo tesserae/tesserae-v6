@@ -10,6 +10,7 @@ Apache workers, CPU-bound under the GIL, and the site stops answering.
 
 Two guards, because the bug had two halves.
 """
+from passage_records_helper import install_records  # noqa: E402
 import os
 
 from backend import passage_index
@@ -79,7 +80,7 @@ def test_density_scores_a_work_in_chunks_of_at_most_256_rows(monkeypatch, tmp_pa
     monkeypatch.setitem(passage_index._state, 'loaded', True)
     monkeypatch.setitem(passage_index._state, 'ok', True)
     monkeypatch.setitem(passage_index._state, 'error', None)
-    monkeypatch.setattr(passage_index, '_records', records)
+    install_records(monkeypatch, passage_index, records)
     monkeypatch.setattr(passage_index, '_by_work', by_work)
     monkeypatch.setattr(passage_index, '_ensure_loaded', lambda: None)
     monkeypatch.setattr(passage_index, '_DENSITY_CACHE', str(tmp_path))
