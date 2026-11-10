@@ -8,6 +8,52 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-11-10: the rare single n-gram rule of the Greek reuse table keeps its containment floor at 0.15
+- Scope: the Reader's reuse marks for Greek (`/api/reuse/marks`, the gutter's
+  "possible reuse" tier). The Latin table is unchanged until it is measured
+  at the same floor.
+- The problem. The reuse table keeps a pair of lines by one of three rules.
+  Two of them need two or more shared n-grams and read as real reuse in every
+  sample. The third, the rare single n-gram rule of 2026-09-19, keeps a pair
+  on one shared n-gram when that n-gram occurs in fewer than 20 lines of the
+  corpus and covers at least 6 percent of the shorter line. After the 1,025
+  Greek works of 2026-11-09 the rebuilt Greek table kept 1,705,136 pairs,
+  1,506,814 of them by that rule, and marked half of all Greek lines
+  (767,697 of 1,528,821) as possible reuse. Read at random, those pairs are
+  ordinary phrases of the language, 0 of 22 real.
+- Measurement. The Greek index built once on a copy and the pair step run at
+  five settings (the control reproduced the installed table exactly). The
+  two-n-gram rules keep 198,322 pairs at every setting.
+
+  | Setting | Rare rule | Rare-rule pairs | Lines marked |
+  |---|---|---|---|
+  | current | under 20 lines, containment 0.06 | 1,506,814 | 50.2% |
+  | B | under 10 lines, containment 0.06 | 807,848 | 42.2% |
+  | C | under 20 lines, containment 0.15 | 36,365 | 13.3% |
+  | D | under 10 lines, containment 0.15 | 19,414 | 12.6% |
+  | E | rule off | 0 | 11.3% |
+
+  Forty rare-rule pairs of each setting were read. At the current setting
+  none is reuse. At C about half are what the rule exists for: Eusebius
+  quoting Luke 4:19, Zonaras quoting 1 Maccabees, the same sentence in two of
+  Constantine Porphyrogenitus' excerpt collections, a proverb in two comic
+  fragments, Archimedes opening two treatises with one formula. At D three or
+  four of twenty are real and the rest are very short lines, where one shared
+  n-gram is a quarter of the line. The containment floor does the work, and
+  lowering the frequency cutoff alone removes less than half of the pairs.
+- Decision. Setting C: the containment floor rises from 0.06 to 0.15 for
+  Greek, the frequency cutoff stays at 20. The possible-reuse tier falls to
+  36,365 pairs and keeps the quotations and excerptors' borrowings the strict
+  rules miss. The owner chose it on 2026-11-10 ("agree with you on reuse
+  setting. implement.") over E, which would have given up those cases.
+- Left for later. A minimum line length for the rare rule, or content words
+  only in the shared n-gram, would remove the short-line pairs that remain, and
+  neither was measured. Latin at the same floor before any change there.
+- Where to find the data: the stats and sample files for the five settings
+  are kept outside the repository (the comparison folder of 2026-11-10). The
+  run that installed the table is in `DATA_OPERATIONS.md`, 2026-11-10.
+
+
 ## 2026-11-10: the Theme Search floor is refitted to the index after the Greek group one import
 - Scope: Theme Search over the whole corpus (`/theme-search`), every
   language. The band within one work is unchanged.
