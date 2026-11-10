@@ -131,16 +131,52 @@ def _capabilities_inputs():
     return body['languages'], body.get('crosslingual_pairs', []), body.get('crosslingual_held', [])
 
 
+def _cap_file():
+    return os.path.join(_ROOT, 'cache', 'language_capabilities.json')
+
+
+def _read_cap_file(now):
+    """The answer in cache/language_capabilities.json when it is under an hour old, else None."""
+    try:
+        with open(_cap_file(), encoding='utf-8') as fh:
+            saved = json.load(fh)
+        if now - float(saved['computed_epoch']) <= _CAP_TTL and saved.get('data'):
+            return saved['data'], float(saved['computed_epoch'])
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return None
+
+
+def _write_cap_file(data, now):
+    """Atomic write (a .tmp beside it, then a rename), mode 664. A failure only costs the next worker a recompute."""
+    path = _cap_file()
+    tmp = path + '.tmp'
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(tmp, 'w', encoding='utf-8') as fh:
+            json.dump({'computed_epoch': now, 'data': data}, fh)
+        os.chmod(tmp, 0o664)
+        os.replace(tmp, path)
+    except OSError:
+        logger.warning('[SCOPE] could not write %s', path, exc_info=True)
+
+
 @scope_bp.route('/scope/capabilities')
 def scope_capabilities():
     """Which of twelve capabilities each served language has (backend/language_capabilities.py).
-    Cached in the process for an hour because the checks touch many files."""
+    Cached in the process for an hour and in cache/language_capabilities.json for an hour, so a
+    recycled web worker reads the file instead of walking the stores again."""
     from backend import language_capabilities
     now = time.time()
     if _cap_cache['data'] is None or now - _cap_cache['at'] > _CAP_TTL:
-        langs, pairs, held = _capabilities_inputs()
-        data = language_capabilities.build(langs, pairs, held)
-        data['computed_at'] = time.strftime('%Y-%m-%d', time.gmtime(now))
-        _cap_cache['data'] = data
-        _cap_cache['at'] = now
+        saved = _read_cap_file(now)
+        if saved:
+            _cap_cache['data'], _cap_cache['at'] = saved
+        else:
+            langs, pairs, held = _capabilities_inputs()
+            data = language_capabilities.build(langs, pairs, held)
+            data['computed_at'] = time.strftime('%Y-%m-%d', time.gmtime(now))
+            _write_cap_file(data, now)
+            _cap_cache['data'] = data
+            _cap_cache['at'] = now
     return jsonify(_cap_cache['data'])

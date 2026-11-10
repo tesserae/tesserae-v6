@@ -9,7 +9,8 @@ LANGS = [{'code': 'la', 'label': 'Latin'}, {'code': 'cop', 'label': 'Coptic'}]
 
 
 @pytest.fixture(autouse=True)
-def fresh_cache():
+def fresh_cache(monkeypatch, tmp_path):
+    monkeypatch.setattr(scope, '_cap_file', lambda: str(tmp_path / 'cache' / 'language_capabilities.json'))
     scope.reset_capabilities_cache()
     yield
     scope.reset_capabilities_cache()
@@ -72,3 +73,31 @@ def test_real_readers_return_valid_cells():
     for key in KEYS:
         cell = lc.READERS[key]('la', ctx)
         assert cell['state'] in ('full', 'partial', 'none')
+
+
+def test_file_cache_serves_a_fresh_process_and_refreshes_when_old(monkeypatch, tmp_path):
+    import json
+    import os
+    import time
+    from backend.app import app
+    app.config['TESTING'] = True
+    calls = []
+    _patched(monkeypatch, calls)
+    client = app.test_client()
+    client.get('/api/scope/capabilities')
+    path = tmp_path / 'cache' / 'language_capabilities.json'
+    assert path.exists() and oct(os.stat(path).st_mode & 0o777) == '0o664'
+    assert not (tmp_path / 'cache' / 'language_capabilities.json.tmp').exists()
+    n = len(calls)
+    # a fresh process (empty process cache) with a young file never calls the readers
+    scope._cap_cache.update(at=0.0, data=None)
+    body = client.get('/api/scope/capabilities').get_json()
+    assert len(calls) == n and body['languages'][0]['code'] == 'la'
+    # an old file triggers a recompute and a rewrite
+    saved = json.loads(path.read_text())
+    saved['computed_epoch'] = time.time() - 7200
+    path.write_text(json.dumps(saved))
+    scope._cap_cache.update(at=0.0, data=None)
+    client.get('/api/scope/capabilities')
+    assert len(calls) == 2 * n
+    assert time.time() - json.loads(path.read_text())['computed_epoch'] < 60
