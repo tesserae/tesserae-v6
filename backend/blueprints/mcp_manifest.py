@@ -169,6 +169,11 @@ MANIFEST = {
         'reason': ('Live counts for the scope box on each search page; the connector '
                     'tools return their own counts.'),
     },
+    '/api/scope/capabilities': {
+        'site_only': True,
+        'reason': ('The table on the Help page of what each language has; a connector client reads the '
+                    'same stores through /api/scope and /api/languages.'),
+    },
     '/api/objects/image/<path:object_id>': {
         'site_only': True,
         'reason': 'A museum picture served from our disk cache for the Objects page; an image, not data.',
