@@ -8,6 +8,52 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-11-10: the Latin reuse table's rare rule keeps a containment floor of 0.10, where Greek keeps 0.15
+- Scope: the Reader's reuse marks for Latin (`/api/reuse/marks`, the gutter's
+  "possible reuse" tier). The Greek decision of the same morning stands.
+- The problem. The Greek decision above raised the rare single n-gram rule's
+  containment floor from 0.06 to 0.15. The Latin table was measured before
+  any change, because the rule was tuned on Latin verse in September and
+  Latin lines are shorter than Greek prose lines. At the 0.06 floor the rule
+  kept 276,001 pairs and marked 216,224 of 683,575 Latin lines (31.6
+  percent). Read at random, about one Latin rare-rule pair in five is a real
+  echo (Servius quoting Vergil's "lanigerosque apices", Ovid's "me laesere
+  libelli" in the Ibis and the Tristia, "tum talia fatur" in Claudian and
+  Juvencus), where the Greek pairs were none.
+- Measurement. The Latin index built on a copy and the pair step run at eight
+  floors (the control reproduced the installed table exactly). The two
+  two-n-gram rules keep 67,531 pairs at every setting.
+
+  | Floor | Rare-rule pairs | Lines marked |
+  |---|---|---|
+  | 0.06 (2026-09-19 value) | 276,001 | 31.6% |
+  | 0.08 | 72,444 | 17.3% |
+  | 0.10 | 70,203 | 17.1% |
+  | 0.12 | 16,767 | 10.3% |
+  | 0.15 (the Greek floor) | 5,153 | 8.6% |
+  | rule off | 0 | 7.9% |
+
+  Forty pairs of each setting were read, with verse-only and prose-only draws
+  for 0.10 and 0.15. At 0.10 about half of the rare pairs across the corpus
+  are real or plausible (Seneca's "haec scelerum artifex" in two tragedies,
+  Servius quoting "solvuntur frigore membra", "est perdere tanti" in
+  Prudentius and Walter of Chatillon) and six of seven verse pairs are real
+  (Ausonius' cento taking "omnibus una quies" from Manilius, Eobanus'
+  "tantae discrimine pugnae" from Silius, Carolingian poets reusing one
+  another). At 0.15 the survivors are mostly real but nearly all of the
+  echoes above are gone. A two- or three-word phrase is 10 to 14 percent of
+  a fifteen-word hexameter, so a floor of 0.15 removes the verse echoes the
+  rule was made for, while 0.10 keeps them and removes the one-word overlaps
+  between a prose Father and a verse line that made up most of the marks.
+- Decision. The Latin floor is 0.10, the frequency cutoff stays at 20. Latin
+  and Greek carry different floors for a written reason, line length. The
+  owner chose it on 2026-11-10 ("go with 0.10 for Latin") with these figures.
+- Where to find the data: the stats and sample files for the eight settings
+  are kept outside the repository (the Latin comparison folder of
+  2026-11-10). The run that installed the table is in `DATA_OPERATIONS.md`,
+  2026-11-10.
+
+
 ## 2026-11-10: the rare single n-gram rule of the Greek reuse table keeps its containment floor at 0.15
 - Scope: the Reader's reuse marks for Greek (`/api/reuse/marks`, the gutter's
   "possible reuse" tier). The Latin table is unchanged until it is measured
