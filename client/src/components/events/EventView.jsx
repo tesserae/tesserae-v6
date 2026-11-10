@@ -275,7 +275,7 @@ function DocumentsTab({ documents, event }) {
   );
 }
 
-function ScholarshipRow({ s, openPassage, ranks }) {
+function ScholarshipRow({ s, openPassage, ranks, grouped = false }) {
   return (
     <li className="bg-white border border-gray-200 rounded-lg p-3 text-sm">
       {s.url
@@ -292,10 +292,10 @@ function ScholarshipRow({ s, openPassage, ranks }) {
       {s.kind === 'commentary' && s.edition && (
         <span className="ml-2"><CiteRecordButton record={recordFrom({ ...s, kind: 'commentary' }, 'cite')} /></span>
       )}
-      {s.scope === 'span' && s.passage_ref && (
+      {!grouped && s.scope === 'span' && s.passage_ref && (
         <div className="text-xs mt-1 text-gray-600">within {shortPassageRef(s.passage_ref)}</div>
       )}
-      {s.scope !== 'span' && s.passage_ref && ranks.has(s.passage_rank) && (
+      {!grouped && s.scope !== 'span' && s.passage_ref && ranks.has(s.passage_rank) && (
         <div className="text-xs mt-1">
           <a href={`#passage-${s.passage_rank}`} className="text-red-700 hover:underline"
              onClick={(e) => { e.preventDefault(); openPassage(s.passage_rank); }}>
@@ -316,7 +316,7 @@ function ScholarshipRow({ s, openPassage, ranks }) {
 }
 
 /** The articles the model judged to cite the passage for another reason, under one line that opens on click. */
-function OtherReasonRows({ rows, openPassage, ranks }) {
+function OtherReasonRows({ rows, openPassage, ranks, grouped = false }) {
   const [open, setOpen] = useState(false);
   const n = rows.length;
   return (
@@ -327,29 +327,76 @@ function OtherReasonRows({ rows, openPassage, ranks }) {
       </button>
       {open && (
         <ul className="space-y-2 mt-2">
-          {rows.map((s, i) => <ScholarshipRow key={i} s={s} openPassage={openPassage} ranks={ranks} />)}
+          {rows.map((s, i) => <ScholarshipRow key={i} s={s} openPassage={openPassage} ranks={ranks} grouped={grouped} />)}
         </ul>
       )}
     </div>
   );
 }
 
-function ScholarshipTab({ items, openPassage, ranks }) {
+/** "Showing 50 of 1,204 articles." with the pointer to the Reader's Scholarship tab, or only the count when nothing was left out. */
+function ScholarshipCount({ shown, total, readerUrl, eventId, eventLabel }) {
+  const n = (x) => Number(x).toLocaleString('en-US');
+  const word = total === 1 ? 'article' : 'articles';
+  if (!(total > shown)) return <p className="text-xs text-gray-600 mt-2" data-testid="scholarship-count">{n(total)} {word}.</p>;
+  const label = "Reader's Scholarship tab";
+  return (
+    <p className="text-xs text-gray-600 mt-2" data-testid="scholarship-count">
+      Showing {n(shown)} of {n(total)} {word}. The full list for each passage is in the{' '}
+      {readerUrl
+        ? <a href={readerLinkWithBack(`${readerUrl}&tab=scholarship`, eventId, eventLabel)} className="text-red-700 hover:underline">{label}</a>
+        : label}.
+    </p>
+  );
+}
+
+/** The articles the server kept, each group under the passage it cites. */
+function ArticleGroups({ groups, openPassage, ranks }) {
+  return groups.map((g, gi) => {
+    const shown = g.rows.filter((s) => s.relevance !== 'no');
+    const other = g.rows.filter((s) => s.relevance === 'no');
+    const heading = !g.passage_ref ? 'Not tied to a passage'
+      : g.scope === 'span' ? `Elsewhere within ${shortPassageRef(g.passage_ref)}` : shortPassageRef(g.passage_ref);
+    return (
+      <section key={`${g.scope || 'p'}-${g.passage_ref || 'none'}-${gi}`} className="mb-4">
+        <h4 className="text-sm font-semibold text-gray-800 mb-1">{heading}</h4>
+        <ul className="space-y-2">
+          {shown.map((s, i) => <ScholarshipRow key={i} s={s} openPassage={openPassage} ranks={ranks} grouped />)}
+        </ul>
+        {other.length > 0 && <OtherReasonRows rows={other} openPassage={openPassage} ranks={ranks} grouped />}
+      </section>
+    );
+  });
+}
+
+function ScholarshipTab({ items, openPassage, ranks, byPassage, total, passages, event }) {
   if (items.length === 0) {
     return <p className="text-sm text-gray-600">No article or commentary was found on the passages for this event.</p>;
   }
+  const grouped = Array.isArray(byPassage);
   const groups = [
-    ['article', 'passage', 'Articles citing a leading passage'],
-    ['article', 'span', 'Articles citing elsewhere within the span the leading passages cover'],
+    ...(grouped ? [] : [
+      ['article', 'passage', 'Articles citing a leading passage'],
+      ['article', 'span', 'Articles citing elsewhere within the span the leading passages cover'],
+    ]),
     ['commentary', null, 'Commentary on the passages'],
   ];
+  const nShown = items.filter((s) => s.kind === 'article').length;
+  const first = grouped && byPassage.length ? passages.find((p) => p.rank === byPassage[0].rows[0]?.passage_rank) : null;
   return (
     <div>
       <p className="text-xs text-gray-500 mb-3">
-        The first group holds the articles that cite one of the event's leading passages, each with the passage that brings it in. The second holds the articles that cite another place in the same works between the first and the last of those passages (for example another chapter of the same book), each with the span.
-        Where an article was read for its bearing on the event, those that bear on it come first, a small tag marks those that touch it only in part, and those that cite the passage for another reason are kept under one line.{' '}
+        {grouped
+          ? 'Up to fifty articles are listed, each under the passage it cites. Those the check marked relevant come first, and the newest come first within that.'
+          : `The first group holds the articles that cite one of the event's leading passages, each with the passage that brings it in. The second holds the articles that cite another place in the same works between the first and the last of those passages (for example another chapter of the same book), each with the span.`}
+        {' '}Where an article was read for its bearing on the event, those that bear on it come first, a small tag marks those that touch it only in part, and those that cite the passage for another reason are kept under one line.{' '}
         <AboutSourcesLink anchor="journals" />
       </p>
+      {grouped && <ArticleGroups groups={byPassage} openPassage={openPassage} ranks={ranks} />}
+      {grouped && (
+        <ScholarshipCount shown={nShown} total={typeof total === 'number' ? total : nShown}
+                          readerUrl={first && first.reader_url} eventId={event.id} eventLabel={event.label} />
+      )}
       {groups.map(([kind, scope, title]) => {
         const rows = items.filter((s) => s.kind === kind && (scope === null || (s.scope || 'passage') === scope));
         if (rows.length === 0) return null;
@@ -426,7 +473,7 @@ export default function EventView({ id, goList }) {
   const passages = data.passages || [];
   const documents = data.documents || [];
   const scholarship = data.scholarship || [];
-  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length, coins: eventCoinsCount(coins) };
+  const counts = { passages: passages.length, documents: documents.length, scholarship: scholarship.length + Math.max(0, (data.scholarship_total || 0) - scholarship.filter((s) => s.kind === 'article').length), coins: eventCoinsCount(coins) };
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {back}
@@ -464,7 +511,8 @@ export default function EventView({ id, goList }) {
       <div className="mt-4">
         {tab === 'passages' && <PassagesTab passages={passages} counts={data.passage_counts} event={ev} focusRank={focusRank} />}
         {tab === 'documents' && <DocumentsTab documents={documents} event={ev} />}
-        {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))} />}
+        {tab === 'scholarship' && <ScholarshipTab items={scholarship} openPassage={openPassage} ranks={new Set(passages.map((p) => p.rank))}
+                                                        byPassage={data.scholarship_by_passage} total={data.scholarship_total} passages={passages} event={ev} />}
         {tab === 'coins' && <EventCoins eventId={ev.id || id} coins={coins} />}
         {tab === 'map' && <EventMap points={data.map || []} approximatePlace={ev.location_approximate ? (ev.place || 'the region') : null} />}
       </div>

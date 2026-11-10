@@ -182,6 +182,58 @@ def _event_row(r):
     }
 
 
+SCHOLARSHIP_LIMIT = 50
+SCHOLARSHIP_LIMIT_MAX = 500
+_YEAR = re.compile(r'\b(1[4-9]\d\d|20[0-3]\d)\b')
+
+
+def article_year(page_ref):
+    """The publication year inside an article row's page_ref (authors, venue,
+    year, page, then '; cites ...'), or None. The store keeps no year column."""
+    head = re.sub(r',\s*p\.?.*$', '', (page_ref or '').split('; cites')[0])
+    hits = _YEAR.findall(head)
+    return int(hits[-1]) if hits else None
+
+
+def _scholarship_limit():
+    try:
+        n = int(request.args.get('scholarship_limit', SCHOLARSHIP_LIMIT))
+    except (TypeError, ValueError):
+        n = SCHOLARSHIP_LIMIT
+    return max(1, min(n, SCHOLARSHIP_LIMIT_MAX))
+
+
+def _cut_and_group(rows, limit):
+    """(shown rows, total articles, groups). The articles are cut to `limit` in the
+    order verdict (yes, partly, not judged, no), newest year first, passage rank
+    first; commentary rows are kept and not counted. The groups hold the shown
+    articles by the passage they cite, in the passages' rank order, then span
+    groups, then the articles with no passage."""
+    articles = [i for i in rows if i['kind'] == 'article']
+    other = [i for i in rows if i['kind'] != 'article']
+    band = {'yes': 0, 'partly': 1, None: 2, 'no': 3}
+    for i in articles:
+        i['year'] = article_year(i.get('page_ref'))
+    articles.sort(key=lambda i: (band.get(i.get('relevance'), 2), i['year'] is None, -(i['year'] or 0), _rank(i)))
+    total = len(articles)
+    shown = articles[:limit]
+    passage_groups, span_groups, loose = {}, {}, []
+    for i in shown:
+        ref = i.get('passage_ref')
+        if not ref:
+            loose.append(i)
+        elif i.get('scope') == 'span':
+            span_groups.setdefault(ref, []).append(i)
+        else:
+            passage_groups.setdefault(ref, []).append(i)
+    key = lambda g: (min(_rank(i) for i in g[1]), g[0])  # noqa: E731
+    groups = [{'passage_ref': ref, 'rows': g} for ref, g in sorted(passage_groups.items(), key=key)]
+    groups += [{'passage_ref': ref, 'scope': 'span', 'rows': g} for ref, g in sorted(span_groups.items(), key=key)]
+    if loose:
+        groups.append({'passage_ref': None, 'rows': loose})
+    return shown + other, total, groups
+
+
 def _scholarship(c, event_id, names=()):
     """The event's scholarship rows. A database that records the passage each
     article was found through (passage_rank, passage_ref) gives one row per
@@ -212,7 +264,7 @@ def _scholarship(c, event_id, names=()):
         out.append(item)
     if linked:
         out = _by_passage_rank(out, names)
-    return out
+    return _cut_and_group(out, _scholarship_limit())
 
 
 _RELEVANCE_BAND = {'yes': 0, 'partly': 1, 'no': 2}
@@ -892,7 +944,8 @@ def get_event(event_id):
             participants = json.loads(r['participants']) if 'participants' in r.keys() and r['participants'] else []
         except (TypeError, ValueError):
             participants = []
-        scholarship = _scholarship(c, r['id'], (r['label'], r['place'], participants))
+        scholarship, scholarship_total, scholarship_by_passage = _scholarship(
+            c, r['id'], (r['label'], r['place'], participants))
 
         points = []
         if ev['lat'] is not None and ev['lon'] is not None:
@@ -911,6 +964,7 @@ def get_event(event_id):
 
         return jsonify({'event': ev, 'passages': passages, 'passage_counts': counts,
                         'documents': documents, 'document_counts': document_counts,
-                        'scholarship': scholarship, 'map': points})
+                        'scholarship': scholarship, 'scholarship_total': scholarship_total,
+                        'scholarship_by_passage': scholarship_by_passage, 'map': points})
     finally:
         c.close()
