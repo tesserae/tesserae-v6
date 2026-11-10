@@ -1,4 +1,5 @@
 """Theme comparison of two works on a small synthetic index."""
+from passage_records_helper import install_records  # noqa: E402
 import numpy as np
 
 from backend import passage_index as pi
@@ -25,7 +26,7 @@ def _fake_index(monkeypatch):
     for i, r in enumerate(records):
         by_work.setdefault(pi._norm_work(r['work']), []).append(i)
     monkeypatch.setattr(pi, '_ids', ids)
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_emb', vecs)
     monkeypatch.setattr(pi, '_by_work', by_work)
     monkeypatch.setattr(pi, '_undescribed', set())

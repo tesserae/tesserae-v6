@@ -26,6 +26,7 @@ Split into three groups:
   * the /passages/theme-search route, which must forward and clamp `offset`
     and otherwise leave the query untouched
 """
+from passage_records_helper import install_records  # noqa: E402
 import os
 import sys
 
@@ -73,7 +74,7 @@ def _synthetic_corpus(n_works=12, per_work=4):
 @pytest.fixture
 def synthetic(monkeypatch):
     records, scores = _synthetic_corpus()
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     return records, scores
 
 
@@ -160,7 +161,7 @@ def test_scripture_duplicate_still_merges_within_one_page(monkeypatch):
         _rec('synth.work0', '1.1', '1.5'),
     ]
     scores = np.array([10.0, 9.0, 8.0], dtype=np.float32)
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     page = pi._rank(scores, 2, baseline=0.0)
     assert len(page) == 2
     assert page[0]['work'] == 'hebrew_bible.genesis'
@@ -181,7 +182,7 @@ def test_scripture_duplicate_before_offset_does_not_leak_through(monkeypatch):
         _rec('synth.work0', '1.1', '1.5'),
     ]
     scores = np.array([10.0, 9.0, 8.0], dtype=np.float32)
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     page2 = pi._rank(scores, 2, baseline=0.0, offset=1)
     assert [r['work'] for r in page2] == ['synth.work0']
 
@@ -209,7 +210,7 @@ def _patch_index_for_find_by_text(monkeypatch, records, scores):
     the matrix multiply, and a fixed coherence in place of the top-k cosine
     computation (both operate on `_emb`, which stays a cheap zero array).
     """
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_state', {'loaded': True, 'ok': True, 'error': None})
     monkeypatch.setattr(pi, '_undescribed', set())
     monkeypatch.setattr(pi, '_emb', np.zeros((len(records), 4), dtype=np.float32))

@@ -85,7 +85,7 @@ def discover_works(languages=None):
     """{language: [work, ...]} for every raw `work` id in the loaded passage
     index, restricted to `languages` if given.
 
-    Uses passage_index._ensure_loaded() and the loaded _records directly --
+    Uses passage_index._ensure_loaded() and the loaded per-row arrays directly --
     the same load the endpoint does lazily on its first request -- rather than
     passage_index.works_for_language(), which collapses a multi-part work
     (vergil.aeneid.part.1 .. .12) down to one base id. The Reader requests
@@ -103,9 +103,14 @@ def discover_works(languages=None):
                            or 'passage index unavailable')
     wanted = set(languages) if languages else None
     by_lang = {}
-    for r in passage_index._records or []:
-        lang = r.get('language')
-        work = r.get('work')
+    import numpy as np
+    pi = passage_index
+    n_works = len(pi._work_names)
+    pairs = (np.unique(pi._lang_ix.astype(np.int64) * n_works + pi._work_ix)
+             if pi._work_ix is not None else [])
+    for code in pairs:
+        lang = pi._lang_names[int(code) // n_works]
+        work = pi._work_names[int(code) % n_works]
         if not lang or not work:
             continue
         if wanted is not None and lang not in wanted:

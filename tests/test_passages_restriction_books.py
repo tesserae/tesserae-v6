@@ -1,5 +1,6 @@
 """Book-level restriction: part ids kept by resolve_restriction, accepted by
 the ranking filter, and `books=` on the Theme Search route."""
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -34,7 +35,7 @@ def index(monkeypatch, tmp_path):
     monkeypatch.setitem(pi._state, 'ok', True)
     monkeypatch.setitem(pi._state, 'error', None)
     monkeypatch.setitem(pi._state, 'languages', None)
-    monkeypatch.setattr(pi, '_records', RECORDS)
+    install_records(monkeypatch, pi, RECORDS)
     by_work = {}
     for i, r in enumerate(RECORDS):
         by_work.setdefault(pi._norm_work(r['work']), []).append(i)

@@ -7,6 +7,7 @@ index's module state directly (the pattern tests/test_density_cache.py
 uses) rather than loading the real, multi-gigabyte index, so this runs in
 CI with no built index present.
 """
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sys
@@ -36,7 +37,7 @@ def _stub_index(monkeypatch, records):
     monkeypatch.setitem(passage_index._state, 'loaded', True)
     monkeypatch.setitem(passage_index._state, 'ok', True)
     monkeypatch.setitem(passage_index._state, 'error', None)
-    monkeypatch.setattr(passage_index, '_records', records)
+    install_records(monkeypatch, passage_index, records)
     by_work = {}
     for i, r in enumerate(records):
         by_work.setdefault(passage_index._norm_work(r.get('work')), []).append(i)
@@ -120,7 +121,7 @@ def test_sidecar_hit_answers_without_loading_the_index(monkeypatch, tmp_path):
     _reset_sidecar_state(monkeypatch)
     monkeypatch.setitem(passage_index._state, 'loaded', False)
     monkeypatch.setitem(passage_index._state, 'ok', False)
-    monkeypatch.setattr(passage_index, '_records', None)
+    install_records(monkeypatch, passage_index, None)
     monkeypatch.setattr(passage_index, '_by_work', None)
     sidecar = {'index_version': '2026-09-18',
                'languages': {'la': ['vergil.aeneid', 'cicero.orator'],

@@ -190,7 +190,7 @@ def _pair_baseline(src_work, tgt_work):
         # what the index keys on.
         if not rows and '.part.' in work:
             rows = passage_index._by_work.get(base_work(work)) or []
-        return [i for i in rows if passage_index._records[i].get('scale') == 'fine']
+        return [i for i in rows if passage_index._scale(i) == 'fine']
 
     a, b = fine_rows(src_work), fine_rows(tgt_work)
     if not a or not b:

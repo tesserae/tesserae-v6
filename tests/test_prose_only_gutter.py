@@ -11,6 +11,7 @@ were in that state (the parts of Cassius Dio and Diodorus among them).
 Both now fall back to the prose windows when a work has no fine windows. A
 work that has both scales keeps using its fine windows, as before.
 """
+from passage_records_helper import install_records  # noqa: E402
 import importlib.util
 import os
 import sys
@@ -51,7 +52,7 @@ RECORDS = [
 
 @pytest.fixture
 def index(tmp_path, monkeypatch):
-    monkeypatch.setattr(passage_index, '_records', RECORDS)
+    install_records(monkeypatch, passage_index, RECORDS)
     by_work = {}
     for i, r in enumerate(RECORDS):
         by_work.setdefault(passage_index._norm_work(r['work']), []).append(i)

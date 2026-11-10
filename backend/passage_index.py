@@ -248,11 +248,212 @@ _undescribed = set()   # row indices with no description: excluded from results
 # prefer the prose windows.
 _prose_works = set()
 _shadowed = set()      # row indices of the fine windows of those works
-_records = None        # list[dict] in embedding-row order
-_emb = None            # np.memmap (N, D) float16
+# Per-row facts in embedding-row order, as compact numpy arrays (built in one
+# streaming pass over descriptions.jsonl at load). The description of a window
+# stays on disk: _record(i) seeks to its line (see below). Each production
+# worker used to hold one Python dict per window here, about 1.9 GB.
+_work_ix = None        # np.int32, row -> index into _work_names
+_lang_ix = None        # np.int8, row -> index into _lang_names
+_scale_ix = None       # np.int8, row -> index into _scale_names
+_has_gist = None       # np.bool_, the window has a non-blank gist
+_has_desc = None       # np.bool_, the window has a description at all
+_offsets = None        # np.int64, byte offset of the row's line (-1: none)
+_work_names = []       # distinct raw work strings (may include None)
+_lang_names = []
+_scale_names = []
+_work_lookup = {}      # raw work -> index into _work_names
+_mem_records = None    # tests only: an in-memory list that _record(i) reads
+_emb = None           # np.memmap (N, D) float16
 _by_work = None        # work -> list[row index]
 _by_language = None    # language code -> np.int64 array of row indices
 _model = None
+
+
+_RECORD_CACHE_SIZE = 20000
+_rec_file = None                 # one read handle per process, opened on first use
+_rec_lock = threading.Lock()     # guards seek+readline on that handle
+_rec_warned = False
+
+
+def _close_record_file():
+    global _rec_file
+    with _rec_lock:
+        if _rec_file is not None:
+            try:
+                _rec_file.close()
+            except OSError:
+                pass
+            _rec_file = None
+
+
+def _read_record(i):
+    """The description record of row i, read from its line of descriptions.jsonl."""
+    global _rec_file, _rec_warned
+    off = int(_offsets[i])
+    if off < 0:
+        return {'id': _ids[i]}
+    with _rec_lock:
+        if _rec_file is None:
+            _rec_file = open(os.path.join(_DATA_DIR, 'descriptions.jsonl'), 'rb')
+        _rec_file.seek(off)
+        line = _rec_file.readline()
+    try:
+        rec = json.loads(line)
+    except ValueError:
+        return {'id': _ids[i]}
+    if rec.get('id') != _ids[i]:
+        # descriptions.jsonl was edited in place after this worker loaded it.
+        if not _rec_warned:
+            _rec_warned = True
+            logger.error('[PASSAGES] descriptions.jsonl changed under a running worker '
+                         '(row %d): restart the workers', i)
+        return {'id': _ids[i]}
+    return rec
+
+
+_cached_record = lru_cache(maxsize=_RECORD_CACHE_SIZE)(_read_record)
+
+
+def _record(i):
+    """The full description record of row i (a dict).
+
+    Descriptions are read from disk on demand behind an LRU cache; use _work,
+    _language and _scale when only those fields are needed.
+    """
+    if _mem_records is not None:     # tests install a plain list
+        return _mem_records[i]
+    return _cached_record(int(i))
+
+
+def _work(i):
+    return _work_names[_work_ix[i]]
+
+
+def _language(i):
+    return _lang_names[_lang_ix[i]]
+
+
+def _scale(i):
+    return _scale_names[_scale_ix[i]]
+
+
+def _intern(names, lookup, value):
+    ix = lookup.get(value)
+    if ix is None:
+        ix = lookup[value] = len(names)
+        names.append(value)
+    return ix
+
+
+def _gist_blank(rec):
+    return not ((rec or {}).get('desc') or {}).get('gist', '').strip()
+
+
+def _empty_tables(n):
+    """Fresh per-row arrays for n rows. Index 0 of each name list is None, which
+    is what a window with no record reads as."""
+    import numpy as np
+    return {
+        '_work_ix': np.zeros(n, dtype=np.int32),
+        '_lang_ix': np.zeros(n, dtype=np.int8),
+        '_scale_ix': np.zeros(n, dtype=np.int8),
+        '_has_gist': np.zeros(n, dtype=np.bool_),
+        '_has_desc': np.zeros(n, dtype=np.bool_),
+        '_offsets': np.full(n, -1, dtype=np.int64),
+        '_work_names': [None], '_lang_names': [None], '_scale_names': [None],
+    }
+
+
+def _fill_row(t, k, rec, offset, lookups):
+    t['_work_ix'][k] = _intern(t['_work_names'], lookups[0], rec.get('work'))
+    t['_lang_ix'][k] = _intern(t['_lang_names'], lookups[1], rec.get('language'))
+    t['_scale_ix'][k] = _intern(t['_scale_names'], lookups[2], rec.get('scale'))
+    t['_has_gist'][k] = not _gist_blank(rec)
+    t['_has_desc'][k] = bool(rec.get('desc'))
+    t['_offsets'][k] = offset
+
+
+def _tables_from_records(records):
+    """The per-row arrays for an in-memory list of records (tests)."""
+    t = _empty_tables(len(records))
+    lookups = ({None: 0}, {None: 0}, {None: 0})
+    for k, rec in enumerate(records):
+        _fill_row(t, k, rec or {}, k, lookups)
+    t['_work_lookup'] = lookups[0]
+    return t
+
+
+def _install_tables(t):
+    """Set the module's per-row arrays from a dict made by the builders above."""
+    global _work_ix, _lang_ix, _scale_ix, _has_gist, _has_desc, _offsets
+    global _work_names, _lang_names, _scale_names, _work_lookup
+    _work_ix, _lang_ix, _scale_ix = t['_work_ix'], t['_lang_ix'], t['_scale_ix']
+    _has_gist, _has_desc, _offsets = t['_has_gist'], t['_has_desc'], t['_offsets']
+    _work_names, _lang_names, _scale_names = t['_work_names'], t['_lang_names'], t['_scale_names']
+    _work_lookup = t['_work_lookup']
+
+
+def _stream_tables(desc_path, ids):
+    """One streaming pass over descriptions.jsonl: the per-row arrays, and the
+    byte offset of each row's line. The file is NOT in embedding-row order, so a
+    line is matched to its row by id (a later line for an id wins, as it did when
+    the records were held in a dict; a row with no line reads as {'id': id}, and a
+    line that does not parse is skipped)."""
+    pos_of = {i: k for k, i in enumerate(ids)}
+    t = _empty_tables(len(ids))
+    lookups = ({None: 0}, {None: 0}, {None: 0})
+    offset = 0
+    with open(desc_path, 'rb') as fh:
+        for line in fh:
+            start = offset
+            offset += len(line)
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            k = pos_of.get(rec['id'])
+            if k is not None:
+                _fill_row(t, k, rec, start, lookups)
+    t['_work_lookup'] = lookups[0]
+    return t
+
+
+def _group_rows(codes):
+    """{code: ascending row array}, keys in order of first appearance."""
+    import numpy as np
+    order = np.argsort(codes, kind='stable')
+    sorted_codes = codes[order]
+    cuts = np.flatnonzero(np.diff(sorted_codes)) + 1
+    groups = np.split(order, cuts) if len(order) else []
+    groups.sort(key=lambda g: g[0])
+    return [(int(codes[g[0]]), g) for g in groups]
+
+
+def _index_by_work_and_language():
+    """(_by_work, _by_language) from the per-row arrays."""
+    import numpy as np
+    by_work = {}
+    parts = {}
+    for code, rows in _group_rows(_work_ix):
+        key = _norm_work(_work_names[code])
+        if key not in by_work:
+            by_work[key] = None
+        parts.setdefault(key, []).append(rows)
+    for key, arrs in parts.items():
+        merged = arrs[0] if len(arrs) == 1 else np.sort(np.concatenate(arrs))
+        by_work[key] = merged.tolist()
+    by_lang = {}
+    for code, rows in _group_rows(_lang_ix):
+        lg = _lang_names[code]
+        if lg:
+            by_lang[lg] = rows.astype(np.int64)
+    return by_work, by_lang
+
+
+def _rows_of_work_ix(wix):
+    """Ascending row indices (Python ints) whose raw work is _work_names[wix]."""
+    import numpy as np
+    return np.flatnonzero(_work_ix == wix).tolist()
 
 
 def _norm_work(work):
@@ -448,9 +649,9 @@ def _compute_works_by_language():
     a language if any one of its rows carries that language.
     """
     by_lang = {}
-    if _by_work and _records:
+    if _by_work and _lang_ix is not None and len(_lang_ix):
         for work, rows in _by_work.items():
-            langs = {_records[row].get('language') for row in rows}
+            langs = {_language(row) for row in rows}
             for lang in langs:
                 if lang:
                     by_lang.setdefault(lang, set()).add(work)
@@ -519,7 +720,7 @@ def _load_vocab():
 
 
 def _ensure_loaded():
-    global _ids, _records, _emb, _by_work, _by_language
+    global _ids, _emb, _by_work, _by_language
     if _state['loaded']:
         return
     with _lock:
@@ -543,31 +744,21 @@ def _ensure_loaded():
                 logger.info('[PASSAGES] %s', _state['error'])
                 return
             _ids = json.load(open(ids_path, encoding='utf-8'))
-            by_id = {}
-            with open(desc_path, encoding='utf-8') as fh:
-                for line in fh:
-                    try:
-                        r = json.loads(line)
-                    except ValueError:
-                        continue
-                    by_id[r['id']] = r
-            _records = [by_id.get(i, {'id': i}) for i in _ids]
+            # The descriptions stay on disk (see _record); only per-row facts
+            # are held. A reload starts from a clean cache and a fresh handle.
+            _close_record_file()
+            _cached_record.cache_clear()
+            _install_tables(_stream_tables(desc_path, _ids))
             # mmap keeps the matrix on disk; rows are read per query.
             _emb = np.load(emb_path, mmap_mode='r')
             if _emb.shape[0] != len(_ids):
                 _state['error'] = f'index mismatch: {_emb.shape[0]} embeddings vs {len(_ids)} ids'
                 logger.error('[PASSAGES] %s', _state['error'])
                 return
-            _by_work = {}
-            by_lang_lists = {}
-            for i, r in enumerate(_records):
-                _by_work.setdefault(_norm_work(r.get('work')), []).append(i)
-                by_lang_lists.setdefault(r.get('language'), []).append(i)
-            # One language's row indices, for a single-language Theme Search
-            # to measure its OWN score distribution rather than borrowing the
-            # whole, multilingual corpus's (see _language_rows below).
-            _by_language = {lg: np.asarray(rows, dtype=np.int64)
-                            for lg, rows in by_lang_lists.items() if lg}
+            # _by_language: one language's row indices, for a single-language
+            # Theme Search to measure its OWN score distribution rather than
+            # borrowing the whole, multilingual corpus's (see _language_rows).
+            _by_work, _by_language = _index_by_work_and_language()
             _state['ok'] = True
             _load_vocab()
             _apply_index_confidence()
@@ -582,15 +773,12 @@ def _ensure_loaded():
             # excluded from ranking. They stay in the index, keeping ids and
             # embedding rows in lockstep, and should be re-described.
             global _undescribed
-            # _records is a LIST in embedding-row order, not a dict.
-            _undescribed = {i for i, rec in enumerate(_records)
-                            if not ((rec or {}).get('desc') or {})
-                            .get('gist', '').strip()}
+            _undescribed = set(np.flatnonzero(~_has_gist).tolist())
             if _undescribed:
                 logger.warning('[PASSAGES] %d windows have no description and are '
                                'excluded from results', len(_undescribed))
             global _prose_works, _shadowed
-            _prose_works, _shadowed = _compute_prose_sets(_records)
+            _prose_works, _shadowed = _compute_prose_sets()
             if _prose_works:
                 logger.info('[PASSAGES] %d works have prose-scale windows; '
                             '%d of their fine windows are left out of ranking',
@@ -699,12 +887,19 @@ def encoder_available():
 _SCORE_THREADS = min(16, max(2, (os.cpu_count() or 4) - 2))
 
 
-def _compute_prose_sets(records):
-    """(works with prose-scale windows, row indices of those works' fine windows)."""
-    works = {r.get('work') for r in records
-             if r.get('scale') == 'prose' and r.get('work')}
-    shadowed = {i for i, r in enumerate(records)
-                if r.get('scale') == 'fine' and r.get('work') in works}
+def _compute_prose_sets():
+    """(works with prose-scale windows, row indices of those works' fine windows),
+    from the per-row arrays."""
+    import numpy as np
+    if _scale_ix is None or not len(_scale_ix):
+        return set(), set()
+    prose = [ix for ix, s in enumerate(_scale_names) if s == 'prose']
+    fine = [ix for ix, s in enumerate(_scale_names) if s == 'fine']
+    prose_work_ix = np.unique(_work_ix[np.isin(_scale_ix, prose)])
+    works = {_work_names[w] for w in prose_work_ix.tolist() if _work_names[w]}
+    keep = [w for w in prose_work_ix.tolist() if _work_names[w]]
+    shadowed = set(np.flatnonzero(np.isin(_scale_ix, fine)
+                                  & np.isin(_work_ix, keep)).tolist())
     return works, shadowed
 
 
@@ -887,7 +1082,7 @@ def _naming(work):
 
 
 def _result(row, score, strong=None, extra=None):
-    r = _records[row]
+    r = _record(row)
     d = r.get('desc') or {}
     out = {
         'id': r.get('id'),
@@ -1001,21 +1196,23 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         score = float(scores[row])
         if score < floor:
             break
-        r = _records[row]
-        work = _norm_work(r.get('work'))
+        # The cheap filters read the per-row arrays; the description record is
+        # read from disk only for a window that passes them.
+        work = _norm_work(_work(row))
         if exclude_work and work == exclude_work:
             continue
         if (only_works is not None and work not in only_works
-                and work_id(r.get('work')) not in only_works):
+                and work_id(_work(row)) not in only_works):
             continue
         if per_work is not None and per_work_count.get(work, 0) >= per_work:
             continue
-        if languages and r.get('language') not in languages:
+        if languages and _language(row) not in languages:
             continue
-        if held and r.get('language') in held:
+        if held and _language(row) in held:
             continue
-        if scale and r.get('scale') != scale:
+        if scale and _scale(row) != scale:
             continue
+        r = _record(row)
         if dedup and r.get('scale') == 'prose':
             # Prose windows are pieces of one chapter, so they share a
             # reference and do not overlap: only the same piece twice is a
@@ -1894,7 +2091,7 @@ def _lexical_ready():
         except Exception as e:  # noqa: BLE001
             logger.warning('[PASSAGES] word index unreadable (%s); lexical boost off', e)
             return False
-        n_desc = sum(1 for r in _records if r.get('desc'))
+        n_desc = int(_has_desc.sum())
         if abs(n - n_desc) > max(50, n_desc // 100):
             logger.warning('[PASSAGES] word index has %d descriptions, the passage '
                            'index %d: stale, lexical boost off until it is rebuilt', n, n_desc)
@@ -1910,7 +2107,7 @@ def _lexical_ready():
                                'descriptions.jsonl (size or mtime differ): stale, lexical '
                                'boost off until it is rebuilt')
                 return False
-        _lex_state['row_by_id'] = {r.get('id'): i for i, r in enumerate(_records)}
+        _lex_state['row_by_id'] = {i: k for k, i in enumerate(_ids)}
         _lex_state['ok'] = True
         return True
 
@@ -1988,7 +2185,7 @@ def _part_ids(base):
     _ensure_loaded()
     if not _state.get('ok') or not _by_work:
         return set()
-    return {w for w in (work_id(_records[i].get('work')) for i in _by_work.get(base) or [])
+    return {w for w in (work_id(_work(i)) for i in _by_work.get(base) or [])
             if is_part(w)}
 
 
@@ -2156,7 +2353,7 @@ def _restricted_rows(works_set):
     rows = []
     for base in {_norm_work(w) for w in works_set}:
         for i in _by_work.get(base) or []:
-            w = _records[i].get('work')
+            w = _work(i)
             if base in works_set or work_id(w) in works_set:
                 rows.append(i)
     return rows
@@ -2420,7 +2617,7 @@ def _index_languages():
     """The languages present in the passage index, cached once loaded."""
     langs = _state.get('languages')
     if langs is None:
-        langs = sorted({r.get('language') for r in _records if r.get('language')})
+        langs = sorted({lg for lg in _lang_names if lg})
         _state['languages'] = langs
     return langs
 
@@ -2448,7 +2645,7 @@ def find_similar_to_window(window_id, limit=15, languages=None,
     q = np.asarray(_emb[row], dtype=np.float32)
     scores = _mask_undescribed(_score_all(q))
     scores[row] = -1.0
-    src = _records[row]
+    src = _record(row)
     exclude = None if include_same_work else _norm_work(src.get('work'))
     # When the query is itself a Bible passage, the same verses in the corpus's
     # other Bibles are not a discovery. Excluding the work alone does not cover
@@ -2554,7 +2751,7 @@ def same_names_for_window(wid, limit=12):
     if row is None:
         return None
     import numpy as np
-    src = _records[row]
+    src = _record(row)
     src_work = _norm_work(src.get('work'))
     qvec = np.asarray(_emb[row], dtype=np.float32)
 
@@ -2582,12 +2779,11 @@ def same_names_for_window(wid, limit=12):
             crow = _row_of(cwid)
             if crow is None or crow in _undescribed:
                 continue
-            crec = _records[crow]
-            if (crec.get('scale') or 'fine') != 'fine':
+            if (_scale(crow) or 'fine') != 'fine':
                 continue
-            if _norm_work(crec.get('work')) == src_work:
+            if _norm_work(_work(crow)) == src_work:
                 continue
-            if crec.get('language') in held:
+            if _language(crow) in held:
                 continue
             cand_keys.setdefault(crow, set()).add(k)
 
@@ -2601,7 +2797,7 @@ def same_names_for_window(wid, limit=12):
     scored.sort(key=lambda x: -x[0])
 
     def is_commentary(crow):
-        work = str(_records[crow].get('work') or '')
+        work = str(_work(crow) or '')
         return any(marker in work for marker in NAMES_COMMENTARY_MARKERS)
 
     main = [s for s in scored if not is_commentary(s[1])]
@@ -2648,9 +2844,9 @@ def _rows_for_work(work, scale=None):
     # the windows whose own record names that book.
     asked = str(work or '').replace('.tess', '')
     if '.part.' in asked:
-        rows = [r for r in rows if str(_records[r].get('work') or '') == asked]
+        rows = [r for r in rows if str(_work(r) or '') == asked]
     if scale:
-        rows = [r for r in rows if (_records[r].get('scale') or 'fine') == scale]
+        rows = [r for r in rows if (_scale(r) or 'fine') == scale]
     if _undescribed:
         rows = [r for r in rows if r not in _undescribed]
     return sorted(rows)
@@ -2726,7 +2922,7 @@ def compare_works(work_a, work_b, scale='fine', limit=50, per_window=3):
     return {
         'work_a': {'work': _norm_work(work_a), **_naming(_norm_work(work_a))},
         'work_b': {'work': _norm_work(work_b), **_naming(_norm_work(work_b))},
-        'scale': (_records[rows_a[0]].get('scale') or 'fine'),
+        'scale': (_scale(rows_a[0]) or 'fine'),
         'n_a': len(rows_a), 'n_b': len(rows_b),
         'pairs': pairs,
         'confidence': {'top': round(head[0], 4) if head else None,
@@ -2760,13 +2956,13 @@ def fine_windows_covering(work, ref_start, ref_end):
         return []
     group = _by_work.get(_norm_work(work)) or []
     wid = work_id(work)
-    exact = [r for r in group if _records[r].get('work') == wid]
+    exact = [r for r in group if _work(r) == wid]
     rows = exact if (is_part(wid) and exact) else group
     want = _ref_coords_in(work, ref_start) or ()
     want_end = _ref_coords_in(work, ref_end) or want
     out = []
     for row in rows:
-        r = _records[row]
+        r = _record(row)
         # A work with prose-scale windows is read at that scale (finer pieces
         # of the same chapters); its fine windows are left out.
         if r.get('scale') != ('prose' if r.get('work') in _prose_works else 'fine'):
@@ -2835,7 +3031,7 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine',
 _WINDOW_TABLE_LIMIT = 32            # works kept at once, least recently used out
 _WINDOW_BUCKET_SPAN = 256           # a window spanning more first coordinates is always compared
 _window_tables = collections.OrderedDict()   # (work_id, norm_work, prefer) -> _WindowTable
-_window_tables_for = None           # the (_records, _by_work, _prose_works) they were built from
+_window_tables_for = None           # the (_work_ix, _by_work, _prose_works) they were built from
 
 
 class _WindowTable:
@@ -2900,7 +3096,7 @@ class _WindowTable:
 def _window_table(work, prefer):
     """The prepared windows of `work` at scale `prefer`, built on first use."""
     global _window_tables_for
-    built_from = (_records, _by_work, _prose_works)
+    built_from = (_work_ix, _by_work, _prose_works)
     if (_window_tables_for is None
             or any(a is not b for a, b in zip(_window_tables_for, built_from))):
         _window_tables.clear()
@@ -2913,11 +3109,11 @@ def _window_table(work, prefer):
         _window_tables.move_to_end(key)
         return table
     group = _by_work.get(norm) or []
-    exact = [row for row in group if _records[row].get('work') == wid_work]
+    exact = [row for row in group if _work(row) == wid_work]
     rows = exact if (is_part(wid_work) and exact) else group
     entries = []
     for row in rows:
-        r = _records[row]
+        r = _record(row)
         # A selection in a work that has prose-scale windows maps to those
         # (several can share the chapter's reference; the first piece wins).
         want_scale = 'prose' if (prefer == 'fine' and r.get('work') in _prose_works) else prefer
@@ -3172,10 +3368,11 @@ def connection_density(work, scale='fine'):
     # Julius book's marks painted beside Augustus' lines. A book file now gets
     # its own windows or none, and none is honest. The fix for the missing marks
     # is to build those files their windows, not to borrow another book's.
-    exact = [i for i in range(len(_records)) if _records[i].get('work') == work]
+    wix = _work_lookup.get(work)
+    exact = [] if wix is None else _rows_of_work_ix(wix)
     rows = exact if is_part(work) else (exact or (_by_work.get(_norm_work(work)) or []))
     candidates = rows
-    rows = [i for i in rows if not scale or _records[i].get('scale') == scale]
+    rows = [i for i in rows if not scale or _scale(i) == scale]
     if not rows and scale == 'fine':
         # A work cut into paragraph-sized prose windows (since 2026-10-11)
         # and imported after that date has no fine windows at all, so the
@@ -3184,7 +3381,7 @@ def connection_density(work, scale='fine'):
         # parts). Its prose windows are the windows it has; answer with
         # them. A work that has both scales keeps answering with its fine
         # windows, as before.
-        rows = [i for i in candidates if _records[i].get('scale') == 'prose']
+        rows = [i for i in candidates if _scale(i) == 'prose']
     if not rows:
         return {'work': work, 'windows': []}
     base = _norm_work(work)
@@ -3218,7 +3415,7 @@ def connection_density(work, scale='fine'):
         strong = 0
         seen = set()
         for other in np.argsort(-scores)[:400]:
-            w = _norm_work(_records[other].get('work'))
+            w = _norm_work(_work(other))
             if w == base:
                 continue
             s = float(scores[other])
@@ -3231,7 +3428,7 @@ def connection_density(work, scale='fine'):
                 strong += 1
             if len(seen) >= 25:
                 break
-        r = _records[row]
+        r = _record(row)
         out.append({'id': r.get('id'), 'ref_start': r.get('ref_start'),
                     'ref_end': r.get('ref_end'),
                     **_short_locus_fields(r.get('work'), r.get('ref_start'), r.get('ref_end')),
@@ -3405,11 +3602,11 @@ def mentions_in_work(work, names, books=None, query=None, source=None):
     rows = _by_work[base]
     searched = None
     if is_part(wid):
-        rows = [i for i in rows if work_id(_records[i].get('work')) == wid]
+        rows = [i for i in rows if work_id(_work(i)) == wid]
     elif books:
         ids, searched = book_parts(base, books)
         idset = set(ids)
-        rows = [i for i in rows if work_id(_records[i].get('work')) in idset]
+        rows = [i for i in rows if work_id(_work(i)) in idset]
     # The fine windows of a work with prose-scale windows are left out: the
     # prose windows say the same chapters in finer pieces.
     rows = [i for i in rows if i not in _shadowed]
@@ -3435,7 +3632,7 @@ def mentions_in_work(work, names, books=None, query=None, source=None):
     named = set()
     if source != 'text':
         for i in rows:
-            r = _records[i]
+            r = _record(i)
             text = _desc_text(r.get('desc'))
             matched, count = [], 0
             for n, pat in pats:
@@ -3452,15 +3649,15 @@ def mentions_in_work(work, names, books=None, query=None, source=None):
         t0 = time.time()
         plan = []
         for n in missing:
-            lang = next((_records[i].get('language') for i in rows), None)
+            lang = next((_language(i) for i in rows), None)
             pre = name_prefixes(n, lang)
             if pre:
                 plan.append((n, pre))
         if plan:
-            texts = window_texts.texts_for([_records[i].get('id') for i in rows])
+            texts = window_texts.texts_for([_ids[i] for i in rows])
             by_i = {}
             for i in rows:
-                t = texts.get(_records[i].get('id'))
+                t = texts.get(_ids[i])
                 if not t:
                     continue
                 matched, count, word = [], 0, None
@@ -3471,7 +3668,7 @@ def mentions_in_work(work, names, books=None, query=None, source=None):
                         count += c
                         word = word or _first_matching_word(t, pre)
                 if matched:
-                    by_i[i] = make_hit(_records[i], matched, count, 'text', word)
+                    by_i[i] = make_hit(_record(i), matched, count, 'text', word)
             # A window the description already gave for another name keeps its
             # description hit and gains the text hit's names.
             have = {i: h for i, h in found}
@@ -3497,7 +3694,7 @@ def mentions_in_work(work, names, books=None, query=None, source=None):
             note = 'The question could not be encoded, so the list is in the order of mentions.'
     keyed = []
     for i, h in found:
-        r = _records[i]
+        r = _record(i)
         coords = _ref_coords_in(r.get('work'), r.get('ref_start'))
         pn = part_number(r.get('work'))
         score = None

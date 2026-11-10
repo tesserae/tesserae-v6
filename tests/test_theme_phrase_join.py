@@ -8,6 +8,7 @@ two windows. Part B: backend.passage_index.pair_lift, the reverse direction
 (a word-level result's theme-similarity reading), on a small synthetic index
 copied from tests/test_theme_comparison.py's fixture.
 """
+from passage_records_helper import install_records  # noqa: E402
 import numpy as np
 import pytest
 
@@ -119,7 +120,7 @@ def _fake_index(monkeypatch):
     for i, r in enumerate(records):
         by_work.setdefault(pi._norm_work(r['work']), []).append(i)
     monkeypatch.setattr(pi, '_ids', ids)
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_emb', vecs)
     monkeypatch.setattr(pi, '_by_work', by_work)
     monkeypatch.setattr(pi, '_undescribed', set())

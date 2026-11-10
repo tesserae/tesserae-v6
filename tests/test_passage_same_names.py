@@ -7,6 +7,7 @@ the passage index's module state (`_records`, `_emb`, `_by_work`, `_ids`) is
 monkeypatched directly, the same pattern tests/test_passages_works_route.py
 and tests/test_window_for_passage.py already use.
 """
+from passage_records_helper import install_records  # noqa: E402
 import json
 import os
 import sqlite3
@@ -59,7 +60,7 @@ def _reset_names_state(monkeypatch):
 
 def _install(monkeypatch, records, emb):
     """Install a fake, already-loaded passage index."""
-    monkeypatch.setattr(pi, '_records', records)
+    install_records(monkeypatch, pi, records)
     monkeypatch.setattr(pi, '_ids', [r['id'] for r in records])
     monkeypatch.setattr(pi, '_emb', np.asarray(emb, dtype=np.float32))
     by_work = {}
