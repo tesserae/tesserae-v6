@@ -74,6 +74,18 @@ development-sequence table, measured on earlier runs, reports 17. The
 held-out Romans-Isaiah run is the single run the article reports and is
 not subject to this caveat.
 
+- `hebrews_psalms_benchmark124_shared_runs.csv` — for each of the 124
+  broad-benchmark pairs, the longest run of consecutive shared words and of
+  shared lemmas between the Hebrews verse and the Psalm verse, in the Sahidic
+  texts and in the Greek (Swete's Septuagint for the Psalms, the SBL Greek New
+  Testament for Hebrews), with the vote count
+  and whether the pair is on the hand-curated list of verbatim quotations
+  (article §3.2). Added 2026-11-11, produced by
+  `scripts/measure_benchmark_shared_runs.py` from the production lemma caches.
+  94 of the 124 pairs share no run of three or more words in either language.
+  Words are compared lower-cased with punctuation tokens dropped; Greek verses
+  are matched by chapter and verse. No text is included.
+
 ### logs/
 Weight-optimization run logs (JSONL, one iteration per line) and the
 best-weights snapshots for the sweeps described in the article: the
@@ -96,6 +108,11 @@ no result in the article depends on that profile.
 - `check_punct_fix.py` — the punctuation-tolerance regression check.
 - `strip_sahidica_text.py` — produced the released Shenoute CSV from the
   raw output; documents exactly what was omitted and why.
+
+- `measure_benchmark_shared_runs.py` — produces
+  `outputs/hebrews_psalms_benchmark124_shared_runs.csv` from the lemma caches
+  of a Tesserae V6 checkout with the Coptic and Greek corpora (added
+  2026-11-11).
 
 ## Licensing
 The Coptic corpus is not uniformly licensed (article §3.1 note): of the
