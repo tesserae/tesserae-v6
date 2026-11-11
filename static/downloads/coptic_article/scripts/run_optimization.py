@@ -145,11 +145,13 @@ def sample_weight_config(base, rng, log_range=1.0, biblical_bias=False):
 
     biblical_bias: if True, additionally bias the search toward configurations
         appropriate for biblical-prose recall:
-          - rare_word: pull strongly downward (Phase 5 diagnosis — rarity penalizes
-            common biblical vocabulary).
-          - sound: pull upward (Phase 4 optimization signal — phonetic-trigram
-            overlap is a more reliable channel for biblical Coptic).
-          - lemma, lemma_min1: pull upward (verbatim biblical quotation matters).
+          - rare_word: pull strongly downward, factor 0.5x (Phase 5 diagnosis —
+            rarity penalizes common biblical vocabulary).
+          - sound: pull upward, factor 1.5x (Phase 4 optimization signal —
+            phonetic-trigram overlap is a more reliable channel for biblical Coptic).
+          - lemma: pull upward, factor 1.25x (verbatim biblical quotation matters).
+            No other channel is biased; lemma_min1 in particular gets the plain
+            random factor (the code below and the 2026-05-15 run logs agree).
     """
     out = dict(base)
     for k in COPTIC_CHANNELS:
