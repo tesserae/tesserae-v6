@@ -1221,7 +1221,11 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
             # article on JSTOR, no excerpt of the text at all. The delivery
             # gives no printed page numbers, so `page` is the page's index in
             # the article (from 0); a stable link takes it as ?seq= (from 1)
-            # and opens on the citing page, and no page number is listed.
+            # and opens on the citing page. A printed page number is listed
+            # only when the index knows the article's first printed page
+            # (`first_page`, filled from the running heads of the page texts
+            # and from OpenAlex since 2026-11-11): printed page = first page
+            # + index.
             doi = r['doi'] or ''
             url = r['url_jstor'] or (f'https://doi.org/{doi}' if doi else None)
             if url and '/stable/' in url and r['page'] is not None and '?' not in url:
@@ -1240,6 +1244,10 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
             'source': source})
         if source != 'jstor' and r['page'] and r['page'] not in art['pages']:
             art['pages'].append(r['page'])
+        elif source == 'jstor' and r['first_page'] is not None and r['page'] is not None:
+            printed = int(r['first_page']) + int(r['page'])
+            if printed not in art['pages']:
+                art['pages'].append(printed)
     return by_article
 
 

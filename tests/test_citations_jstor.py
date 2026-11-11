@@ -22,6 +22,8 @@ def _jstor(tmp_path):
       INSERT INTO citations VALUES (1,1,3,'vergil.aeneid','1.1',NULL,0,'Aen. 1.1','A licensed sentence that must never be served (Aen. 1.1).',0);
       INSERT INTO articles VALUES (2,'id-2','id-2','10.2307/654321','Phoenix','No stable link kept','E. Writer',1975,'29','1',NULL,8,NULL,NULL,'2026-11-09','ok');
       INSERT INTO citations VALUES (2,2,5,'vergil.aeneid','1.2',NULL,0,'Aen. 1.2','Another licensed sentence (Aen. 1.2).',0);
+      INSERT INTO articles VALUES (3,'id-3','id-3','10.2307/777777','Vergilius','Pages known','L. Reader',2025,'71',NULL,23,32,NULL,'https://www.jstor.org/stable/777777','2026-11-09','ok');
+      INSERT INTO citations VALUES (3,3,2,'vergil.aeneid','1.2',NULL,0,'Aen. 1.2','A third licensed sentence (Aen. 1.2).',0);
     ''')
     con.commit()
     con.close()
@@ -43,12 +45,16 @@ def test_jstor_rows_carry_a_link_and_no_sentence(tmp_path, monkeypatch):
     monkeypatch.setenv('TESSERAE_CITATIONS_EXTRA', _muse(tmp_path))
     monkeypatch.setenv('TESSERAE_CITATIONS_JSTOR', _jstor(tmp_path))
     out = S.citation_index({'work': 'vergil.aeneid', 'lo': '1.1', 'hi': '1.2'})
-    assert out['available'] and out['total'] == 4
+    assert out['available'] and out['total'] == 5
     by = {}
     for r in out['results']:
         by.setdefault(r['source'], []).append(r)
     assert set(by) == {'citation_index', 'muse', 'jstor'}
-    stable, bare = sorted(by['jstor'], key=lambda r: r['year'], reverse=True)
+    paged, stable, bare = sorted(by['jstor'], key=lambda r: r['year'], reverse=True)
+    # When the index knows the article's first printed page (23 here), the
+    # citing page is listed as a printed page number (index 2 -> p. 25) and
+    # the link still opens on that page of the scan (?seq=3).
+    assert paged['pages'] == [25] and paged['url'] == 'https://www.jstor.org/stable/777777?seq=3'
     # The delivery has no printed page numbers: the stable link opens on the
     # citing page (?seq= counts from 1, the stored page index from 0) and no
     # page number is listed.
@@ -68,7 +74,7 @@ def test_jstor_index_alone_is_available(tmp_path, monkeypatch):
     monkeypatch.delenv('TESSERAE_CITATIONS_EXTRA', raising=False)
     monkeypatch.setenv('TESSERAE_CITATIONS_JSTOR', _jstor(tmp_path))
     out = S.citation_index({'work': 'vergil.aeneid', 'lo': '1.1', 'hi': '1.2'})
-    assert out['available'] and sorted(r['source'] for r in out['results']) == ['jstor', 'jstor']
+    assert out['available'] and sorted(r['source'] for r in out['results']) == ['jstor', 'jstor', 'jstor']
 
 
 def test_citing_articles_never_returns_a_jstor_sentence(tmp_path, monkeypatch):
@@ -81,9 +87,9 @@ def test_citing_articles_never_returns_a_jstor_sentence(tmp_path, monkeypatch):
     by = {}
     for r in out['results']:
         by.setdefault(r['source'], []).append(r)
-    assert set(by) == {'ejc', 'jstor'} and len(by['jstor']) == 2
+    assert set(by) == {'ejc', 'jstor'} and len(by['jstor']) == 3
     urls = sorted(r['url'] for r in by['jstor'])
-    assert urls == ['https://doi.org/10.2307/654321', 'https://www.jstor.org/stable/123456?seq=4']
+    assert urls == ['https://doi.org/10.2307/654321', 'https://www.jstor.org/stable/123456?seq=4', 'https://www.jstor.org/stable/777777?seq=3']
     assert all(r['sentences'] == [] for r in by['jstor'])
     assert by['ejc'][0]['sentences']
     assert 'licensed sentence' not in json.dumps(out, ensure_ascii=False)
@@ -99,4 +105,4 @@ def test_about_page_lists_the_jstor_index(tmp_path, monkeypatch):
     ids = [b['id'] for b in built['journals']]
     assert ids == ['ejc', 'jstor']
     j = built['journals'][1]
-    assert j['available'] and 'No sentence' in j['terms'] and j['totals']['articles'] == 2
+    assert j['available'] and 'No sentence' in j['terms'] and j['totals']['articles'] == 3
