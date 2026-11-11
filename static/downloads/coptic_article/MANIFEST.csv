@@ -26,7 +26,7 @@ scripts/build_gold_set.py,6610,1d827d61638cf164
 scripts/build_greek_gold.py,2916,d6326ba4a8378243
 scripts/check_punct_fix.py,4773,e5d835bfc5a3e0dc
 scripts/run_greek_validation.py,5446,709fe60a1232bf82
-scripts/run_optimization.py,10784,4a9ff7286dde279e
+scripts/run_optimization.py,10970,98553143f3c0a08e
 scripts/run_optimization_thematic.py,10860,c1aafef739c8f658
 scripts/run_pair_search.py,2541,43b6647b2473b077
 scripts/strip_sahidica_text.py,1359,209442025bf3d1c7
