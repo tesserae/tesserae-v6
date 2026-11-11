@@ -29,6 +29,7 @@ from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
 from backend import scholarship_about
+from backend import scholarship_list as scholarship_list_mod
 from backend import scholarship_theme
 from backend.logging_config import get_logger
 
@@ -196,4 +197,18 @@ def translate():
         os.replace(tmp, path)
     except OSError:
         pass
+    return jsonify(out)
+
+
+@scholarship_bp.route('/scholarship/list')
+def scholarship_list():
+    """Every article in the three citation indexes that cites a scope of a work
+    (a passage, its book or the whole work), with filters, search, sort, paging
+    and facet counts, one article once across the indexes. Feeds the full
+    scholarship page; contract in backend/scholarship_list.py."""
+    try:
+        p = scholarship_list_mod.parse_params(request.args)
+    except scholarship_list_mod.BadRequest as e:
+        return jsonify({'available': False, 'error': str(e), 'results': []}), 400
+    out = scholarship_list_mod.answer(p, scholarship_list_mod.scope_label(p))
     return jsonify(out)

@@ -39,6 +39,10 @@ MANIFEST = {
     '/api/scholarship/commentary': {
         'tools': ['get_commentary'],
     },
+    '/api/scholarship/list': {
+        'site_only': True,
+        'reason': 'The full scholarship page: every article citing a passage, its book or the work, with filters, search and paging; an agent reads the same citation indexes through find_scholarship.',
+    },
     '/api/scholarship/sources': {
         'site_only': True,
         'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves come through get_commentary.',
