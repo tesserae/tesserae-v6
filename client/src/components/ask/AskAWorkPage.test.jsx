@@ -767,6 +767,8 @@ describe('articles that cite the passages found', () => {
     expect(items[0]).toHaveTextContent('MUSE');
     expect(items[1]).toHaveTextContent('1827 to 1922');
     expect(items[0]).toHaveTextContent('cites 2.40, 1.10');
+    const all = within(box).getByRole('link', { name: 'All articles' });
+    expect(all.getAttribute('href')).toMatch(/^\/scholarship\/view\?work=vergil\.aeneid&lo=\d[\d.]*&hi=3\.50&scope=passage$/);
     const call = callsTo('/api/passages/ask-citing')[0];
     expect(JSON.parse(call[1].body)).toEqual({
       work: 'vergil.aeneid',

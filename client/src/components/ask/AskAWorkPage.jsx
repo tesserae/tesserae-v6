@@ -16,7 +16,8 @@ import { getView } from '../../collections/collectionsStore';
 import useCollections from '../../hooks/useCollections';
 import { viewById } from '../../collections/collectionsConfig';
 import { getJson, postJsonTo } from '../../utils/api';
-import { windowLocus, fullRef } from '../reader/refId';
+import { windowLocus, fullRef, bareLocus } from '../reader/refId';
+import { viewerHref, compareLoci } from '../../utils/scholarshipViewer';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 
 /**
@@ -664,6 +665,14 @@ export default function AskAWorkPage({ prefill = '', onQueryChange = null }) {
     const r = results.find((x) => x.ref_start === ref);
     return (r && r.locus) || String(ref || '').trim().split(/\s+/).pop();
   };
+  const askedViewerHref = (() => {
+    const refs = results.slice(0, CITING_MAX).map((r) => [bareLocus(r.ref_start), bareLocus(r.ref_end || r.ref_start)]);
+    if (!asked?.work || !refs.length) return null;
+    const flat = refs.flat();
+    const lo = flat.reduce((m, x) => (compareLoci(x, m) < 0 ? x : m), flat[0]);
+    const hi = flat.reduce((m, x) => (compareLoci(x, m) > 0 ? x : m), flat[0]);
+    return viewerHref({ work: asked.work, lo, hi, scope: 'passage' });
+  })();
   const citingItems = citing?.items || [];
   const citingShown = showAllCiting ? citingItems : citingItems.slice(0, CITING_SHOWN);
   const citingSection = citing?.state === 'ready' && (
@@ -674,6 +683,12 @@ export default function AskAWorkPage({ prefill = '', onQueryChange = null }) {
                  label="Export the citing articles" />
       </div>
       <p className="text-xs text-gray-500">From the journal citation indexes (journals of 1827 to 1922, and Project MUSE journals from 1996 on): articles whose pages cite one of the passages above.</p>
+      {askedViewerHref && (
+        <p className="text-xs mt-0.5" data-testid="ask-citing-all">
+          <a href={askedViewerHref} className="text-red-700 hover:underline">All articles</a>
+          {' '}citing the passages shown, with search, filters and export.
+        </p>
+      )}
       {citingItems.length === 0 ? (
         <p className="mt-1 text-xs text-gray-700 leading-snug" data-testid="ask-citing-none">No article in the citation indexes cites these passages.</p>
       ) : (

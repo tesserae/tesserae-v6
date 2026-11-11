@@ -6,6 +6,7 @@ import CiteAll from '../common/CiteAll';
 import { recordFrom } from '../../utils/citations';
 import { getJson, postJsonTo } from '../../utils/api';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { viewerHref } from '../../utils/scholarshipViewer';
 
 /**
  * Secondary scholarship on the selected lines: the commentators' notes the
@@ -265,6 +266,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
           )}
 
           <section id="sch-scholarship">
+            <ViewerLink work={work} refStart={refStart} refEnd={refEnd} index={data.index} />
             <div className="flex items-baseline justify-between gap-2 flex-wrap">
               <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wide">Scholarship</h4>
               <AboutSourcesLink anchor="methods" />
@@ -312,6 +314,35 @@ export default function ScholarshipTab({ work, language, selection, units, secon
         </>
       )}
     </div>
+  );
+}
+
+// "See all N articles for this passage": the link to the viewer page. N is the
+// tab's own count when the list was not cut, else the count the viewer's
+// endpoint gives for the passage (one lightweight call, per_page=1).
+function ViewerLink({ work, refStart, refEnd, index }) {
+  const total = Number.isFinite(index?.total) ? index.total : null;
+  const capped = total !== null && total > (index?.results || []).length;
+  const [counted, setCounted] = useState(null);
+  const href = viewerHref({ work, lo: refStart, hi: refEnd });
+  useEffect(() => {
+    if (!capped) return undefined;
+    let cancelled = false;
+    const q = new URLSearchParams(href.split('?')[1]);
+    q.set('per_page', '1');
+    getJson(`/api/scholarship/list?${q.toString()}`)
+      .then((d) => { if (!cancelled && d && d.available && Number.isFinite(d.total)) setCounted(d.total); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [capped, href]);
+  if (!work || !refStart) return null;
+  const n = capped ? counted : total;
+  const label = n === null || n === undefined ? 'See all articles for this passage'
+    : `See all ${Number(n).toLocaleString('en-US')} ${n === 1 ? 'article' : 'articles'} for this passage`;
+  return (
+    <p className="text-xs mb-2" data-testid="scholarship-viewer-link">
+      <a href={href} className="text-red-700 hover:underline">{label}</a>
+    </p>
   );
 }
 
@@ -418,7 +449,10 @@ function MainPieceLI({ r, data, library, passage, fallbackWords }) {
 // the citing sentence; Project MUSE with one sentence; the JSTOR journals as
 // citation and link only, with no sentence, at JSTOR's request), with the
 // pages that cite the passage.
-function IndexPieceLI({ r, passage, fallbackWords }) {
+// The viewer page (components/pages/ScholarshipViewerPage.jsx) renders its
+// list with this same row: a row there may carry `sentences` (a list, for the
+// two indexes that store them) and `kind` ("review" gets its own badge).
+export function IndexPieceLI({ r, passage, fallbackWords }) {
   const muse = r.source === 'muse';
   const jstor = r.source === 'jstor';
   const pre1923 = !r.year || r.year < 1923;
@@ -428,6 +462,7 @@ function IndexPieceLI({ r, passage, fallbackWords }) {
   return (
     <li className="text-sm leading-snug">
       <KindTag>{kind}</KindTag>
+      {r.kind === 'review' && <> <KindTag>book review</KindTag></>}
       <p className="text-gray-900">
         <CitationHead authors={r.authors} year={r.year} title={r.title} />
         {r.venue ? `. ${r.venue}` : ''}{r.volume ? ` ${r.volume}` : ''}{r.pages?.length ? `, p. ${r.pages.slice(0, 4).join(', ')}` : ''}.
@@ -437,6 +472,11 @@ function IndexPieceLI({ r, passage, fallbackWords }) {
           <Marked text={r.snippet} mark={r.cites} passage={passage} fallbackWords={fallbackWords} />
         </p>
       )}
+      {!r.snippet && !jstor && (r.sentences || []).map((t, i) => (
+        <p key={i} className="text-[12px] text-gray-700 mt-0.5 border-l-2 border-gray-200 pl-2" data-testid="row-sentence">
+          <Marked text={t} mark={null} passage={passage} fallbackWords={fallbackWords} />
+        </p>
+      ))}
       <p className="text-[11px] text-gray-500 mt-0.5 flex flex-wrap gap-x-3">
         <span>cites {r.cites}{r.cites_note || ''}</span>
         {muse && r.doi && <a className="text-red-700 hover:underline" href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer">DOI</a>}

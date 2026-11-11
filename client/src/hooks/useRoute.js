@@ -39,6 +39,7 @@ const PAGE_TITLES = {
   'comparison-job': 'Prepared comparison',
   'upload-help': 'Upload Your Text',
   'scholarship-sources': 'Scholarship: sources and methods',
+  'scholarship-view': 'Scholarship viewer',
   admin: 'Admin',
 };
 
@@ -68,6 +69,7 @@ const pageTypeToPath = {
   'comparison-job': '/comparisons',
   'upload-help': '/upload-help',
   'scholarship-sources': '/scholarship-sources',
+  'scholarship-view': '/scholarship/view',
   'admin': '/admin'
 };
 

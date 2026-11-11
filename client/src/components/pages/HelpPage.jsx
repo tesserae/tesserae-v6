@@ -1842,6 +1842,31 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 search. The sources page says exactly what is missing and where to look for it.{' '}
                 <AboutSourcesLink anchor="beyond" />
               </p>
+              <h5 id="scholarship-viewer" className="text-base font-semibold text-gray-900 mt-4 mb-1">Scholarship viewer</h5>
+              <p className="text-gray-700 mb-3">
+                The Scholarship viewer lists every article in the three citation indexes (Early Journal Content,
+                Project MUSE and JSTOR) that cites a passage, a book or a whole work, one article once even when
+                two indexes hold it. Open it from &ldquo;See all articles for this passage&rdquo; at the top of the
+                Reader&rsquo;s Scholarship tab, from &ldquo;All articles&rdquo; on an Events page, or from the list of
+                citing articles on the Ask page. The three buttons at the top change the scope: this passage, the
+                book it is in, or the whole work, each with its count of articles before any filter or search.
+                The address carries every choice, so you can bookmark a view or send it.
+              </p>
+              <p className="text-gray-700 mb-3">
+                Sort by Newest (research articles first, then book reviews and other items, each newest first),
+                Oldest, Author (first author&rsquo;s surname), Journal, or Most citations of this scope, which counts
+                how many different places within the scope the article cites. Filter by source, by kind (research
+                articles, book reviews, other), by years and by journal. The summary line gives the number of
+                articles by source and by decade for the current filters. The list is fifty rows a page, with Previous and Next.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The search box reads titles, authors and journal names for every source, and also the sentences
+                stored with each citation. For Early Journal Content and Project MUSE the sentence is shown under
+                the article. For JSTOR articles the search reads the sentence that cites the passage too, but the
+                sentence is not shown, at JSTOR&rsquo;s request, so a JSTOR article can appear in the results of a search
+                without the words that matched. &ldquo;Export this list (RIS)&rdquo; writes one file for Zotero and EndNote
+                from the current filters and sort, up to 500 articles; a longer list exports its first 500.
+              </p>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation (on Similar passages
                 for an English work, which has no translation), selects the whole

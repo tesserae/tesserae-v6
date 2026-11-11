@@ -511,6 +511,8 @@ describe('the focus view', () => {
     const link = screen.getByRole('link', { name: "Reader's Scholarship tab" });
     expect(link.getAttribute('href')).toContain('/read?work=herodotus.histories.tess');
     expect(link.getAttribute('href')).toContain('tab=scholarship');
+    expect(screen.getByRole('link', { name: 'All articles' }).getAttribute('href'))
+      .toBe('/scholarship/view?work=herodotus.histories&lo=6.111.1&hi=7.1.3&scope=passage');
   });
 
   it('says only how many articles there are when none were left out, and uses the singular for one', async () => {
