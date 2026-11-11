@@ -28,7 +28,7 @@ import { parseSearchParams, buildShareableUrl } from './utils/searchUrl';
 import { useCorpusSearchPanel } from './hooks/useCorpusSearchPanel';
 import { useDefaultTexts } from './hooks/useDefaultTexts';
 import { useAdminSession } from './hooks/useAdminSession';
-import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, TermsPage, ResearchPage, BlogArchivePage, RequestsPage, ScholarshipSourcesPage, UploadTextPage, ComparisonJobPage } from './components/pages';
+import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, TermsPage, ResearchPage, BlogArchivePage, RequestsPage, ScholarshipSourcesPage, ScholarshipViewerPage, UploadTextPage, ComparisonJobPage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
@@ -979,6 +979,10 @@ function App() {
 
         {pageType === 'scholarship-sources' && (
           <ScholarshipSourcesPage />
+        )}
+
+        {pageType === 'scholarship-view' && (
+          <ScholarshipViewerPage />
         )}
 
         {pageType === 'admin' && (

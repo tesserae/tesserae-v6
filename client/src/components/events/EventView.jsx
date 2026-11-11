@@ -8,6 +8,7 @@ import { useCorpusTextMap } from '../../utils/textNames';
 import EventMap from './EventMap';
 import { dateLabel, kmLabel, placeLabel, readerLinkWithBack, shortPassageRef, workHeading } from './eventsFormat';
 import AboutSourcesLink from '../scholarship/AboutSourcesLink';
+import { viewerHref, compareLoci } from '../../utils/scholarshipViewer';
 import { editorNoteParts } from '../documents/documentDisplay';
 import { expandEditions } from '../../utils/editionNames';
 
@@ -369,6 +370,19 @@ function ArticleGroups({ groups, openPassage, ranks }) {
   });
 }
 
+/** The viewer address for the event's first work, spanning its passages in that work. */
+export function eventViewerHref(passages, firstPassage) {
+  if (!firstPassage) return null;
+  const same = (passages || []).filter((p) => p.work === firstPassage.work);
+  let lo = bareLocus(firstPassage.ref_start); let hi = bareLocus(firstPassage.ref_end || firstPassage.ref_start);
+  same.forEach((p) => {
+    const a = bareLocus(p.ref_start); const b = bareLocus(p.ref_end || p.ref_start);
+    if (compareLoci(a, lo) < 0) lo = a;
+    if (compareLoci(b, hi) > 0) hi = b;
+  });
+  return viewerHref({ work: firstPassage.work, lo, hi, scope: 'passage' });
+}
+
 function ScholarshipTab({ items, openPassage, ranks, byPassage, total, passages, event }) {
   if (items.length === 0) {
     return <p className="text-sm text-gray-600">No article or commentary was found on the passages for this event.</p>;
@@ -396,6 +410,12 @@ function ScholarshipTab({ items, openPassage, ranks, byPassage, total, passages,
       {grouped && (
         <ScholarshipCount shown={nShown} total={typeof total === 'number' ? total : nShown}
                           readerUrl={first && first.reader_url} eventId={event.id} eventLabel={event.label} />
+      )}
+      {grouped && first && (
+        <p className="text-xs mt-1" data-testid="event-all-articles">
+          <a href={eventViewerHref(passages, first)} className="text-red-700 hover:underline">All articles</a>
+          {' '}that cite this work within the event&rsquo;s span, with search, filters and export.
+        </p>
       )}
       {groups.map(([kind, scope, title]) => {
         const rows = items.filter((s) => s.kind === kind && (scope === null || (s.scope || 'passage') === scope));

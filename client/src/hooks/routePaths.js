@@ -35,6 +35,7 @@ const pathToPageType = {
   '/requests': 'requests',
   '/upload-help': 'upload-help',
   '/scholarship-sources': 'scholarship-sources',
+  '/scholarship/view': 'scholarship-view',
   '/admin': 'admin'
 };
 
