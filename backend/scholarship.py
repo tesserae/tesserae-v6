@@ -1311,8 +1311,12 @@ def _stable_id(art):
 
 
 def _title_year(art):
-    t = unicodedata.normalize('NFKD', art.get('title') or '')
-    t = ''.join(ch for ch in t if not unicodedata.combining(ch)).lower()
+    t = art.get('title') or ''
+    if t.isascii():
+        t = t.lower()   # NFKD leaves ASCII alone and ASCII has no combining marks
+    else:
+        t = unicodedata.normalize('NFKD', t)
+        t = ''.join(ch for ch in t if not unicodedata.combining(ch)).lower()
     words = re.findall(r'[a-z0-9]+', t)
     if len(words) > 1 and words[0] in _LEADING_ARTICLES:
         words = words[1:]
