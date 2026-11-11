@@ -12,6 +12,13 @@ import {
  * already carries a search, and brought back by the header's "Start here"
  * link. Once hidden it takes no space.
  *
+ * Layout (2026-11-11, the owner found the plain list "boring and unappealing"):
+ * each answer is a tile with the search's name on its own line and the
+ * description under it, in a grid on a warm band, so the seven choices read as
+ * a set of doors rather than a paragraph. Nothing about the behavior changed:
+ * the same links, the same onChoose and Skip handling, the same order and
+ * labels per collection view.
+ *
  * Props
  *   onChoose(choice)  optional. Called with the chosen answer; when it is
  *                     given the click is handled inside the app (no page
@@ -81,30 +88,35 @@ export default function StartHere({ onChoose, onDismiss, forceOpen = false, supp
     <section
       ref={ref}
       aria-labelledby="start-here-heading"
-      className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4"
+      className="rounded-lg border border-red-100 bg-gradient-to-b from-red-50/70 to-white shadow-sm px-4 sm:px-5 pt-3 pb-4 mb-4"
     >
-      <div className="flex items-baseline justify-between gap-3 mb-1.5">
-        <h2 id="start-here-heading" className="text-sm font-semibold text-gray-700">
-          What are you trying to do?
-        </h2>
+      <div className="flex items-baseline justify-between gap-3 mb-3">
+        <div>
+          <h2 id="start-here-heading" className="text-base font-semibold text-gray-900">
+            What are you trying to do?
+          </h2>
+          <p className="text-xs text-gray-600 mt-0.5">Pick one and the right search opens, set up for you.</p>
+        </div>
         <button
           type="button"
           onClick={close}
-          className="text-xs text-gray-500 hover:text-red-700 hover:underline"
+          className="shrink-0 text-xs text-gray-500 border border-gray-300 rounded px-2 py-0.5 bg-white hover:text-red-700 hover:border-red-300"
         >
           Skip
         </button>
       </div>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
         {choices.map((choice) => (
-          <li key={choice.id}>
+          <li key={choice.id} className="h-full">
             <a
               href={choice.href}
               onClick={(e) => choose(e, choice)}
-              className="block text-sm py-0.5 text-gray-600 hover:text-red-700"
+              className="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
             >
-              <span className="font-semibold text-gray-800">{viewData.startHereLabels?.[choice.id] || choice.label}:</span>{' '}
-              <span>{choice.detail}</span>
+              <span className="text-sm font-semibold text-red-700 group-hover:underline">
+                {viewData.startHereLabels?.[choice.id] || choice.label}
+              </span>
+              <span className="mt-0.5 text-[13px] leading-snug text-gray-600">{choice.detail}</span>
             </a>
           </li>
         ))}

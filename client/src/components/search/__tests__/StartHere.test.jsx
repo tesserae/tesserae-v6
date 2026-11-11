@@ -56,9 +56,9 @@ describe('StartHere', () => {
     const chosen = vi.fn();
     render(<StartHere onChoose={chosen} />);
     FRONT_DOOR_CHOICES.forEach((choice) => {
-      expect(screen.getByText(`${choice.label}:`).closest('a').getAttribute('href')).toBe(choice.href);
+      expect(screen.getByText(choice.label).closest('a').getAttribute('href')).toBe(choice.href);
     });
-    fireEvent.click(screen.getByText(`${FRONT_DOOR_CHOICES[3].label}:`));
+    fireEvent.click(screen.getByText(FRONT_DOOR_CHOICES[3].label));
     expect(chosen).toHaveBeenCalledWith(FRONT_DOOR_CHOICES[3]);
   });
 
