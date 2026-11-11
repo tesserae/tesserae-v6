@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-11
+- Coptic article data release: the hand-curated list of 29 verbatim Hebrews x Psalms quotations (`gold/hebrews_psalms_verbatim_29.csv`, references and English glosses) joins the release, so every evaluation set the article uses is public; the shared-runs script reads it by default, and the manifest, README and zip are updated. (#1330)
 - Coptic article data release: a per-pair table for the 124-pair Hebrews x Psalms benchmark (`outputs/hebrews_psalms_benchmark124_shared_runs.csv`, longest run of shared words and lemmas in Sahidic and Greek, 94 of 124 with no three-word run in either) and the script that makes it, with the manifest, README and zip updated. (#1329)
 - Data operations: the Reader density cache recomputed for all 5,017 works on the group one passage index (fingerprint 44847231-1794285111), run 2026-11-10 04:29 to 2026-11-11 00:54 with two pauses, 0 failed, peak 4.6 GB (docs/DATA_OPERATIONS.md). (#1327)
 - Coptic article data release: the docstring of `sample_weight_config` in `run_optimization.py` now matches the code (the bias is rare_word 0.5x, sound 1.5x, lemma 1.25x, nothing else; it had named lemma_min1). Docstring only, no behavior change. The release manifest row and the release zip carry the corrected file. (#1326)

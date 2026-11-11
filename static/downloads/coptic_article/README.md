@@ -22,6 +22,15 @@ at https://github.com/tesserae/tesserae-v6.
   Appendix B).
 - `tsk_hebrews_psalms_strict_11.csv` — the stricter subset (votes >= 50,
   best Psalm verse per NT verse): 11 widely attested verbatim quotations.
+- `hebrews_psalms_verbatim_29.csv` — the hand-curated list of 29 verbatim
+  Hebrews x Psalms quotations (article §3.2 and the verified-quotation
+  benchmark), one row per pair with the Hebrews verse, the LXX Psalm verse
+  and a short English gloss. Curated by hand from standard listings of New
+  Testament quotations of the Psalms on 2026-05-15, after the weight sweeps
+  of that day had ended. Fifteen of the 29 are among the 124 pairs of
+  `tsk_hebrews_psalms_gold_124.csv`. The experimental thematic sweeps
+  (`run_optimization_thematic.py`, `VERBATIM_GOLD_PATH`) read this file as a
+  constraint. Added to the release 2026-11-11.
 - `tsk_hebrews_psalms_all_votes_lxx.csv` — the unfiltered Hebrews-Psalms
   candidate set with vote counts, before the vote-20 filter (all NT books,
   LXX numbering), for anyone who wants a different threshold.
@@ -92,7 +101,7 @@ best-weights snapshots for the sweeps described in the article: the
 initial re-tuning sweep, the full-inventory re-optimization, the
 quotation-channel baselines, the Greek diagnostic baseline, and the
 experimental thematic sweeps. The experimental thematic profile in these
-logs used a separate hand-curated quotation list as a tuning constraint;
+logs used the hand-curated quotation list `gold/hebrews_psalms_verbatim_29.csv` as a tuning constraint;
 no result in the article depends on that profile.
 
 ### scripts/
