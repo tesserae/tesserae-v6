@@ -257,7 +257,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
       {!loading && data && (
         <>
           <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1"><Contents data={data} pieceCount={pieces.length} /></div>
+            <div className="min-w-0 flex-1"><Contents data={data} pieceCount={pieces.length} work={work} refStart={refStart} refEnd={refEnd} /></div>
             <CiteAll records={allRecords} name={`${work || 'scholarship'} ${refStart || ''}`} />
           </div>
           <CommentarySection sections={data.commentary || []} work={work} />
@@ -266,7 +266,6 @@ export default function ScholarshipTab({ work, language, selection, units, secon
           )}
 
           <section id="sch-scholarship">
-            <ViewerLink work={work} refStart={refStart} refEnd={refEnd} index={data.index} />
             <div className="flex items-baseline justify-between gap-2 flex-wrap">
               <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wide">Scholarship</h4>
               <AboutSourcesLink anchor="methods" />
@@ -317,7 +316,9 @@ export default function ScholarshipTab({ work, language, selection, units, secon
   );
 }
 
-// "See all N articles for this passage": the link to the viewer page. N is the
+// "See all N articles for this passage": the link to the viewer page, in the
+// summary line at the top of the column so a reader sees it before the
+// commentary (NC did not find it lower down, 2026-11-11). N is the
 // tab's own count when the list was not cut, else the count the viewer's
 // endpoint gives for the passage (one lightweight call, per_page=1).
 function ViewerLink({ work, refStart, refEnd, index }) {
@@ -340,9 +341,9 @@ function ViewerLink({ work, refStart, refEnd, index }) {
   const label = n === null || n === undefined ? 'See all articles for this passage'
     : `See all ${Number(n).toLocaleString('en-US')} ${n === 1 ? 'article' : 'articles'} for this passage`;
   return (
-    <p className="text-xs mb-2" data-testid="scholarship-viewer-link">
-      <a href={href} className="text-red-700 hover:underline">{label}</a>
-    </p>
+    <span data-testid="scholarship-viewer-link">
+      <a href={href} className="text-red-700 hover:underline font-medium">{label}</a>
+    </span>
   );
 }
 
@@ -368,7 +369,7 @@ function LibraryForm({ value, onSave }) {
 // commentary alone. Two counts now, commentators and
 // everything else, kept separate: a single merged number
 // would blur a commentator's note with a JSTOR article.
-function Contents({ data, pieceCount }) {
+function Contents({ data, pieceCount, work, refStart, refEnd }) {
   const parts = [
     ['sch-commentators', 'commentators', (data.commentary || []).length],
     ['sch-scholarship', 'pieces of scholarship on this passage', pieceCount],
@@ -384,6 +385,7 @@ function Contents({ data, pieceCount }) {
           {n} {label}
         </a>
       ))}
+      <ViewerLink work={work} refStart={refStart} refEnd={refEnd} index={data.index} />
     </p>
   );
 }
