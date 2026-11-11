@@ -86,7 +86,7 @@ def _read_index(path, source, work, shape, lo, hi, book):
         kind_col = 'a.kind' if have_kind else "'article'"
         rows = con.execute(
             'SELECT c.article_id, c.page, c.locus_start, c.locus_end, c.open_ended, c.surface, c.sentence, '  # nosec B608
-            'a.title, a.authors, a.journal, a.year, a.volume, a.issue, a.url_ia, a.url_jstor, a.doi, '
+            'a.title, a.authors, a.journal, a.year, a.volume, a.issue, a.url_ia, a.url_jstor, a.doi, a.first_page, '
             f'{kind_col} AS kind FROM citations c JOIN articles a ON a.id = c.article_id WHERE c.work_id = ?',
             (work,)).fetchall()
         con.close()
@@ -98,7 +98,7 @@ def _read_index(path, source, work, shape, lo, hi, book):
     span_memo = {}
     recs = {}
     for (article_id, page, locus_start, locus_end, open_ended, surface, sentence, title, authors, journal, year,
-         volume, issue, url_ia, url_jstor, doi_raw, kind_raw) in rows:
+         volume, issue, url_ia, url_jstor, doi_raw, first_page, kind_raw) in rows:
         surface = surface or ''
         if not re.search(r'[A-Za-z]', surface):
             continue
@@ -141,7 +141,7 @@ def _read_index(path, source, work, shape, lo, hi, book):
             rec = recs[article_id] = {
                 'title': title, 'authors': [x for x in (authors or '').split('; ') if x],
                 'venue': journal, 'year': year, 'volume': volume, 'issue': issue,
-                'doi': doi_raw, 'kind': kind, 'source': source, **link, 'cites': []}
+                'doi': doi_raw, 'kind': kind, 'source': source, 'first_page': first_page, **link, 'cites': []}
         # (locus, note, in_book, in_passage, page, surface, sentence, locus start for sorting)
         rec['cites'].append((locus, note, in_book, in_passage, page, surface, sentence, cs))
     # JSTOR: a stable link opens on the citing page (?seq=), taken from the first citation kept.
@@ -223,8 +223,15 @@ def _finish(m, work):
                 citations.append(c)
             c[2] = c[2] or in_book
             c[3] = c[3] or in_passage
-            if source != 'jstor' and page and page not in pages:
-                pages.append(page)
+            if source != 'jstor':
+                if page and page not in pages:
+                    pages.append(page)
+            elif rec.get('first_page') is not None and page is not None:
+                # JSTOR stores the page's index in the scan; the printed page is known
+                # only when the index carries the article's first printed page.
+                printed = int(rec['first_page']) + int(page)
+                if printed not in pages:
+                    pages.append(printed)
             if sentence:
                 shown = None
                 if source != 'jstor':

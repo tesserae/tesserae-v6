@@ -44,6 +44,8 @@ def _jstor(tmp_path, kind=False):
       INSERT INTO articles VALUES (4,'a4','a4','10.2307/555','Classical World','Eighth book gloss','F. Last',1990,'3','1',NULL,2,NULL,'https://www.jstor.org/stable/555','','ok');
       INSERT INTO citations VALUES (4,4,1,'vergil.aeneid','8.5',NULL,0,'Aen. 8.5','Invented (Aen. 8.5).',0);
     ''')
+    # Article 1 has a known first printed page (23): its citation on page index 3 is p. 26.
+    con.execute("UPDATE articles SET first_page=23 WHERE id=1")
     if kind:
         con.executescript("ALTER TABLE articles ADD COLUMN kind TEXT; UPDATE articles SET kind='review' WHERE id=2; "
                           "UPDATE articles SET kind='other' WHERE id=4; UPDATE articles SET kind='article' WHERE id IN (1,3);")
@@ -89,6 +91,13 @@ def test_counts_for_the_three_scopes(client):
     assert w['total'] == 6 and w['scope']['label'] == 'Aeneid'
     assert client().get_json()['scope']['scope'] == 'work'
     assert client(lo='1.40', hi='1.41').get_json()['total'] == 1    # the merged MUSE/JSTOR article only
+
+
+def test_jstor_printed_page_when_the_first_page_is_known(client):
+    rows = {x['title']: x for x in client(scope='work').get_json()['results']}
+    assert rows['The proem again']['pages'] == [26]          # first page 23 + page index 3
+    assert rows['Notes on a book of verse']['pages'] == []   # first page unknown
+    assert rows['The proem again']['url'] == 'https://www.jstor.org/stable/123456?seq=4'
 
 
 def test_merge_lists_one_article_with_both_sources(client):
