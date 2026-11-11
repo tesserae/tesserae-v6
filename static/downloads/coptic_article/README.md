@@ -77,7 +77,8 @@ not subject to this caveat.
 - `hebrews_psalms_benchmark124_shared_runs.csv` — for each of the 124
   broad-benchmark pairs, the longest run of consecutive shared words and of
   shared lemmas between the Hebrews verse and the Psalm verse, in the Sahidic
-  texts and in the Greek (SBLGNT Hebrews, Rahlfs Psalms), with the vote count
+  texts and in the Greek (Swete's Septuagint for the Psalms, the SBL Greek New
+  Testament for Hebrews), with the vote count
   and whether the pair is on the hand-curated list of verbatim quotations
   (article §3.2). Added 2026-11-11, produced by
   `scripts/measure_benchmark_shared_runs.py` from the production lemma caches.

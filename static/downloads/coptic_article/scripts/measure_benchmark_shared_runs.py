@@ -3,7 +3,8 @@
 
 For every pair in gold/tsk_hebrews_psalms_gold_124.csv the script reports the longest run of
 consecutive shared words (and separately of shared lemmas) between the Hebrews verse and the
-Psalm verse, in the Sahidic texts and in the Greek texts (SBLGNT Hebrews, Rahlfs Psalms). A
+Psalm verse, in the Sahidic texts and in the Greek texts (Swete's Septuagint for the Psalms, the SBL
+Greek New Testament for Hebrews). A
 pair with no run of three or more shared words in either language is one the article counts as
 a cross-reference of theme, allusion or formula rather than a quotation (article section 3.2).
 
