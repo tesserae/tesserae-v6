@@ -140,7 +140,7 @@ describe('the Phrase Search defaults follow the view', () => {
 });
 
 describe('the Start here order follows the view', () => {
-  const labels = () => screen.getAllByRole('link').map((a) => a.textContent.split(':')[0])
+  const labels = () => screen.getAllByRole('link').map((a) => (a.querySelector('span') || a).textContent.split(':')[0])
     .filter((t) => /Search|Reader|Inscriptions|Rare|Collections/.test(t));
 
   it('Literature: Theme Search first, Collections answer last', async () => {
