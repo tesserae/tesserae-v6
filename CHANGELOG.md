@@ -7,6 +7,8 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-11
+- Data operations: the Reader density cache recomputed for all 5,017 works on the group one passage index (fingerprint 44847231-1794285111), run 2026-11-10 04:29 to 2026-11-11 00:54 with two pauses, 0 failed, peak 4.6 GB (docs/DATA_OPERATIONS.md). (#1327)
 - Coptic article data release: the docstring of `sample_weight_config` in `run_optimization.py` now matches the code (the bias is rare_word 0.5x, sound 1.5x, lemma 1.25x, nothing else; it had named lemma_min1). Docstring only, no behavior change. The release manifest row and the release zip carry the corrected file. (#1326)
 
 ## 2026-11-10
