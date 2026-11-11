@@ -3627,45 +3627,55 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
+<section aria-labelledby="start-here-heading" class="rounded-lg border border-red-100 bg-gradient-to-b from-red-50/70 to-white shadow-sm px-4 sm:px-5 pt-3 pb-4 mb-4">
+<div class="flex items-baseline justify-between gap-3 mb-3">
+<div>
+<h2 id="start-here-heading" class="text-base font-semibold text-gray-900">What are you trying to do?</h2>
+<p class="text-xs text-gray-600 mt-0.5">Pick one and the right search opens, set up for you.</p>
 </div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/theme-search?scope=one" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus</span>
+<button type="button" class="shrink-0 text-xs text-gray-500 border border-gray-300 rounded px-2 py-0.5 bg-white hover:text-red-700 hover:border-red-300">Skip</button>
+</div>
+<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+<li class="h-full">
+<a href="/theme-search?scope=one" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Theme Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus</span>
 </a>
 </li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
+<li class="h-full">
+<a href="/?tab=parallel" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Phrase Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
+<li class="h-full">
+<a href="/?tab=line" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Line Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">every line in the corpus where a phrase or a pair of words occurs</span>
 </a>
 </li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
+<li class="h-full">
+<a href="/?tab=hapax" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Rare Words</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">the rare words and word pairs two works share</span>
 </a>
 </li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+<li class="h-full">
+<a href="/read" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Reader</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">read a text with its echoes, translations and scholarship beside each passage</span>
 </a>
 </li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
+<li class="h-full">
+<a href="/mentions" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">People &amp; Places</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
+<li class="h-full">
+<a href="/inscriptions-papyri?profile=everything" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Collections</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -3990,45 +4000,55 @@ exports[`App render recording > page /no-such-page 1`] = `
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
+<section aria-labelledby="start-here-heading" class="rounded-lg border border-red-100 bg-gradient-to-b from-red-50/70 to-white shadow-sm px-4 sm:px-5 pt-3 pb-4 mb-4">
+<div class="flex items-baseline justify-between gap-3 mb-3">
+<div>
+<h2 id="start-here-heading" class="text-base font-semibold text-gray-900">What are you trying to do?</h2>
+<p class="text-xs text-gray-600 mt-0.5">Pick one and the right search opens, set up for you.</p>
 </div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/theme-search?scope=one" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus</span>
+<button type="button" class="shrink-0 text-xs text-gray-500 border border-gray-300 rounded px-2 py-0.5 bg-white hover:text-red-700 hover:border-red-300">Skip</button>
+</div>
+<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+<li class="h-full">
+<a href="/theme-search?scope=one" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Theme Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus</span>
 </a>
 </li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
+<li class="h-full">
+<a href="/?tab=parallel" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Phrase Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
+<li class="h-full">
+<a href="/?tab=line" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Line Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">every line in the corpus where a phrase or a pair of words occurs</span>
 </a>
 </li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
+<li class="h-full">
+<a href="/?tab=hapax" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Rare Words</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">the rare words and word pairs two works share</span>
 </a>
 </li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+<li class="h-full">
+<a href="/read" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Reader</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">read a text with its echoes, translations and scholarship beside each passage</span>
 </a>
 </li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
+<li class="h-full">
+<a href="/mentions" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">People &amp; Places</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
+<li class="h-full">
+<a href="/inscriptions-papyri?profile=everything" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Collections</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
@@ -5460,45 +5480,55 @@ exports[`App render recording > page /theme-search 1`] = `
 </div>
 </nav>
 <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-<section aria-labelledby="start-here-heading" class="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 mb-4">
-<div class="flex items-baseline justify-between gap-3 mb-1.5">
-<h2 id="start-here-heading" class="text-sm font-semibold text-gray-700">What are you trying to do?</h2>
-<button type="button" class="text-xs text-gray-500 hover:text-red-700 hover:underline">Skip</button>
+<section aria-labelledby="start-here-heading" class="rounded-lg border border-red-100 bg-gradient-to-b from-red-50/70 to-white shadow-sm px-4 sm:px-5 pt-3 pb-4 mb-4">
+<div class="flex items-baseline justify-between gap-3 mb-3">
+<div>
+<h2 id="start-here-heading" class="text-base font-semibold text-gray-900">What are you trying to do?</h2>
+<p class="text-xs text-gray-600 mt-0.5">Pick one and the right search opens, set up for you.</p>
 </div>
-<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-0.5">
-<li>
-<a href="/theme-search?scope=one" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Theme Search:</span> <span>passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus</span>
+<button type="button" class="shrink-0 text-xs text-gray-500 border border-gray-300 rounded px-2 py-0.5 bg-white hover:text-red-700 hover:border-red-300">Skip</button>
+</div>
+<ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+<li class="h-full">
+<a href="/theme-search?scope=one" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Theme Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">passages on a subject you describe in your own words: in one text, in two texts compared, or across the whole corpus</span>
 </a>
 </li>
-<li>
-<a href="/?tab=parallel" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Phrase Search:</span> <span>the phrases two works share, ranked by how distinctive they are</span>
+<li class="h-full">
+<a href="/?tab=parallel" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Phrase Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">the phrases two works share, ranked by how distinctive they are</span>
 </a>
 </li>
-<li>
-<a href="/?tab=line" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Line Search:</span> <span>every line in the corpus where a phrase or a pair of words occurs</span>
+<li class="h-full">
+<a href="/?tab=line" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Line Search</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">every line in the corpus where a phrase or a pair of words occurs</span>
 </a>
 </li>
-<li>
-<a href="/?tab=hapax" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Rare Words:</span> <span>the rare words and word pairs two works share</span>
+<li class="h-full">
+<a href="/?tab=hapax" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Rare Words</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">the rare words and word pairs two works share</span>
 </a>
 </li>
-<li>
-<a href="/read" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Reader:</span> <span>read a text with its echoes, translations and scholarship beside each passage</span>
+<li class="h-full">
+<a href="/read" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Reader</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">read a text with its echoes, translations and scholarship beside each passage</span>
 </a>
 </li>
-<li>
-<a href="/mentions" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">People &amp; Places:</span> <span>every line where a person, place or god is named, in Latin, Greek and English</span>
+<li class="h-full">
+<a href="/mentions" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">People &amp; Places</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">every line where a person, place or god is named, in Latin, Greek and English</span>
 </a>
 </li>
-<li>
-<a href="/inscriptions-papyri?profile=everything" class="block text-sm py-0.5 text-gray-600 hover:text-red-700">
-<span class="font-semibold text-gray-800">Collections:</span> <span>inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
+<li class="h-full">
+<a href="/inscriptions-papyri?profile=everything" class="group flex h-full flex-col rounded-md border border-gray-200 bg-white px-3 py-2.5 hover:border-red-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+<span class="text-sm font-semibold text-red-700 group-hover:underline">Collections</span>
+<span class="mt-0.5 text-[13px] leading-snug text-gray-600">inscriptions, papyri, events, coins and museum objects, switched on from the top row</span>
 </a>
 </li>
 </ul>
