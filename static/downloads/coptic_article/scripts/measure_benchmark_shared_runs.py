@@ -17,7 +17,7 @@ Usage, from the checkout root:
     python3 data_release/scripts/measure_benchmark_shared_runs.py \
         --gold data_release/gold/tsk_hebrews_psalms_gold_124.csv \
         --out data_release/outputs/hebrews_psalms_benchmark124_shared_runs.csv \
-        [--verbatim-list PATH]   # the hand-curated list of 29 quotations, if available
+        [--verbatim-list data_release/gold/hebrews_psalms_verbatim_29.csv]   # the default
 
 Words are compared after lower-casing, ignoring tokens with no letter (punctuation). Greek
 verses are matched by chapter and verse number because the Psalms file's reference form has
@@ -64,8 +64,8 @@ def main():
     ap.add_argument('--root', default='.', help='Tesserae V6 checkout with cache/lemmas/')
     ap.add_argument('--gold', default='data_release/gold/tsk_hebrews_psalms_gold_124.csv')
     ap.add_argument('--out', default='data_release/outputs/hebrews_psalms_benchmark124_shared_runs.csv')
-    ap.add_argument('--verbatim-list', default=None,
-                    help='CSV with nt_v6_ref,lxx_v6_ref of the hand-curated verbatim quotations (optional)')
+    ap.add_argument('--verbatim-list', default='data_release/gold/hebrews_psalms_verbatim_29.csv',
+                    help='CSV with nt_v6_ref,lxx_v6_ref of the hand-curated verbatim quotations (empty string to skip)')
     a = ap.parse_args()
 
     cop_heb = load_cache(a.root, 'cop', 'sahidica.hebrews')
