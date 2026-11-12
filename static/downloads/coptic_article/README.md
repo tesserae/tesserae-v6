@@ -95,6 +95,24 @@ not subject to this caveat.
   Words are compared lower-cased with punctuation tokens dropped; Greek verses
   are matched by chapter and verse. No text is included.
 
+- `besa_wordnet_2026-11-11.json`, `besa_psalms_ranked_2026-11-11.json`,
+  `besa_psalms_ranked_2026-11-11_no_dictionary.json`,
+  `besa_psalms_ranked_2026-11-11_latin_epic_weights.json` — the search of
+  Besa's Letters (156 lines) against the Sahidic Psalms (2,531 lines) on the
+  deployed code of 2026-11-11 (article §5), 5,000 ranked results, run with
+  the default Coptic weight profile, again with the dictionary channel (the
+  Coptic Wordnet synonym pairs) turned off, and again under the latin_epic
+  profile, whose weights are the defaults the first run of this comparison
+  used on 2026-05-14. The summary file holds the channel firing counts in the
+  5,000 and in the top 100 for each run, the dictionary firings by rank band,
+  the pairs present only with the channel on, and the overlap of the top 20
+  and the top 100 between the runs. On the deployed code the dictionary
+  channel fires in 1,721 of the 5,000 results, 15 of them in the top 100, and
+  turning it off changes 727 of the 5,000 pairs, 0 of the top 20 and 4 of
+  the top 100. Each ranked file lists [Besa line reference, Psalm verse
+  reference, channels that fired, fused score]. No text is included. Produced
+  by `scripts/besa_wordnet.py`. Added 2026-11-11.
+
 ### logs/
 Weight-optimization run logs (JSONL, one iteration per line) and the
 best-weights snapshots for the sweeps described in the article: the
@@ -122,6 +140,10 @@ no result in the article depends on that profile.
   `outputs/hebrews_psalms_benchmark124_shared_runs.csv` from the lemma caches
   of a Tesserae V6 checkout with the Coptic and Greek corpora (added
   2026-11-11).
+- `besa_wordnet.py` — runs Besa's Letters against the Sahidic Psalms on a
+  Tesserae V6 checkout with the Coptic corpus, with and without the dictionary
+  channel and under two weight profiles, and writes the four `outputs/besa_*`
+  files (added 2026-11-11).
 
 ## Licensing
 The Coptic corpus is not uniformly licensed (article §3.1 note): of the

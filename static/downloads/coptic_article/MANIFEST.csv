@@ -18,12 +18,17 @@ logs/phase9_best_weights.json,1304,07ef571b3f2bb852
 logs/phase9_log.jsonl,29675,d02db44f9a162b1d
 logs/quot_v2_log.jsonl,573,402b12848d03dd3d
 logs/quotation_channel_baseline_log.jsonl,578,ff0a0cf1ca09a578
+outputs/besa_psalms_ranked_2026-11-11.json,449421,5585e89145f33e9b
+outputs/besa_psalms_ranked_2026-11-11_latin_epic_weights.json,442492,35f9077189dc8edc
+outputs/besa_psalms_ranked_2026-11-11_no_dictionary.json,433195,d5f0a0206e4d6f92
+outputs/besa_wordnet_2026-11-11.json,8164,304b96114429d4ee
 outputs/hebrews_psalms_benchmark124_shared_runs.csv,7216,891b83ca80410343
 outputs/hebrews_psalms_ranked_10000.jsonl,1701791,1bfc89c86904d9bf
 outputs/hebrews_psalms_top50_adjudicated.csv,4232,8d97f4609a35fdb1
 outputs/romans_isaiah_ranked_10000.jsonl,1537469,0292955e2b3fad61
 outputs/shenoute_abraham_bible_top50.csv,24332,3f89ceb692491aed
 scripts/becky_abraham_parallels.py,7114,65cc4a1b26dcf99e
+scripts/besa_wordnet.py,6173,327327c4b757c41a
 scripts/build_gold_set.py,6610,1d827d61638cf164
 scripts/build_greek_gold.py,2916,d6326ba4a8378243
 scripts/check_punct_fix.py,4773,e5d835bfc5a3e0dc

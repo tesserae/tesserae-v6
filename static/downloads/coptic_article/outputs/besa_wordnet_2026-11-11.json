@@ -1,0 +1,623 @@
+{
+ "source": "besa.letters.tess",
+ "target": "sahidic.psalms.tess",
+ "max_results": 5000,
+ "available_channels": [
+  "lemma",
+  "exact",
+  "quotation",
+  "rare_word",
+  "dictionary",
+  "syntax",
+  "lemma_min1",
+  "semantic",
+  "sound",
+  "edit_distance"
+ ],
+ "n_source_lines": 156,
+ "n_target_lines": 2531,
+ "default_profile": {
+  "seconds": 75.3,
+  "n_results": 5000,
+  "firing_all_and_top100": {
+   "dictionary": [
+    1721,
+    15
+   ],
+   "edit_distance": [
+    990,
+    43
+   ],
+   "exact": [
+    1066,
+    67
+   ],
+   "lemma": [
+    593,
+    45
+   ],
+   "lemma_min1": [
+    2640,
+    76
+   ],
+   "quotation": [
+    5000,
+    100
+   ],
+   "rare_word": [
+    11,
+    2
+   ],
+   "semantic": [
+    392,
+    2
+   ],
+   "sound": [
+    29,
+    9
+   ],
+   "syntax": [
+    628,
+    10
+   ]
+  }
+ },
+ "dictionary_off": {
+  "seconds": 46.2,
+  "n_results": 5000,
+  "firing_all_and_top100": {
+   "edit_distance": [
+    988,
+    43
+   ],
+   "exact": [
+    1066,
+    71
+   ],
+   "lemma": [
+    593,
+    45
+   ],
+   "lemma_min1": [
+    3197,
+    78
+   ],
+   "quotation": [
+    5000,
+    100
+   ],
+   "rare_word": [
+    11,
+    2
+   ],
+   "semantic": [
+    392,
+    1
+   ],
+   "sound": [
+    29,
+    9
+   ],
+   "syntax": [
+    630,
+    10
+   ]
+  }
+ },
+ "dictionary_firing": {
+  "count": 1721,
+  "by_rank": {
+   "1-100": 15,
+   "101-500": 132,
+   "501+": 1574
+  },
+  "also_present_with_dictionary_off": 994
+ },
+ "pairs_only_with_dictionary_on": {
+  "count": 727,
+  "rows": [
+   [
+    1840,
+    "besa.letters.142",
+    "sahidic.psalms.88.8",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1842,
+    "besa.letters.58",
+    "sahidic.psalms.65.10",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1843,
+    "besa.letters.20",
+    "sahidic.psalms.77.52",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1844,
+    "besa.letters.79",
+    "sahidic.psalms.106.27",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1845,
+    "besa.letters.20",
+    "sahidic.psalms.118.70",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1846,
+    "besa.letters.20",
+    "sahidic.psalms.21.15",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1848,
+    "besa.letters.79",
+    "sahidic.psalms.140.6",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1849,
+    "besa.letters.41",
+    "sahidic.psalms.21.16",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1850,
+    "besa.letters.20",
+    "sahidic.psalms.54.22",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1868,
+    "besa.letters.41",
+    "sahidic.psalms.71.16",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1882,
+    "besa.letters.104",
+    "sahidic.psalms.40.6",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1919,
+    "besa.letters.37",
+    "sahidic.psalms.76.21",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1920,
+    "besa.letters.37",
+    "sahidic.psalms.105.9",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1922,
+    "besa.letters.37",
+    "sahidic.psalms.127.3",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1924,
+    "besa.letters.37",
+    "sahidic.psalms.58.7",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1925,
+    "besa.letters.37",
+    "sahidic.psalms.58.15",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1946,
+    "besa.letters.42",
+    "sahidic.psalms.90.4",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1949,
+    "besa.letters.42",
+    "sahidic.psalms.18.6",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1950,
+    "besa.letters.42",
+    "sahidic.psalms.147.3",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1951,
+    "besa.letters.42",
+    "sahidic.psalms.58.7",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1952,
+    "besa.letters.42",
+    "sahidic.psalms.58.15",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1972,
+    "besa.letters.156",
+    "sahidic.psalms.51.7",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    1992,
+    "besa.letters.69",
+    "sahidic.psalms.58.1",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2002,
+    "besa.letters.110",
+    "sahidic.psalms.151.1",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2021,
+    "besa.letters.69",
+    "sahidic.psalms.32.9",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2022,
+    "besa.letters.69",
+    "sahidic.psalms.148.5",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2025,
+    "besa.letters.45",
+    "sahidic.psalms.77.57",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2027,
+    "besa.letters.69",
+    "sahidic.psalms.145.6",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2038,
+    "besa.letters.69",
+    "sahidic.psalms.120.2",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2039,
+    "besa.letters.69",
+    "sahidic.psalms.123.8",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2043,
+    "besa.letters.46",
+    "sahidic.psalms.16.14",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2044,
+    "besa.letters.46",
+    "sahidic.psalms.104.42",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2046,
+    "besa.letters.46",
+    "sahidic.psalms.64.5",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2047,
+    "besa.letters.46",
+    "sahidic.psalms.55.1",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2055,
+    "besa.letters.45",
+    "sahidic.psalms.54.7",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2056,
+    "besa.letters.45",
+    "sahidic.psalms.90.4",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2057,
+    "besa.letters.45",
+    "sahidic.psalms.18.6",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2058,
+    "besa.letters.45",
+    "sahidic.psalms.118.162",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2059,
+    "besa.letters.82",
+    "sahidic.psalms.138.14",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2068,
+    "besa.letters.142",
+    "sahidic.psalms.142.7",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2078,
+    "besa.letters.8",
+    "sahidic.psalms.118.73",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2079,
+    "besa.letters.142",
+    "sahidic.psalms.32.1",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2093,
+    "besa.letters.142",
+    "sahidic.psalms.109.3",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2096,
+    "besa.letters.142",
+    "sahidic.psalms.72.1",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2113,
+    "besa.letters.98",
+    "sahidic.psalms.88.5",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2115,
+    "besa.letters.41",
+    "sahidic.psalms.37.5",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2120,
+    "besa.letters.12",
+    "sahidic.psalms.108.3",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2206,
+    "besa.letters.42",
+    "sahidic.psalms.135.5",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2264,
+    "besa.letters.10",
+    "sahidic.psalms.54.7",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ],
+   [
+    2266,
+    "besa.letters.58",
+    "sahidic.psalms.108.3",
+    [
+     "dictionary",
+     "quotation"
+    ]
+   ]
+  ]
+ },
+ "pairs_only_with_dictionary_off": 727,
+ "top100_same_set": 96,
+ "top20_same_set": 20,
+ "latin_epic_profile_as_in_may": {
+  "seconds": 71.5,
+  "n_results": 5000,
+  "firing_all_and_top100": {
+   "dictionary": [
+    1690,
+    11
+   ],
+   "edit_distance": [
+    1003,
+    53
+   ],
+   "exact": [
+    1084,
+    74
+   ],
+   "lemma": [
+    600,
+    43
+   ],
+   "lemma_min1": [
+    2692,
+    75
+   ],
+   "quotation": [
+    4973,
+    96
+   ],
+   "rare_word": [
+    24,
+    8
+   ],
+   "semantic": [
+    354,
+    1
+   ],
+   "sound": [
+    30,
+    7
+   ],
+   "syntax": [
+    628,
+    14
+   ]
+  },
+  "dictionary_firing": 1690,
+  "pairs_only_with_dictionary_on": 700,
+  "dictionary_rows_also_present_off": 990
+ }
+}
