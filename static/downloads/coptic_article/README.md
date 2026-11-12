@@ -118,6 +118,45 @@ not subject to this caveat.
   reference, channels that fired, fused score]. No text is included. Produced
   by `scripts/besa_wordnet.py`. Added 2026-11-11.
 
+- `greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12.json` and
+  `greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12_scoring_table.jsonl` —
+  the Greek Hebrews (SBL Greek New Testament) against the Greek Psalms
+  (Swete's Septuagint) on the deployed code of 2026-11-12 (commit 4066a232)
+  with the `latin_epic` weight profile, the search of article §3.3 as the
+  code runs it today, 50,000 results kept. The summary file gives, for
+  Hebrews 13:6 with Psalm 117:6 and with Psalm 117:7, the rank (35 and 121),
+  the fused score as listed (26.11 and 15.28), the channels that fired, and
+  the full scoring table: each channel's raw score and weighted contribution,
+  the shared words counted for rarity, their geometric-mean IDF (1.04 over six
+  words, 1.73 over two), the rarity multiplier (0.720 and 1.024), the
+  quotation term that bypasses the multiplier (18.0 and 6.0), the convergence
+  bonus, and the fused score reassembled from those terms (equal to the listed
+  score). The scoring table file holds the same two rows as JSON lines. The
+  profile today carries the quotation channel at weight 10, and the May 2026
+  baseline run in `logs/greek_baseline_log.jsonl` had no quotation channel, so
+  these figures describe today's code, not the May run. Produced by
+  `scripts/greek_two_pairs_latin_epic.py`. Added 2026-11-12.
+- `hebrews_psalms_semantic_ablation_2026-11-12.json` and
+  `hebrews_psalms_semantic_ablation_2026-11-12_ranked.json` — Sahidic Hebrews
+  against Sahidic Psalms on the deployed code of 2026-11-12 (commit 4066a232),
+  10,000 ranked results, run twice with the shipped biblical-Coptic weights and
+  once with the semantic weight set from 11.216 to 0 (the ablation of article
+  §3.4, first run 2026-08-27 and then recorded as recall only). The summary
+  file compares the three lists position by position and as sets (first
+  position that differs, pairs shared in the top 10 to 10,000, pairs whose
+  score changed) and gives the recall of the 124-pair benchmark and of the
+  29-pair verbatim list in each run. The two shipped-weight runs are identical
+  in all 10,000 rows and scores. With the semantic weight at 0 the order first
+  differs at position 58, the top 10, 50 and 100 hold the same pairs, 498 of
+  the top 500, 989 of the top 1,000 and 4,885 of the top 5,000 are shared,
+  9,339 pairs appear in both lists of 10,000, and 501 shared pairs change
+  score (largest change 3.83). Recall is the same in all three runs: 6, 18,
+  18, 20, 21 and 27 of 124 and 9, 25, 26, 27, 28 and 29 of 29 within the top
+  10, 50, 100, 500, 1,000 and 5,000. The ranked file holds
+  the three lists as [Psalm verse reference, Hebrews verse reference, fused
+  score]. No text is included. Produced by
+  `scripts/semantic_ablation_lists.py`. Added 2026-11-12.
+
 ### logs/
 Weight-optimization run logs (JSONL, one iteration per line) and the
 best-weights snapshots for the sweeps described in the article: the
@@ -149,6 +188,20 @@ no result in the article depends on that profile.
   Tesserae V6 checkout with the Coptic corpus, with and without the dictionary
   channel and under two weight profiles, and writes the four `outputs/besa_*`
   files (added 2026-11-11).
+- `greek_two_pairs_latin_epic.py` — runs the Greek Hebrews against the Greek
+  Psalms on a Tesserae V6 checkout with the Greek corpus under the `latin_epic`
+  profile and writes the two `outputs/greek_hebrews_psalms_two_pairs_*` files,
+  re-executing the two scoring functions of `backend/fusion.py` from their own
+  source with recording lines so that each channel's score and the rarity
+  multiplier of the two pairs are the ones the code computed (added
+  2026-11-12).
+- `semantic_ablation_lists.py` — runs Sahidic Hebrews against Sahidic Psalms on
+  a Tesserae V6 checkout with the Coptic corpus twice with the shipped weights
+  and once with the semantic weight at 0, and writes the two
+  `outputs/hebrews_psalms_semantic_ablation_*` files (added 2026-11-12). It sets
+  the weights on the profile itself, because the search's `channel_weights`
+  argument is the web form's path and caps each weight at 20, below the shipped quotation
+  and sound weights.
 
 ## Licensing
 The Coptic corpus is not uniformly licensed (article §3.1 note): of the
