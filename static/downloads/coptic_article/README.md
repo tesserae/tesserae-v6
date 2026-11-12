@@ -30,7 +30,12 @@ at https://github.com/tesserae/tesserae-v6.
   of that day had ended. Fifteen of the 29 are among the 124 pairs of
   `tsk_hebrews_psalms_gold_124.csv`. The experimental thematic sweeps
   (`run_optimization_thematic.py`, `VERBATIM_GOLD_PATH`) read this file as a
-  constraint. Added to the release 2026-11-11.
+  constraint. Added to the release 2026-11-11. Checked against Nestle-Aland
+  28, Appendix III (loci citati vel allegati), s.v. Psalmi, on 2026-11-11 by
+  the method used for the Romans-Isaiah list: 28 of the 29 pairs are direct
+  citations there (italic entries, grouped Psalm ranges covering each verse),
+  and the one exception, Hebrews 10:13 with Psalm 109:1 (110:1 in the Hebrew
+  numbering), is listed as an allusion at Hebrews 10:12.
 - `tsk_hebrews_psalms_all_votes_lxx.csv` — the unfiltered Hebrews-Psalms
   candidate set with vote counts, before the vote-20 filter (all NT books,
   LXX numbering), for anyone who wants a different threshold.
