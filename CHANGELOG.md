@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-11
+- Coptic article data release: the README entry for the 29 Hebrews-Psalms quotations records their check against Nestle-Aland 28, Appendix III (28 of 29 direct citations, Hebrews 10:13 with Psalm 109:1 listed as an allusion at 10:12); zip rebuilt. (#1338)
 - Coptic article data release (static/downloads/coptic_article): the Besa against Psalms comparison added, scripts/besa_wordnet.py and four outputs/besa_* files (the 2026-11-11 run on the deployed code with and without the dictionary channel and under the May weights), README and manifest updated, zip rebuilt with 41 members. (#1337)
 - Data operations: the collected Shenoute file (shenoute.all, 19 works, 3,209 lines) added to the Coptic syntax database by copying its works' rows, installed 2026-11-11 21:37 with a backup (docs/DATA_OPERATIONS.md); the coverage check no longer exempts it from the syntax column. (#1337)
 - Reader, Scholarship tab: the "See all N articles for this passage" link to the Scholarship viewer is a red button-shaped bar under the counts, with a line saying the viewer searches, sorts and filters the articles; same link, same place. (#1336)
