@@ -250,8 +250,7 @@
     "windows",
     "described",
     "winvec",
-    "connmap",
-    "syntax"
+    "connmap"
    ],
    "reason": "checked 2026-10-28: a collection file that repeats the books of its collection, which carry the data (the Shenoute works are separate files)"
   },

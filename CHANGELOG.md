@@ -8,6 +8,8 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-11
+- Coptic article data release (static/downloads/coptic_article): the Besa against Psalms comparison added, scripts/besa_wordnet.py and four outputs/besa_* files (the 2026-11-11 run on the deployed code with and without the dictionary channel and under the May weights), README and manifest updated, zip rebuilt with 41 members. (#1337)
+- Data operations: the collected Shenoute file (shenoute.all, 19 works, 3,209 lines) added to the Coptic syntax database by copying its works' rows, installed 2026-11-11 21:37 with a backup (docs/DATA_OPERATIONS.md); the coverage check no longer exempts it from the syntax column. (#1337)
 - Reader, Scholarship tab: the "See all N articles for this passage" link to the Scholarship viewer is a red button-shaped bar under the counts, with a line saying the viewer searches, sorts and filters the articles; same link, same place. (#1336)
 - Intertextual Search, the "What are you trying to do?" panel: the seven answers are tiles in a grid, each with the search's name on its own line and the description under it, on a warm band with a one-line lead; same links, order, labels and Skip behavior. (#1335)
 - Reader, Scholarship tab: the "See all articles for this passage" link to the Scholarship viewer moves to the summary line at the top of the column, beside the counts, where a reader sees it before the commentary. (#1334)
