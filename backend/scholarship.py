@@ -1248,6 +1248,8 @@ def _index_articles(path, source, a, lo, hi, book, deeper_last_level, whole_work
             printed = int(r['first_page']) + int(r['page'])
             if printed not in art['pages']:
                 art['pages'].append(printed)
+    for art in by_article.values():
+        art['pages'].sort(key=page_sort_key)
     return by_article
 
 
@@ -1688,3 +1690,10 @@ def commentary_at(work, ref_start, ref_end=None):
                         'source': c.get('source'), 'license': c.get('license'),
                         'notes': [{'ref': u.get('ref'), 'lemma': u.get('lemma'), 'text': u.get('text')} for u in notes][:60]})
     return out
+
+
+def page_sort_key(page):
+    """Printed pages in reading order: numbers first, by value, then anything
+    else (a range such as '12-13', a roman numeral) as text."""
+    s = str(page)
+    return (0, int(s), '') if s.isdigit() else (1, 0, s)

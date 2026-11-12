@@ -8,7 +8,9 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-12
-- Scholarship list: the read of the three citation indexes is cached once per work (ten minutes, four works held) and the scope flags of each citation are computed per request, so a second passage of the same work no longer reads the indexes again; same answers, sooner. Backend only.
+- Scholarship tab and viewer: an article's printed pages are listed in page order (numbers by value, then any range or roman numeral as text) instead of the order the citations were indexed in; the viewer shows the first of them. Backend only.
+- Data operation: the JSTOR citation index gained a first printed page for 112,890 of its 222,035 articles (from the running heads of the page texts, confirmed against OpenAlex and Crossref where those have a record) and a `kind` column (article, review, other) from the delivery's content types, so the Scholarship tab and viewer print "p. N" for 522,738 of the 769,269 JSTOR citations and the viewer's kind filter counts the JSTOR rows by kind. Detail in docs/DATA_OPERATIONS.md, 2026-11-12.
+- Scholarship list: the read of the three citation indexes is cached once per work (ten minutes, four works held) and the scope flags of each citation are computed per request, so a second passage of the same work no longer reads the indexes again; same answers, sooner. Backend only. (#1339)
 
 ## 2026-11-11
 - Coptic article data release: the README entry for the 29 Hebrews-Psalms quotations records their check against Nestle-Aland 28, Appendix III (28 of 29 direct citations, Hebrews 10:13 with Psalm 109:1 listed as an allusion at 10:12); zip rebuilt. (#1338)
