@@ -227,6 +227,7 @@ def _finish(m, work):
                     shown = S._cap_words(re.sub(r'\s+', ' ', sentence).strip(),
                                          include=re.sub(r'\s+', ' ', surface).strip())
                 sentences.append((part, sentence, shown, []))
+    pages.sort(key=S.page_sort_key)
     return {
         'key': '|'.join(str(x) for x in m['key']),
         'title': first['title'], 'authors': first['authors'], 'year': first['year'], 'venue': first['venue'],

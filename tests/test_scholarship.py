@@ -688,3 +688,8 @@ def test_find_reports_the_keyless_core_warning(monkeypatch):
     monkeypatch.setattr(S, 'citation_index', lambda a: {'total': 0, 'results': []})
     out = S.find('vergil.aeneid', '1.1')
     assert any('CORE' in w for w in out['warnings'])
+
+
+def test_page_sort_key_puts_numbers_first_by_value():
+    from backend.scholarship import page_sort_key
+    assert sorted([30, '12-13', 7, 'xv', 25], key=page_sort_key) == [7, 25, 30, '12-13', 'xv']
