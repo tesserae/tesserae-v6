@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-11
+- Reader, Scholarship tab: the "See all N articles for this passage" link to the Scholarship viewer is a red button-shaped bar under the counts, with a line saying the viewer searches, sorts and filters the articles; same link, same place. (#1336)
 - Intertextual Search, the "What are you trying to do?" panel: the seven answers are tiles in a grid, each with the search's name on its own line and the description under it, on a warm band with a one-line lead; same links, order, labels and Skip behavior. (#1335)
 - Reader, Scholarship tab: the "See all articles for this passage" link to the Scholarship viewer moves to the summary line at the top of the column, beside the counts, where a reader sees it before the commentary. (#1334)
 - Scholarship viewer: a new page, `/scholarship/view`, lists every article in the three citation indexes that cites a passage, its book or the whole work, with search over titles, authors, journals and the stored citing sentences (JSTOR sentences matched, never shown), filters for source, kind, years and journal, five sort orders, a summary by source and decade, fifty rows a page and RIS export up to 500; opened from the Reader's Scholarship tab, the Events pages and the Ask page; Help section. (#1333)

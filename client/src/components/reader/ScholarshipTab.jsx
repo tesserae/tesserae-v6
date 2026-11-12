@@ -318,7 +318,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
 
 // "See all N articles for this passage": the link to the viewer page, in the
 // summary line at the top of the column so a reader sees it before the
-// commentary (NC did not find it lower down, 2026-11-11). N is the
+// commentary (lower down it went unnoticed, 2026-11-11). N is the
 // tab's own count when the list was not cut, else the count the viewer's
 // endpoint gives for the passage (one lightweight call, per_page=1).
 function ViewerLink({ work, refStart, refEnd, index }) {
@@ -340,10 +340,18 @@ function ViewerLink({ work, refStart, refEnd, index }) {
   const n = capped ? counted : total;
   const label = n === null || n === undefined ? 'See all articles for this passage'
     : `See all ${Number(n).toLocaleString('en-US')} ${n === 1 ? 'article' : 'articles'} for this passage`;
+  // A button-shaped bar rather than a line of text, so the way into the viewer
+  // stands apart from the jump links above it (asked for 2026-11-11).
   return (
-    <span data-testid="scholarship-viewer-link">
-      <a href={href} className="text-red-700 hover:underline font-medium">{label}</a>
-    </span>
+    <div data-testid="scholarship-viewer-link" className="my-2">
+      <a href={href}
+         className="block w-full text-center rounded-md bg-red-700 text-white text-xs font-semibold px-3 py-1.5 shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-300">
+        {label}
+      </a>
+      <span className="block text-center text-[10px] text-gray-500 mt-0.5">
+        Opens the scholarship viewer, where the articles can be searched, sorted and filtered.
+      </span>
+    </div>
   );
 }
 
@@ -379,14 +387,18 @@ function Contents({ data, pieceCount, work, refStart, refEnd }) {
     document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
   return (
-    <p className="text-[11px] text-gray-600 flex flex-wrap gap-x-3 gap-y-0.5 border-b border-gray-200 pb-2">
-      {parts.map(([id, label, n]) => (
-        <a key={id} href={`#${id}`} onClick={jump(id)} className={n ? 'text-red-700 hover:underline' : 'text-gray-400'}>
-          {n} {label}
-        </a>
-      ))}
-      <ViewerLink work={work} refStart={refStart} refEnd={refEnd} index={data.index} />
-    </p>
+    <>
+      <p className="text-[11px] text-gray-600 flex flex-wrap gap-x-3 gap-y-0.5">
+        {parts.map(([id, label, n]) => (
+          <a key={id} href={`#${id}`} onClick={jump(id)} className={n ? 'text-red-700 hover:underline' : 'text-gray-400'}>
+            {n} {label}
+          </a>
+        ))}
+      </p>
+      <div className="border-b border-gray-200 pb-1">
+        <ViewerLink work={work} refStart={refStart} refEnd={refEnd} index={data.index} />
+      </div>
+    </>
   );
 }
 
