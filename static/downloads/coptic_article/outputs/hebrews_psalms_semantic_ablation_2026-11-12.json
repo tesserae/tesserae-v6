@@ -1,0 +1,144 @@
+{
+ "date": "2026-11-12 17:55:23 EST",
+ "code": "4066a232",
+ "weights_shipped": {
+  "edit_distance": 0.795,
+  "sound": 24.277,
+  "exact": 0.698,
+  "lemma": 0.32,
+  "dictionary": 0.123,
+  "semantic": 11.216,
+  "rare_word": 0.55,
+  "syntax": 0.102,
+  "syntax_structural": 0.081,
+  "lemma_min1": 0.088,
+  "quotation": 35.052,
+  "form": 0.0
+ },
+ "weights_ablated": {
+  "edit_distance": 0.795,
+  "sound": 24.277,
+  "exact": 0.698,
+  "lemma": 0.32,
+  "dictionary": 0.123,
+  "semantic": 0.0,
+  "rare_word": 0.55,
+  "syntax": 0.102,
+  "syntax_structural": 0.081,
+  "lemma_min1": 0.088,
+  "quotation": 35.052,
+  "form": 0.0
+ },
+ "shipped_vs_shipped": {
+  "rows": [
+   10000,
+   10000
+  ],
+  "same_pair_at_same_position": 10000,
+  "first_position_that_differs": null,
+  "set_overlap_top": {
+   "10": 10,
+   "50": 50,
+   "100": 100,
+   "500": 500,
+   "1000": 1000,
+   "5000": 5000,
+   "10000": 10000
+  },
+  "pairs_in_both": 10000,
+  "pairs_whose_score_differs": 0,
+  "largest_score_difference": 0.0
+ },
+ "shipped_vs_semantic0": {
+  "rows": [
+   10000,
+   10000
+  ],
+  "same_pair_at_same_position": 387,
+  "first_position_that_differs": 58,
+  "set_overlap_top": {
+   "10": 10,
+   "50": 50,
+   "100": 100,
+   "500": 498,
+   "1000": 989,
+   "5000": 4885,
+   "10000": 9339
+  },
+  "pairs_in_both": 9339,
+  "pairs_whose_score_differs": 501,
+  "largest_score_difference": 3.833
+ },
+ "shipped2_vs_semantic0": {
+  "rows": [
+   10000,
+   10000
+  ],
+  "same_pair_at_same_position": 387,
+  "first_position_that_differs": 58,
+  "set_overlap_top": {
+   "10": 10,
+   "50": 50,
+   "100": 100,
+   "500": 498,
+   "1000": 989,
+   "5000": 4885,
+   "10000": 9339
+  },
+  "pairs_in_both": 9339,
+  "pairs_whose_score_differs": 501,
+  "largest_score_difference": 3.833
+ },
+ "recall124": {
+  "shipped_1": {
+   "10": 6,
+   "50": 18,
+   "100": 18,
+   "500": 20,
+   "1000": 21,
+   "5000": 27
+  },
+  "shipped_2": {
+   "10": 6,
+   "50": 18,
+   "100": 18,
+   "500": 20,
+   "1000": 21,
+   "5000": 27
+  },
+  "semantic0": {
+   "10": 6,
+   "50": 18,
+   "100": 18,
+   "500": 20,
+   "1000": 21,
+   "5000": 27
+  }
+ },
+ "recall29": {
+  "shipped_1": {
+   "10": 9,
+   "50": 25,
+   "100": 26,
+   "500": 27,
+   "1000": 28,
+   "5000": 29
+  },
+  "shipped_2": {
+   "10": 9,
+   "50": 25,
+   "100": 26,
+   "500": 27,
+   "1000": 28,
+   "5000": 29
+  },
+  "semantic0": {
+   "10": 9,
+   "50": 25,
+   "100": 26,
+   "500": 27,
+   "1000": 28,
+   "5000": 29
+  }
+ }
+}
