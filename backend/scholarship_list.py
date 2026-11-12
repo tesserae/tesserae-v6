@@ -1,6 +1,6 @@
 """The full list of articles citing a scope of a work (GET /api/scholarship/list).
 
-Reads the three citation indexes (EJC, Project MUSE, JSTOR) once per scope,
+Reads the three citation indexes (EJC, Project MUSE, JSTOR) once per work,
 merges one article held by several indexes into one item with the same keys
 the Scholarship tab uses (scholarship.article_keys), and answers filters,
 search, sort and paging from memory. The Reader tab's own reader,
@@ -34,6 +34,8 @@ _TAG = {'ejc': 'citation_index', 'muse': 'muse', 'jstor': 'jstor'}
 
 _scans = {}
 _scans_lock = threading.Lock()
+_flagged = {}           # (work, lo, hi) -> (the cached read it was made from, its answer): paging and filters repeat a passage
+FLAGGED_MAX = 4
 
 
 # The combining marks Latin, Greek, Hebrew and Arabic text carries (a regex is several times faster than
@@ -76,9 +78,10 @@ def _locus_text(start, end):
 
 # ----------------------------------------------------------------- reading
 
-def _read_index(path, source, work, shape, lo, hi, book):
+def _read_index(path, source, work, shape):
     """{article_id: record} for one index, every citation of `work` kept with
-    flags for the passage and book scopes; None when the file is unreadable."""
+    its span (cs, ce, bare), from which the scope flags are computed per request
+    (_flags); None when the file is unreadable."""
     deeper_last_level, whole_work = shape
     try:
         con = sqlite3.connect(f'file:{path}?mode=ro', uri=True)
@@ -93,8 +96,6 @@ def _read_index(path, source, work, shape, lo, hi, book):
     except sqlite3.Error as e:
         S.logger.warning('citation index unreadable (%s): %s', source, e)
         return None
-    line_level = len(lo or ()) > 1
-    book_scope_ok = not (whole_work or deeper_last_level)
     span_memo = {}
     recs = {}
     for (article_id, page, locus_start, locus_end, open_ended, surface, sentence, title, authors, journal, year,
@@ -114,20 +115,12 @@ def _read_index(path, source, work, shape, lo, hi, book):
             note = S._locus_depth_note(work, cs)
             if span_note:
                 note = f'{note}; {span_note}' if note else f' ({span_note})'
-            in_book = in_passage = True
-            if not whole_work:
-                in_passage = bool(lo) and S._locus_overlaps(cs, ce, lo, hi)
-                in_book = book is not None and book_scope_ok and S._locus_overlaps(cs, ce, (book,), (book,))
-            got = span_memo[mk] = (cs, skip, note, in_book, in_passage,
-                                   _locus_text(locus_start, locus_end))
-        cs, skip, note, in_book, in_passage, locus = got
+            got = span_memo[mk] = (cs, ce, skip, note, _locus_text(locus_start, locus_end))
+        cs, ce, skip, note, locus = got
         if skip:
             continue
         # A bare book named when lines are selected is a list of books, not that line.
-        if in_passage and not whole_work and line_level and (len(cs) < 2 or not re.search(r'\d', surface)):
-            in_passage = False
-        if not whole_work and not book_scope_ok:
-            in_book = True
+        part = (cs, ce, len(cs) < 2 or not re.search(r'\d', surface))
         rec = recs.get(article_id)
         if rec is None:
             doi = doi_raw or ''
@@ -142,34 +135,30 @@ def _read_index(path, source, work, shape, lo, hi, book):
                 'title': title, 'authors': [x for x in (authors or '').split('; ') if x],
                 'venue': journal, 'year': year, 'volume': volume, 'issue': issue,
                 'doi': doi_raw, 'kind': kind, 'source': source, 'first_page': first_page, **link, 'cites': []}
-        # (locus, note, in_book, in_passage, page, surface, sentence, locus start for sorting)
-        rec['cites'].append((locus, note, in_book, in_passage, page, surface, sentence, cs))
+        # (locus, note, part, page, surface, sentence, locus start for sorting)
+        rec['cites'].append((locus, note, part, page, surface, sentence, cs))
     # JSTOR: a stable link opens on the citing page (?seq=), taken from the first citation kept.
     if source == 'jstor':
         for rec in recs.values():
             doi, base = rec.pop('_doi'), rec.pop('_base')
             url = base or (f'https://doi.org/{doi}' if doi else None)
-            if url and '/stable/' in url and rec['cites'] and rec['cites'][0][4] is not None and '?' not in url:
-                url = f'{url}?seq={int(rec["cites"][0][4]) + 1}'
+            if url and '/stable/' in url and rec['cites'] and rec['cites'][0][3] is not None and '?' not in url:
+                url = f'{url}?seq={int(rec["cites"][0][3]) + 1}'
             rec['url'] = rec['url_jstor'] = url
     return recs
 
 
-def _scan_uncached(work, lo_ref, hi_ref):
+def _scan_uncached(work):
     extra, jstor = S._extra_index_path(), S._jstor_index_path()
     have_ejc = bool(S.os.path.exists(S.CITATION_INDEX))
     if not (have_ejc or extra or jstor):
         return None
-    lo, hi = S._coords(lo_ref) if lo_ref else (), S._coords(hi_ref) if hi_ref else ()
-    if lo and not hi:
-        hi = lo
-    book = lo[0] if lo else None
     _depth, deeper_last_level, whole_work = S._override_depth_shape(work)
     shape = (deeper_last_level, whole_work)
     per_source = {}
     for source, path in (('ejc', S.CITATION_INDEX if have_ejc else None), ('muse', extra), ('jstor', jstor)):
         if path:
-            got = _read_index(path, source, work, shape, lo, hi, book)
+            got = _read_index(path, source, work, shape)
             if got is not None:
                 per_source[source] = got
     if not per_source:
@@ -193,7 +182,7 @@ def _scan_uncached(work, lo_ref, hi_ref):
         arts = _finish(m, work)
         if arts:
             articles.append(arts)
-    return {'available': True, 'articles': articles, 'note': _note(have_ejc, extra, jstor)}
+    return {'available': True, 'articles': articles, 'shape': shape, 'parts': {p for a in articles for c in a['_cites'] for p in c[2]}, 'note': _note(have_ejc, extra, jstor)}
 
 
 def _note(have_ejc, extra, jstor):
@@ -213,16 +202,16 @@ def _finish(m, work):
     kind = next((r['kind'] for s, r in recs if r['kind'] != 'article'), 'article')
     citations = []                          # one per distinct locus, with scope flags
     seen = {}
-    sentences = []                          # (in_book, in_passage, normalized, shown text or None)
+    sentences = []                          # (part, sentence, shown text or None, normalized-text memo)
     pages = []
     for source, rec in recs:
-        for locus, note, in_book, in_passage, page, surface, sentence, cs in rec['cites']:
+        for locus, note, part, page, surface, sentence, cs in rec['cites']:
             c = seen.get(locus)
             if c is None:
-                c = seen[locus] = [locus, note, False, False, cs]
+                c = seen[locus] = [locus, note, [], cs]     # the parts: every span this locus came with
                 citations.append(c)
-            c[2] = c[2] or in_book
-            c[3] = c[3] or in_passage
+            if part not in c[2]:
+                c[2].append(part)
             if source != 'jstor':
                 if page and page not in pages:
                     pages.append(page)
@@ -237,7 +226,7 @@ def _finish(m, work):
                 if source != 'jstor':
                     shown = S._cap_words(re.sub(r'\s+', ' ', sentence).strip(),
                                          include=re.sub(r'\s+', ' ', surface).strip())
-                sentences.append([in_book, in_passage, sentence, shown, None])
+                sentences.append((part, sentence, shown, []))
     return {
         'key': '|'.join(str(x) for x in m['key']),
         'title': first['title'], 'authors': first['authors'], 'year': first['year'], 'venue': first['venue'],
@@ -253,21 +242,72 @@ def _finish(m, work):
     }
 
 
+def _flags(part, ctx):
+    """(in_book, in_passage) of one citation span for the request context."""
+    lo, hi, book, line_level, book_scope_ok, whole_work = ctx
+    if whole_work:
+        return (True, True)
+    cs, ce, bare = part
+    in_passage = bool(lo) and S._locus_overlaps(cs, ce, lo, hi)
+    in_book = book is not None and book_scope_ok and S._locus_overlaps(cs, ce, (book,), (book,))
+    if in_passage and line_level and bare:       # a bare book named when lines are selected
+        in_passage = False
+    if not book_scope_ok:
+        in_book = True
+    return (in_book, in_passage)
+
+
+def _for_request(base, lo_ref, hi_ref):
+    """The cached read of a work with the scope flags of one passage. The flags are computed once per
+    distinct citation span; the articles are shallow copies with new citation lists, so the cached objects
+    are never changed. A sentence keeps its span and takes its flags from the article's `_fl`."""
+    lo, hi = S._coords(lo_ref) if lo_ref else (), S._coords(hi_ref) if hi_ref else ()
+    if lo and not hi:
+        hi = lo
+    deeper_last_level, whole_work = base['shape']
+    ctx = (lo, hi, lo[0] if lo else None, len(lo) > 1, not (whole_work or deeper_last_level), whole_work)
+    fl = {part: _flags(part, ctx) for part in base['parts']}
+    articles = []
+    for a in base['articles']:
+        cites = []
+        for locus, note, parts, cs in a['_cites']:
+            if len(parts) == 1:
+                b, p = fl[parts[0]]
+            else:
+                got = [fl[x] for x in parts]
+                b, p = any(g[0] for g in got), any(g[1] for g in got)
+            cites.append((locus, note, b, p, cs))
+        articles.append({**a, '_cites': cites, '_fl': fl})
+    return {'available': True, 'articles': articles, 'note': base['note']}
+
+
 def scan(work, lo_ref, hi_ref):
-    """The merged articles of `work` with their citations, cached ten minutes by (work, lo, hi)."""
-    key = (work, lo_ref or '', hi_ref or '')
+    """The merged articles of `work` with their citations for one passage. The index read is cached
+    ten minutes by work; the scope flags are computed per request."""
     now = time.time()
     with _scans_lock:
-        hit = _scans.get(key)
-        if hit and now - hit[0] < SCAN_TTL:
-            return hit[1]
-    got = _scan_uncached(work, lo_ref, hi_ref)
+        hit = _scans.get(work)
+        fresh = bool(hit) and now - hit[0] < SCAN_TTL
+        base = hit[1] if fresh else None
+    if not fresh:
+        base = _scan_uncached(work)
+        with _scans_lock:
+            _scans[work] = (now, base)
+            for k in [k for k, v in _scans.items() if now - v[0] >= SCAN_TTL]:
+                _scans.pop(k, None)
+            while len(_scans) > SCAN_MAX:
+                _scans.pop(min(_scans, key=lambda k: _scans[k][0]), None)
+    if not base or not base.get('available'):
+        return base
+    key = (work, lo_ref or '', hi_ref or '')
+    hit = _flagged.get(key)
+    if hit and hit[0] is base:
+        return hit[1]
+    got = _for_request(base, lo_ref, hi_ref)
     with _scans_lock:
-        _scans[key] = (now, got)
-        for k in [k for k, v in _scans.items() if now - v[0] >= SCAN_TTL]:
-            _scans.pop(k, None)
-        while len(_scans) > SCAN_MAX:
-            _scans.pop(min(_scans, key=lambda k: _scans[k][0]), None)
+        _flagged[key] = (base, got)
+        while len(_flagged) > FLAGGED_MAX:
+            _flagged.pop(next(iter(_flagged)), None)
     return got
 
 
@@ -289,11 +329,12 @@ def _matches(article, q, scope):
     if q in article['_n']:
         return True
     idx = {'work': None, 'book': 0, 'passage': 1}[scope]
+    fl = article['_fl']
     for s in article['_sentences']:
-        if idx is None or s[idx]:
-            if s[4] is None:
-                s[4] = norm(s[2])
-            if q in s[4]:
+        if idx is None or fl[s[0]][idx]:
+            if not s[3]:            # a one-item memo shared with the cached sentence
+                s[3].append(norm(s[1]))
+            if q in s[3][0]:
                 return True
     return False
 
@@ -374,10 +415,11 @@ def _shape(a, scope):
     cites = sorted(cites, key=lambda c: (c[4], c[0]))
     idx = {'work': None, 'book': 0, 'passage': 1}[scope]
     sentences, seen = [], set()
-    for s in a['_sentences']:
-        if s[3] and (idx is None or s[idx]) and s[3] not in seen:
-            seen.add(s[3])
-            sentences.append(s[3])
+    fl = a['_fl']
+    for part, _sentence, shown, _memo in a['_sentences']:
+        if shown and (idx is None or fl[part][idx]) and shown not in seen:
+            seen.add(shown)
+            sentences.append(shown)
     return {
         'key': a['key'], 'title': a['title'], 'authors': a['authors'], 'year': a['year'], 'venue': a['venue'],
         'volume': a['volume'], 'issue': a['issue'], 'pages': a['pages'], 'kind': a['kind'],

@@ -66,6 +66,7 @@ def client(tmp_path, monkeypatch):
         'work': work, 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': lo, 'hi': hi or lo,
         'locus': lo if not hi or hi == lo else f'{lo}-{hi.split(".")[-1]}'})
     L._scans.clear()
+    L._flagged.clear()
     app = Flask(__name__)
     app.register_blueprint(scholarship_bp, url_prefix='/api')
     c = app.test_client()
@@ -182,6 +183,7 @@ def test_kind_column_present_and_absent(client):
     client.monkeypatch.setenv('TESSERAE_CITATIONS_JSTOR', _jstor(client.tmp_path, kind=True))
     from backend import scholarship_list as L
     L._scans.clear()
+    L._flagged.clear()
     d = client(scope='work').get_json()
     assert d['facets']['kind'] == {'article': 4, 'review': 1, 'other': 1}
     assert titles(client(scope='work', kind='review')) == ['Notes on a book of verse']
@@ -205,5 +207,30 @@ def test_no_index_is_unavailable(client):
     client.monkeypatch.delenv('TESSERAE_CITATIONS_JSTOR')
     from backend import scholarship_list as L
     L._scans.clear()
+    L._flagged.clear()
     d = client(scope='work').get_json()
     assert d['available'] is False and d['results'] == []
+
+
+def test_one_index_read_per_work_and_flags_per_passage(client):
+    from backend import scholarship_list as L
+    calls = []
+    real = L._read_index
+    client.monkeypatch.setattr(L, '_read_index', lambda *a, **k: calls.append(a[1]) or real(*a, **k))
+    a = client(lo='1.1', hi='1.33').get_json()
+    b = client(lo='4.1', hi='4.1').get_json()
+    assert calls == ['ejc', 'muse', 'jstor']             # three indexes, read once for both passages
+    assert a['counts'] != b['counts']
+    assert b['total'] == 1 and titles_of(b) == ['Dido and the nymphs of Carthage']
+    assert a['total'] == 5
+
+
+def titles_of(d):
+    return [x['title'] for x in d['results']]
+
+
+def test_a_request_does_not_change_the_cached_read(client):
+    first = client(lo='1.1', hi='1.33').get_json()
+    client(lo='4.1', hi='4.1')
+    client(lo='1.40', hi='1.41', q='later line')
+    assert client(lo='1.1', hi='1.33').get_json() == first
