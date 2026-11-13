@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-13
+- Data operation: two public-domain English commentaries installed on the Scholarship tab, read from the Internet Archive's page images by a vision model because the Archive's OCR text was unusable: John Upton (1758) on The Faerie Queene, Books III to VI (1,158 notes in four part files) and Charles S. Jerram (1877) on Paradise Regained (936 notes); credits record extended (docs/DATA_OPERATIONS.md, 2026-11-13).
+
 ## 2026-11-12
 - Coptic article data release (static/downloads/coptic_article): two scripts and four outputs added, scripts/greek_two_pairs_latin_epic.py with outputs/greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12.json and its scoring table (the Table 1 pair on today's code under the latin_epic profile, per-channel scores and the rarity multiplier) and scripts/semantic_ablation_lists.py with outputs/hebrews_psalms_semantic_ablation_2026-11-12.json and its three ranked lists (the semantic ablation compared list against list); README and manifest updated, zip rebuilt with 47 members.
 - Data operation: the Events store's Scholarship table was relinked to the three citation indexes (16,165 to 206,225 rows, events with an article 1,130 to 1,356 of 1,485) and the 179,719 new (event, article) pairs were judged for relevance by the gateway model (179,162 verdicts, 557 left unjudged); installed 13:15 EST with backup (`docs/DATA_OPERATIONS.md`, 2026-11-12 Events entry).
