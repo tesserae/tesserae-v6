@@ -171,8 +171,8 @@
     "licence_url": "https://archive.org/about/terms.php",
     "version": "Each commentary file records its own source URL and commit",
     "retrieved": "Not recorded",
-    "what_we_use": "Notes from Greenlaw, Osgood and Padelford's Variorum Spenser; A. W. Verity on Milton; David Masson on Milton; E. de Selincourt on Keats and on Wordsworth's Prelude; G. W. Kitchin on The Faerie Queene; T. E. Page on Vergil; Papillon and Haigh on Vergil; W. Aldis Wright and W. G. Clark on Shakespeare.",
-    "notes": "The Internet Archive terms page is linked as the general terms of the host. The status of each edition is recorded in its file."
+    "what_we_use": "Notes from Greenlaw, Osgood and Padelford's Variorum Spenser; A. W. Verity on Milton; David Masson on Milton; E. de Selincourt on Keats and on Wordsworth's Prelude; G. W. Kitchin on The Faerie Queene; T. E. Page on Vergil; Papillon and Haigh on Vergil; W. Aldis Wright and W. G. Clark on Shakespeare; John Upton on The Faerie Queene, Books III to VI (1758); Charles S. Jerram on Paradise Regained (1877).",
+    "notes": "The Internet Archive terms page is linked as the general terms of the host. The status of each edition is recorded in its file. The Upton and Jerram notes were read from the Archive's page images by the vision model Qwen3.6-27B on the university's BullsAI gateway on 13 November 2026, because the Archive's own OCR text of those two scans was unusable; each file's edition_note says so."
   },
   {
     "collection": "Scholarship",
