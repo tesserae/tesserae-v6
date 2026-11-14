@@ -237,6 +237,30 @@ const DownloadsPage = () => {
               <div className="p-2 bg-gray-50 rounded">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
+                    <span className="font-medium">Lucan BC 1 vs Vergil Aeneid - Expert Ratings of the Top 50 Results</span>
+                    <span className="text-gray-500 ml-2">(32 pairs)</span>
+                  </div>
+                  <a href="/static/downloads/benchmarks/lucan_vergil_top50_ratings_coffee.csv"
+                     target="_blank" rel="noopener noreferrer"
+                   className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                    CSV
+                  </a>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Expert ratings of the top 50 Lucan-Vergil results that are not in the benchmark. Rated by Neil Coffee.
+                  The top 50 rows of the archived ranked output of 10 March 2026 (below, under Evaluation Results) hold 43
+                  distinct pairs, 11 of them benchmark parallels; the other 32 are rated here on the scale of Coffee et al.
+                  2012 (type 4 an interpretable parallel, the benchmark&rsquo;s threshold; type 3 marked reuse of generic poetic
+                  language that does not generate meaning; type 2 not particularly meaningful): 13 of type 4, 10 of type 3,
+                  9 of type 2. Columns: rank in the archived output, Lucan reference and line, Aeneid reference and line, type,
+                  reason. The matched words in each line are wrapped in double asterisks. Read the reference columns as text,
+                  not numbers (1.90 is line 90). The ratings are discussed in Coffee and Scheirer, &ldquo;Feature Fusion for
+                  Computational Intertextuality Detection in Tesserae V6.&rdquo; Uploaded 14 November 2026.
+                </p>
+              </div>
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
                     <span className="font-medium">Lucan BC 1 vs Vergil Aeneid - 2010 Benchmark</span>
                     <span className="text-gray-500 ml-2">(formatted with match-words)</span>
                   </div>
