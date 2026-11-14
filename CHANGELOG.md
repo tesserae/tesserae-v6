@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-14
+- Reader on a phone: a finger moving on the results sheet (Similar, Reuse, Parallels, Scholarship, Translation) no longer scrolls the text behind it. When the sheet's body had nothing to scroll, or had reached its end, the browser passed the movement to the page; the sheet now keeps vertical drags to itself, sideways drags on the tab strip and the desktop column are unchanged. (#1344)
+
 ## 2026-11-13
 - Data operation: two public-domain English commentaries installed on the Scholarship tab, read from the Internet Archive's page images by a vision model because the Archive's OCR text was unusable: John Upton (1758) on The Faerie Queene, Books III to VI (1,158 notes in four part files) and Charles S. Jerram (1877) on Paradise Regained (936 notes); credits record extended (docs/DATA_OPERATIONS.md, 2026-11-13).
 
