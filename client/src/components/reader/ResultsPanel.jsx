@@ -60,6 +60,13 @@ const DOCS_STEP = 15;
 const DOCS_MAX = 50;
 const HIDE_OWN_KEY = 'tesserae_reader_hide_own_author';
 
+/** Below Tailwind's lg break (1024px) the panel is the sheet fixed over the
+ *  text; at lg and above it is the sticky column beside it. */
+function isSheet() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+  return window.matchMedia('(max-width: 1023px)').matches;
+}
+
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
                                        initialTab, onClose, reuseFirst }) {
   // Arriving from Theme Search, the reader has just been shown an English
@@ -86,6 +93,53 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     window.addEventListener('resize', checkStrip);
     return () => window.removeEventListener('resize', checkStrip);
   });
+  // Phone only. The sheet lies over the text, and the browser passes any
+  // scrolling the sheet cannot use on to the page beneath it: a finger
+  // moving on a translation shorter than the sheet scrolled the Greek
+  // (2026-11-14, owner on an iPhone), and a longer one did the same the
+  // moment it reached its end. React's own touch handlers are passive and
+  // cannot stop that, so the listener is attached by hand. A vertical drag
+  // inside the sheet is given to the nearest box that can still take it,
+  // and stopped otherwise. Sideways drags are left alone for the tab strip.
+  const asideRef = useRef(null);
+  useEffect(() => {
+    const aside = asideRef.current;
+    if (!aside) return undefined;
+    let startX = 0;
+    let startY = 0;
+    const onStart = (e) => {
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      startX = t.clientX;
+      startY = t.clientY;
+    };
+    const onMove = (e) => {
+      if (!isSheet() || !e.cancelable) return;
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (Math.abs(dx) > Math.abs(dy)) return;
+      let el = e.target instanceof Element ? e.target : null;
+      while (el && el !== aside) {
+        const oy = window.getComputedStyle(el).overflowY;
+        if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
+          const atTop = el.scrollTop <= 0;
+          const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+          if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) return;
+          break;
+        }
+        el = el.parentElement;
+      }
+      e.preventDefault();
+    };
+    aside.addEventListener('touchstart', onStart, { passive: true });
+    aside.addEventListener('touchmove', onMove, { passive: false });
+    return () => {
+      aside.removeEventListener('touchstart', onStart);
+      aside.removeEventListener('touchmove', onMove);
+    };
+  }, []);
   // The tab whose "What this does" box is shown above its results.
   const [scopeShownFor, setScopeShownFor] = useState(null);
 
@@ -459,7 +513,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // (2026-09-07). Below the lg breakpoint it is now a sheet fixed to
     // the bottom of the screen, shown once something is selected, with its
     // own close control; with nothing selected it stays out of the way.
-    <aside className={`w-full lg:w-96 xl:w-[32rem] border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
+    <aside ref={asideRef} data-testid="results-panel"
+           className={`w-full lg:w-96 xl:w-[32rem] border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
                       flex flex-col fixed inset-x-0 bottom-0 z-40 lg:z-30 shadow-2xl
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
@@ -515,7 +570,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           whether a line was highlighted, and a reader who had just changed
           works saw the three things the Reader can tell them simply vanish. The
           tabs are what the panel IS; the body is what it currently knows. */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      <div data-testid="results-panel-body" className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-2">
         {!selection && tab === 'translation' && (
           <>
             {fullTranslation === null && (
