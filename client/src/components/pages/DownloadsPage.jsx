@@ -254,8 +254,10 @@ const DownloadsPage = () => {
                   language that does not generate meaning; type 2 not particularly meaningful): 13 of type 4, 10 of type 3,
                   9 of type 2. Columns: rank in the archived output, Lucan reference and line, Aeneid reference and line, type,
                   reason. The matched words in each line are wrapped in double asterisks. Read the reference columns as text,
-                  not numbers (1.90 is line 90). The ratings are discussed in Coffee and Scheirer, &ldquo;Feature Fusion for
-                  Computational Intertextuality Detection in Tesserae V6.&rdquo; Uploaded 14 November 2026.
+                  not numbers (1.90 is line 90). The ratings are discussed in Coffee and Scheirer,{' '}
+                  <a href="https://doi.org/10.5281/zenodo.24206123" target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">&ldquo;Feature Fusion for
+                  Computational Intertextuality Detection in Tesserae V6&rdquo;</a> (preprint, Zenodo, 2026). Uploaded 14 November 2026.
                 </p>
               </div>
               <div className="p-2 bg-gray-50 rounded">
@@ -695,7 +697,10 @@ const DownloadsPage = () => {
         <p className="text-sm text-gray-600 mb-4">
           Ranked fusion search results used in the V6 evaluation article. Each CSV contains all scored pairs
           with rank, references, text, fused score, channel details, and matched words. Benchmark pairs
-          are annotated where applicable. Companion data for Coffee et al. (forthcoming).
+          are annotated where applicable. Companion data for Coffee, Neil, and Walter Scheirer. 2026.{' '}
+          <a href="https://doi.org/10.5281/zenodo.24206123" target="_blank" rel="noopener noreferrer"
+             className="text-red-600 hover:underline">&ldquo;Feature Fusion for Computational Intertextuality
+          Detection in Tesserae V6&rdquo;</a> (preprint, Zenodo).
         </p>
 
         <div className="space-y-4">

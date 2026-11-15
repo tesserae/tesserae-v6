@@ -155,8 +155,13 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               GitHub&rsquo;s &ldquo;Cite this repository&rdquo; button on{' '}
               <a href="https://github.com/tesserae/tesserae-v6"
                  className="text-red-600 hover:underline">the project repository</a>{' '}
-              provides BibTeX and APA forms. A journal article describing V6 is under
-              review and will become the preferred citation on acceptance.
+              provides BibTeX and APA forms. The journal article describing the V6 method is under
+              review. Its preprint is Coffee, Neil, and Walter Scheirer. 2026.
+              &ldquo;Feature Fusion for Computational Intertextuality Detection in Tesserae V6.&rdquo; Zenodo.{' '}
+              <a href="https://doi.org/10.5281/zenodo.24206123"
+                 target="_blank" rel="noopener noreferrer"
+                 className="text-red-600 hover:underline">https://doi.org/10.5281/zenodo.24206123</a>.
+              It will become the preferred citation on acceptance.
             </p>
           </div>
         </section>

@@ -2,6 +2,8 @@
 
 *For humanities scholars, collaborators, and anyone who wants to understand what happens between clicking "Search" and seeing results.*
 
+The fuller account, with the reasoning behind the design and the evaluation on the Latin benchmarks, is the article preprint: Coffee, Neil, and Walter Scheirer. 2026. "Feature Fusion for Computational Intertextuality Detection in Tesserae V6." Zenodo. https://doi.org/10.5281/zenodo.24206123.
+
 ---
 
 ## 1. The Texts

@@ -97,6 +97,7 @@ See [docs/DATA_FILES_REFERENCE.md](docs/DATA_FILES_REFERENCE.md) for full detail
 
 - [API Reference](docs/API.md) - REST API endpoints
 - [Developer Guide](docs/DEVELOPER.md) - Setup and architecture
+- [Article preprint](https://doi.org/10.5281/zenodo.24206123) - Coffee and Scheirer 2026, "Feature Fusion for Computational Intertextuality Detection in Tesserae V6," the method and its evaluation
 
 ## Project Structure
 
