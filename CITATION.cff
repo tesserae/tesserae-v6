@@ -27,6 +27,21 @@ keywords:
   - Greek
   - digital humanities
   - text reuse detection
+# The article describing the V6 fusion method and its evaluation. It becomes
+# the preferred citation on acceptance (owner's decision); until then it is
+# listed here as a reference.
+references:
+  - type: article
+    authors:
+      - family-names: Coffee
+        given-names: Neil
+      - family-names: Scheirer
+        given-names: Walter
+    title: "Feature Fusion for Computational Intertextuality Detection in Tesserae V6"
+    year: 2026
+    doi: 10.5281/zenodo.24206123
+    url: "https://doi.org/10.5281/zenodo.24206123"
+    notes: "Preprint, Zenodo, 14 November 2026."
 
 # ---------------------------------------------------------------------------
 # Full contributor roster, recorded here for credit. The generated citation

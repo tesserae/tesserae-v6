@@ -9,6 +9,8 @@ import AboutSourcesLink from '../scholarship/AboutSourcesLink';
 import LanguageCapabilities from './LanguageCapabilities';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
+// The article preprint (Coffee and Scheirer 2026), concept DOI, resolves to the latest version.
+const PREPRINT_DOI_URL = 'https://doi.org/10.5281/zenodo.24206123';
 
 // The public share URL of the ONE official Tesserae GPT in ChatGPT.
 // Set this to the GPT's share link once it exists (Help → "Use with your AI" →
@@ -306,11 +308,22 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
   // The same invitation under every language: the measured figures are a
   // first indication, the articles with full details are in preparation, and
-  // specialists' feedback and help are wanted (2026-09-13).
-  const Invitation = ({ language }) => (
+  // specialists' feedback and help are wanted (2026-09-13). For Latin the
+  // article is out as a preprint (2026-11-14), so that sentence links to it.
+  const Invitation = ({ language, preprint }) => (
     <p className="text-gray-600 text-sm mt-2 border-l-2 border-gray-300 pl-3">
-      These figures are a first indication of how {language} search performs; articles with full
-      details are in preparation. We would value the judgment of specialists in {language} on the
+      These figures are a first indication of how {language} search performs.{' '}
+      {preprint ? (
+        <>
+          The article with the full method and evaluation is available as a preprint,{' '}
+          <a href={PREPRINT_DOI_URL} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">
+            Coffee and Scheirer 2026
+          </a>.
+        </>
+      ) : (
+        <>Articles with full details are in preparation.</>
+      )}{' '}
+      We would value the judgment of specialists in {language} on the
       results, and if you would like to help make it better, from a gold set of known parallels to a
       correction of the text, please{' '}
       <button type="button" onClick={() => setActiveSection('feedback')} className="text-red-700 hover:underline">
@@ -588,7 +601,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 each is dated, because the corpus and the scoring change. Recall is the share of a
                 list's known parallels that the search returns within a cutoff. It says how much a
                 search finds, not how good its first page is. Where a search or a language has not
-                been measured yet, the table says so. Articles with full details, methods and data are
+                been measured yet, the table says so. The article on the Latin method and its evaluation is
+                available as a preprint,{' '}
+                <a href={PREPRINT_DOI_URL} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:underline">
+                  Coffee and Scheirer 2026, &ldquo;Feature Fusion for Computational Intertextuality Detection in Tesserae V6&rdquo;
+                </a>. Articles on the other languages, with full details, methods and data, are
                 in preparation. The Coptic data release and the benchmark lists for Latin, Greek and
                 Cross-Language are already on the <a href="/downloads" className="text-red-600 hover:underline">Downloads</a> page.
               </p>
@@ -731,6 +748,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/DECISIONS.md"
                      target="_blank" rel="noopener noreferrer"
                      className="text-red-700 underline hover:text-red-800">decisions log</a>.
+                  The fuller account, with the reasoning behind the design, the ten-channel formula of the
+                  benchmark run of March 2026 and its evaluation against the five Latin benchmarks, is the
+                  article preprint,{' '}
+                  <a href={PREPRINT_DOI_URL}
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-700 underline hover:text-red-800">
+                    Coffee, Neil, and Walter Scheirer. 2026. &ldquo;Feature Fusion for Computational Intertextuality
+                    Detection in Tesserae V6.&rdquo; Preprint, Zenodo
+                  </a>.
                 </p>
               </div>
 
@@ -2393,7 +2419,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     (about 92 percent recall across five standard Latin allusion benchmarks, as of August 2026;
                     see <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-700 hover:underline">How well does it work?</button>).
                   </p>
-                  <Invitation language="Latin" />
+                  <Invitation language="Latin" preprint />
                 </div>
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Greek</h4>

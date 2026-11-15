@@ -1,5 +1,7 @@
 # Fusion Search Architecture
 
+The published account of the method and its evaluation is Coffee, Neil, and Walter Scheirer. 2026. "Feature Fusion for Computational Intertextuality Detection in Tesserae V6." Preprint, Zenodo. https://doi.org/10.5281/zenodo.24206123. The article describes the formula of the benchmark run of March 2026. This document describes the code as it stands.
+
 ## Overview
 
 Tesserae V6's fusion search combines ten independent matching channels into a single ranked result list using weighted score fusion. Each channel detects textual parallels through a different linguistic signal — from exact lexical overlap to phonetic similarity to distributional semantics — and the fusion layer combines these signals with empirically validated weights and a convergence bonus that rewards cross-channel agreement.

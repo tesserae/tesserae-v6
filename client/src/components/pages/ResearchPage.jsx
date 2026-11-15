@@ -114,7 +114,10 @@ export default function ResearchPage({ setPageType }) {
           <h3 className="text-lg font-semibold text-amber-900 mb-3">Evaluation Data</h3>
           <p className="text-gray-700 text-sm mb-4">
             Tesserae V6's feature fusion system was evaluated against gold-standard benchmark datasets
-            comprising 862 parallel passages drawn from published scholarly commentaries. 
+            comprising 862 parallel passages drawn from published scholarly commentaries.
+            The method and the evaluation are described in the preprint listed above,{' '}
+            <a href="https://doi.org/10.5281/zenodo.24206123" target="_blank" rel="noopener noreferrer"
+               className="text-amber-700 hover:underline">Coffee and Scheirer 2026</a>.
             Detailed results and benchmark datasets are available on the downloads page.
           </p>
           <button
