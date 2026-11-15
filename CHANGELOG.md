@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-14
+- Research page, Publications: the V6 fusion article preprint added at the head of the list, Coffee, Neil, and Walter Scheirer. 2026. "Feature Fusion for Computational Intertextuality Detection in Tesserae V6." Preprint, Zenodo, November 14, 2026, linked to https://doi.org/10.5281/zenodo.24206123. Help: not needed, Help does not describe the publication list. (#1346)
 - Downloads page, Latin benchmarks: one file added, `lucan_vergil_top50_ratings_coffee.csv`, the owner's ratings on the Coffee et al. 2012 type scale of the 32 pairs among the top 50 rows of the archived Lucan-Vergil output of 10 March 2026 that are not benchmark parallels (13 of type 4, 10 of type 3, 9 of type 2), with a description on the page; the file itself is installed by copy (docs/DATA_OPERATIONS.md, 2026-11-14). Help sentence. (#1345)
 - Reader on a phone: a finger moving on the results sheet (Similar, Reuse, Parallels, Scholarship, Translation) no longer scrolls the text behind it. When the sheet's body had nothing to scroll, or had reached its end, the browser passed the movement to the page; the sheet now keeps vertical drags to itself, sideways drags on the tab strip and the desktop column are unchanged. (#1344)
 
