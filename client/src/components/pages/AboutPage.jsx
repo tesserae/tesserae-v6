@@ -36,16 +36,14 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">What is Tesserae?</h3>
           <p className="text-gray-700 leading-relaxed mb-3">
-            Tesserae is a free, open tool for discovering connections in ancient literature. It began as a
-            search for intertexts, the places where one author echoes, adapts or quotes another, and it still
-            does that. Give it two works and it finds the passages that share words, phrases, rare vocabulary,
-            sound, syntax or meaning, in one language or across languages. Around that search it has grown into
-            a place to read. The Reader shows a text with its parallels, similar passages, later quotations,
-            commentary and translation at the side. Theme Search finds the passages about a scene or an idea
-            you describe in English, in one text, in two texts compared, or in every language of the corpus at once.
-            Its one-text scope asks a single work what it says about a subject and shows where it says it. Beside the literature stand inscriptions
-            and papyri, coins, museum objects and dated events, so a passage can be read next to the documents
-            and things of its world.
+            Tesserae is a free, open tool for finding connections between texts. Its central tool is the
+            search for intertexts, the places where one author echoes, adapts or quotes another. Give it two
+            works and it finds the passages that share words, phrases, rare vocabulary, sound, syntax or
+            meaning, in one language or across languages. The Reader shows a text with its parallels, similar
+            passages, later quotations, commentary and translation at the side. Theme Search finds the passages
+            about a scene or an idea you describe in English, in one text, in two texts compared, or across the
+            whole corpus at once. Inscriptions and papyri, coins, museum objects and dated events sit beside the
+            texts, so a passage can be read next to the documents and things of its world.
           </p>
           <p className="text-gray-700 leading-relaxed mb-3">
             The corpus holds more than 3,500 texts in Latin, Greek, English, Hebrew, Coptic, Persian and Urdu,

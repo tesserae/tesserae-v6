@@ -8,6 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-17
+- About page, What is Tesserae: the opening paragraph rewritten (owner, 2026-11-17). "Ancient literature" becomes "texts", since the corpus runs to English, Persian and Urdu and the site holds inscriptions, coins and objects; the sentences "and it still does that", "Around that search it has grown into a place to read" and the one-text-scope sentence are cut. Help: not needed, the About page's own text changes and Help does not quote it. (#PR)
 - Research page added to the More menu at the right end of the top row (it was reached only from a card low on the About page or at /research since 2026-10-10, and could not be found on a phone). The About card stays. Help sentence. (#1348)
 
 ## 2026-11-14
