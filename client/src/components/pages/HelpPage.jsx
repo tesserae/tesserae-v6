@@ -573,6 +573,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 The <a href="/downloads" className="text-red-600 hover:underline">Downloads</a> page is under More at the right end of the top row. It offers the corpus texts by
                 language, pre-computed data files for running your own copy, the benchmark lists, and, since 14 November 2026, an
                 expert rating of the 32 pairs among the top 50 Lucan-Vergil results that are not in the benchmark.
+                The <a href="/research" className="text-red-600 hover:underline">Research</a> page, with the studies, evaluations
+                and articles behind the site, is under More as well, since 17 November 2026. Before that it was reached only from the
+                About page.
               </p>
               <p className="text-gray-700 mb-4">
                 The corpus texts come as one archive per language, a .tar.gz of the .tess files with a
