@@ -8,7 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-17
-- Research page: the SCS blog review of Tesserae (Yolles 2019) moved from Publications to References to Tesserae, and a space put between each publication and its link. Help: not needed, Help does not describe the Research page's lists. (#PR)
+- Research page: the SCS blog review of Tesserae (Yolles 2019) moved from Publications to References to Tesserae, and a space put between each publication and its link. Help: not needed, Help does not describe the Research page's lists. (#1352)
 - About page: the founder's name in the history paragraph links to his University at Buffalo faculty page, as the co-founder's already did. Help: not needed, the About page's own text changes. (#1351)
 - Research page: every publication links to its publisher page or DOI, five marked open access; 19 Tesserae presentations and two organized conferences added from the owner's October 2026 CV (2010 to 2028, forthcoming ones marked); 44 works citing Tesserae publications added to References to Tesserae (2016 to 2026), each verified against its Crossref record and linked by DOI. Help: not needed, Help does not describe the Research page's lists. (#1350)
 - About page, What is Tesserae: the opening paragraph rewritten (owner, 2026-11-17). "Ancient literature" becomes "texts", since the corpus runs to English, Persian and Urdu and the site holds inscriptions, coins and objects; the sentences "and it still does that", "Around that search it has grown into a place to read" and the one-text-scope sentence are cut. Help: not needed, the About page's own text changes and Help does not quote it. (#1349)
