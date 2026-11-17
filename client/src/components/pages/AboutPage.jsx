@@ -48,7 +48,16 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
           <p className="text-gray-700 leading-relaxed mb-3">
             The corpus holds more than 3,500 texts in Latin, Greek, English, Hebrew, Coptic, Persian and Urdu,
             from Homer to the Renaissance and beyond, with an English translation wherever a public-domain one
-            exists. Founded in 2008 by Neil Coffee (Department of Classics) and{' '}
+            exists. Founded in 2008 by{' '}
+            <a
+              href="https://arts-sciences.buffalo.edu/classics/faculty/core-faculty/coffee-neil.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-600 hover:underline"
+            >
+              Neil Coffee
+            </a>{' '}
+            (Department of Classics) and{' '}
             <a
               href="https://arts-sciences.buffalo.edu/linguistics/faculty/jean-pierre-koenig.html"
               target="_blank"
