@@ -24,70 +24,63 @@ export default function ResearchPage({ setPageType }) {
             </li>
             <li>
               Coffee, Neil, and James Gawley. 2020. "How Rare are the Words that Make up Intertexts? A Study in Latin and Greek Epic Poetry." In Coffee, N., et al. (eds.),{' '}
-              <em>Intertextuality in Flavian Epic Poetry</em>. Berlin: De Gruyter.
+              <em>Intertextuality in Flavian Epic Poetry</em>. Berlin: De Gruyter.{' '}
               <a href="https://doi.org/10.1515/9783110602203-019" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1515/9783110602203-019
               </a>
             </li>
             <li>
               Coffee, Neil, Christopher Forstall, Lavinia Galli Milic, and Damien Nelis, eds. 2020.{' '}
-              <em>Intertextuality in Flavian Epic Poetry</em>. Trends in Classics — Supplementary Volumes 64. Berlin: De Gruyter.
+              <em>Intertextuality in Flavian Epic Poetry</em>. Trends in Classics — Supplementary Volumes 64. Berlin: De Gruyter.{' '}
               <a href="https://doi.org/10.1515/9783110602203" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1515/9783110602203
               </a>
             </li>
             <li>
-              Yolles, Julian. 2019. "Review: Discovering Intertextual Parallels in Latin and Greek Texts with Tesserae."{' '}
-              <em>SCS Blog, Society for Classical Studies</em>, March 24, 2019.
-              <a href="https://classicalstudies.org/scs-blog/2569701/review-discovering-intertextual-parallels-latin-and-greek-tesserae" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
-                classicalstudies.org
-              </a> (open access)
-            </li>
-            <li>
               Forstall, Christopher W., and Walter J. Scheirer. 2019.{' '}
-              <em>Quantitative Intertextuality: Analyzing the Markers of Information Reuse</em>. Springer International Publishing.
+              <em>Quantitative Intertextuality: Analyzing the Markers of Information Reuse</em>. Springer International Publishing.{' '}
               <a href="https://doi.org/10.1007/978-3-030-23415-7" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1007/978-3-030-23415-7
               </a>
             </li>
             <li>
               Coffee, Neil. 2019. "Intertextuality as Viral Phrases: Roses and Lilies." In Monica Berti (ed.),{' '}
-              <em>Digital Classical Philology: Ancient Greek and Latin in the Digital Revolution</em>. De Gruyter, pp. 177–200.
+              <em>Digital Classical Philology: Ancient Greek and Latin in the Digital Revolution</em>. De Gruyter, pp. 177–200.{' '}
               <a href="https://doi.org/10.1515/9783110599572-011" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1515/9783110599572-011
               </a> (open access)
             </li>
             <li>
               Coffee, Neil. 2018. "An Agenda for the Study of Intertextuality."{' '}
-              <em>Transactions of the American Philological Association</em> 148, no. 1: 205–223.
+              <em>Transactions of the American Philological Association</em> 148, no. 1: 205–223.{' '}
               <a href="https://doi.org/10.1353/apa.2018.0008" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1353/apa.2018.0008
               </a>
             </li>
             <li>
               Coffee, Neil, Christopher Forstall, and James Gawley. 2017. "The Tesserae Project: Detecting Intertextuality of Meaning and Sound." In Mastandrea, P. (ed.),{' '}
-              <em>Strumenti digitali e collaborativi per le Scienze dell'Antichità</em>. Edizioni Ca'Foscari, pp. 189–192.
+              <em>Strumenti digitali e collaborativi per le Scienze dell'Antichità</em>. Edizioni Ca'Foscari, pp. 189–192.{' '}
               <a href="https://doi.org/10.14277/6969-182-9/ANT-14-14" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.14277/6969-182-9/ANT-14-14
               </a> (open access)
             </li>
             <li>
               Diddams, A. C., and James Gawley. 2017. "Measuring the Presence of Roman Rhetoric: An Intertextual Analysis of Augustine's <em>De Doctrina Christiana</em> IV."{' '}
-              <em>Mouseion</em> 14, no. 3: 391–408.
+              <em>Mouseion</em> 14, no. 3: 391–408.{' '}
               <a href="https://doi.org/10.3138/mous.14.3-5" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.3138/mous.14.3-5
               </a>
             </li>
             <li>
               Coffee, Neil, and Christopher Forstall. 2016. "Claudian's Engagement with Lucan in his Historical and Mythological Hexameters." In Berlincourt, V., Galli-Milic, L., and Nelis, D. (eds.),{' '}
-              <em>Lucan and Claudian: Context and Intertext</em>. Winter Verlag, pp. 255–284.
+              <em>Lucan and Claudian: Context and Intertext</em>. Winter Verlag, pp. 255–284.{' '}
               <a href="https://doi.org/10.33675/978-3-8253-7564-5" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.33675/978-3-8253-7564-5
               </a>
             </li>
             <li>
               Scheirer, Walter, Christopher Forstall, and Neil Coffee. 2016. "The Sense of a Connection: Automatic Tracing of Intertextuality by Meaning."{' '}
-              <em>Digital Scholarship in the Humanities</em> 31, no. 1: 204–217.
+              <em>Digital Scholarship in the Humanities</em> 31, no. 1: 204–217.{' '}
               <a href="https://doi.org/10.1093/llc/fqu058" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1093/llc/fqu058
               </a>
@@ -95,7 +88,7 @@ export default function ResearchPage({ setPageType }) {
             <li>
               Forstall, Christopher, Neil Coffee, Thomas Buck, Katherine Roache, and Sarah Jacobson. 2015.
               "Modeling the Scholars: Detecting Intertextuality through Enhanced Word-Level N-Gram Matching."{' '}
-              <em>Digital Scholarship in the Humanities</em> 30, no. 4: 503–515.
+              <em>Digital Scholarship in the Humanities</em> 30, no. 4: 503–515.{' '}
               <a href="https://doi.org/10.1093/llc/fqu014" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1093/llc/fqu014
               </a>
@@ -103,7 +96,7 @@ export default function ResearchPage({ setPageType }) {
             <li>
               Coffee, Neil, James Gawley, Christopher Forstall, Walter Scheirer, Jason Corso, David Johnson, and Brian Parks. 2014.
               "Modeling the Interpretation of Literary Allusion with Machine Learning Techniques."{' '}
-              <em>Journal of Digital Humanities</em> 3, no. 1.
+              <em>Journal of Digital Humanities</em> 3, no. 1.{' '}
               <a href="https://journalofdigitalhumanities.org/3-1/modelling-the-interpretation-of-literary-allusion-with-machine-learning-techniques/" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 journalofdigitalhumanities.org
               </a> (open access)
@@ -111,7 +104,7 @@ export default function ResearchPage({ setPageType }) {
             <li>
               Coffee, Neil, Jean-Pierre Koenig, Shakthi Poornima, Christopher Forstall, Roelant Ossewaarde, and Sarah Jacobson. 2012.
               "The Tesserae Project: Intertextual Analysis of Latin Poetry."{' '}
-              <em>Literary and Linguistic Computing</em> 28, no. 1: 221–228.
+              <em>Literary and Linguistic Computing</em> 28, no. 1: 221–228.{' '}
               <a href="https://doi.org/10.1093/llc/fqs033" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1093/llc/fqs033
               </a>
@@ -119,21 +112,21 @@ export default function ResearchPage({ setPageType }) {
             <li>
               Coffee, Neil, Jean-Pierre Koenig, Shakthi Poornima, Christopher Forstall, Roelant Ossewaarde, and Sarah Jacobson. 2012.
               "Intertextuality in the Digital Age."{' '}
-              <em>Transactions of the American Philological Association</em> 142, no. 2: 383–422.
+              <em>Transactions of the American Philological Association</em> 142, no. 2: 383–422.{' '}
               <a href="https://doi.org/10.1353/apa.2012.0010" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1353/apa.2012.0010
               </a>
             </li>
             <li>
               Forstall, Christopher, Sarah Jacobson, and Walter Scheirer. 2011. "Evidence of Intertextuality: Investigating Paul the Deacon's <em>Angustae Vitae</em>."{' '}
-              <em>Literary and Linguistic Computing</em> 26, no. 3: 285–296.
+              <em>Literary and Linguistic Computing</em> 26, no. 3: 285–296.{' '}
               <a href="https://doi.org/10.1093/llc/fqr029" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.1093/llc/fqr029
               </a>
             </li>
             <li>
               Forstall, Christopher, and Walter Scheirer. 2010. "Features from Frequency: Authorship and Stylistic Analysis Using Repetitive Sound."{' '}
-              <em>Proceedings of the Chicago Colloquium on Digital Humanities and Computer Science</em> 1, no. 2.
+              <em>Proceedings of the Chicago Colloquium on Digital Humanities and Computer Science</em> 1, no. 2.{' '}
               <a href="https://doi.org/10.6082/M1TM789G" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 https://doi.org/10.6082/M1TM789G
               </a> (open access)
@@ -297,6 +290,7 @@ export default function ResearchPage({ setPageType }) {
             <li>Sansom, Stephen A. 2020. "Typhonic Voices: Sounds of Hesiod and Cosmic War in Lucan's Bellum civile 6.685–694." <em>Mnemosyne</em> 73(4): 609–632. <a href="https://doi.org/10.1163/1568525x-12342683" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">https://doi.org/10.1163/1568525x-12342683</a></li>
             <li>Manjavacas, Enrique, Brian Long, and Mike Kestemont. 2019. "On the Feasibility of Automated Detection of Allusive Text Reuse." <em>Proceedings of the 3rd Joint SIGHUM Workshop</em>, 104–114.</li>
             <li>Harris, Martyn, Mark Levene, Dell Zhang, and Dan Levene. 2019. "Comparing 'parallel passages' in digital archives." <em>Journal of Documentation</em> 76(1): 271–289. <a href="https://doi.org/10.1108/jd-10-2018-0175" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">https://doi.org/10.1108/jd-10-2018-0175</a></li>
+            <li>Yolles, Julian. 2019. "Review: Discovering Intertextual Parallels in Latin and Greek Texts with Tesserae." <em>SCS Blog, Society for Classical Studies</em>, March 24, 2019. <a href="https://classicalstudies.org/scs-blog/2569701/review-discovering-intertextual-parallels-latin-and-greek-tesserae" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">classicalstudies.org</a> (open access)</li>
             <li>Franzini, Greta, Marco Passarotti, Maria Moritz, and Marco Büchler. 2018. "Using and evaluating TRACER for an Index fontium computatus of the Summa contra Gentiles of Thomas Aquinas." In <em>Proceedings of the Fifth Italian Conference on Computational Linguistics (CLiC-it 2018)</em>. Accademia University Press, 199–205. <a href="https://doi.org/10.4000/books.aaccademia.3354" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">https://doi.org/10.4000/books.aaccademia.3354</a></li>
             <li>Sturgeon, Donald. 2018. "Unsupervised identification of text reuse in early Chinese literature." <em>Digital Scholarship in the Humanities</em> 33(3): 670–684. <a href="https://doi.org/10.1093/llc/fqx024" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">https://doi.org/10.1093/llc/fqx024</a></li>
             <li>Chaudhuri, Pramit, and Joseph P. Dexter. 2017. "Bioinformatics and Classical Literary Study." <em>Journal of Data Mining & Digital Humanities</em>, Special Issue.</li>
