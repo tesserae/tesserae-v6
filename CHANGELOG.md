@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-17
+- Research page added to the More menu at the right end of the top row (it was reached only from a card low on the About page or at /research since 2026-10-10, and could not be found on a phone). The About card stays. Help sentence. (#1348)
+
 ## 2026-11-14
 - The fusion article preprint (Coffee and Scheirer 2026, https://doi.org/10.5281/zenodo.24206123) linked wherever the site or the repository describes the fusion method or said an article was forthcoming: Help (the settings box under How Fusion Search Works, the measured-figures introduction, the Latin invitation), About (citation paragraph), Downloads (V6 Evaluation Results introduction and the expert-ratings description), Research (Evaluation Data), CITATION.cff (references), README, docs/FUSION_ARCHITECTURE.md, docs/HOW_TESSERAE_SEARCHES.md. (#1347)
 - Research page, Publications: the V6 fusion article preprint added at the head of the list, Coffee, Neil, and Walter Scheirer. 2026. "Feature Fusion for Computational Intertextuality Detection in Tesserae V6." Preprint, Zenodo, November 14, 2026, linked to https://doi.org/10.5281/zenodo.24206123. Help: not needed, Help does not describe the publication list. (#1346)

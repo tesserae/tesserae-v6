@@ -132,8 +132,6 @@ const mainTabs = [
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
   // { code: 'visualizations', label: 'Visualize' },
   { code: 'downloads', label: 'Downloads', more: true },
-  // Research has no main-menu entry (owner 2026-10-10: most visitors will not
-  // look at it regularly); it is reached from the About page and at /research.
   { code: 'about', label: 'About' },
   { code: 'help', label: 'Help & Support' },
   // Opens the Upload Your Text page (/upload-help), its own page since the
@@ -143,6 +141,11 @@ const mainTabs = [
   { code: 'upload-help', label: 'Upload Your Text', more: true },
   // Under the More menu, after Help: what the scholarship results are made from.
   { code: 'scholarship-sources', label: 'Scholarship sources', more: true },
+  // Research had no menu entry from 2026-10-10 (owner: most visitors will not
+  // look at it regularly) and was reached only from a card low on the About
+  // page or at /research. Under More since 2026-11-17 (owner, on a phone:
+  // "I can't find the research page"). The About card stays.
+  { code: 'research', label: 'Research', more: true },
   { code: 'admin', label: 'Admin' }
 ];
 

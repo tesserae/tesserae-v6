@@ -228,3 +228,15 @@ describe('Navigation — Upload Your Text', () => {
     expect(setPageType).toHaveBeenCalledWith('upload-help');
   });
 });
+
+describe('Navigation — Research', () => {
+  it('lists Research under More, not in the main row, and opens the research page', () => {
+    const setPageType = vi.fn();
+    renderNav({ setPageType });
+    expect(screen.queryByRole('button', { name: 'Research' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /More/ }));
+    const more = screen.getByTestId('more-menu');
+    fireEvent.click(within(more).getByRole('menuitem', { name: 'Research' }));
+    expect(setPageType).toHaveBeenCalledWith('research');
+  });
+});
