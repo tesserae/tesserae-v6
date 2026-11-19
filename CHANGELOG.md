@@ -8,7 +8,7 @@ docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-18
-- Sources and credits: a Scholarship row for Matteo Romanello's CitationExtractor and HuCit knowledge base (GPL-3.0), whose rules and abbreviations the site's citation recognition is built from; the same credit in the "How a citation is recognized" method on the Scholarship sources page and in the Help passage on the Scholarship tab. (#PR)
+- Sources and credits: a Scholarship row for Matteo Romanello's CitationExtractor and HuCit knowledge base (GPL-3.0), whose rules and abbreviations the site's citation recognition is built from; the same credit in the "How a citation is recognized" method on the Scholarship sources page and in the Help passage on the Scholarship tab. (#1353)
 
 ## 2026-11-17
 - Research page: the SCS blog review of Tesserae (Yolles 2019) moved from Publications to References to Tesserae, and a space put between each publication and its link. Help: not needed, Help does not describe the Research page's lists. (#1352)
