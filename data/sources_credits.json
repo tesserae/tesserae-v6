@@ -285,6 +285,17 @@
     "notes": "The HathiTrust terms page returned an access error to our automated request, so the linked address is its home page."
   },
   {
+    "collection": "Scholarship",
+    "name": "Matteo Romanello, CitationExtractor and the HuCit knowledge base (hucitlib)",
+    "url": "https://github.com/mromanello/CitationExtractor",
+    "licence_name": "GNU General Public License version 3 (GPL-3.0)",
+    "licence_url": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "retrieved": "2026-09-13",
+    "version": "GitHub repositories mromanello/CitationExtractor and mromanello/hucitlib, master branch, September 2026",
+    "what_we_use": "The rules by which the site recognizes a reference to an ancient text in an article or a commentary (for example \"Aen. 1.1\") follow Romanello's CitationExtractor, rewritten in Python for this site. The table of author and work abbreviations that those rules use is built from his HuCit knowledge base together with the Perseus catalog. Both citation indexes and the citation lists in the Scholarship tab depend on this recognition.",
+    "notes": "The abbreviation table built from HuCit stays under GPL-3.0 and is kept outside the site's own code repository. Romanello's study of citation networks (Digital Humanities Quarterly 10.2, 2016) is listed on the Research page."
+  },
+  {
     "collection": "Coins (prototype)",
     "name": "Online Coins of the Roman Empire (OCRE), American Numismatic Society and Institute for the Study of the Ancient World",
     "url": "https://numismatics.org/ocre/",

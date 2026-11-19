@@ -1856,7 +1856,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   own library, once you set your library&rsquo;s link-resolver address under My library in this tab.
                   Every note and article has a Cite link that gives a plain reference, RIS for Zotero and EndNote,
                   and BibTeX, and each list has an Export citations link. Every source and its license are listed on
-                  the <a href="/text-credits" className="text-red-600 hover:underline">Sources</a> page under About. To search the notes and sentences by theme, use the Scholarship
+                  the <a href="/text-credits" className="text-red-600 hover:underline">Sources</a> page under About. The rules by which the site recognizes a citation such as
+                  &ldquo;Aen. 1.1&rdquo; in an article follow Matteo Romanello&rsquo;s CitationExtractor, and the table of
+                  abbreviations they use is built from his HuCit knowledge base. To search the notes and sentences by theme, use the Scholarship
                   choice on the <a href="/theme-search" className="text-red-600 hover:underline">Theme Search</a> page.
               </p>
               <p className="text-gray-700 mb-3">
