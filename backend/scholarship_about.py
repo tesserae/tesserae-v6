@@ -70,7 +70,9 @@ METHODS = [
     {'id': 'recognition', 'title': 'How a citation is recognized',
      'text': 'A citation is found in the text of an article by a table of abbreviations (for example "Aen." and '
              '"Verg. A.") joined to a locus, with the author named near it deciding between works that share an '
-             'abbreviation. On sixty citing sentences read by eye from the journals of 1827 to 1922, 58 of 60 cite the '
+             'abbreviation. The rules follow Matteo Romanello\'s CitationExtractor, rewritten in Python for this '
+             'site, and the table of abbreviations is built from his HuCit knowledge base (hucitlib, GPL-3.0) '
+             'together with the Perseus catalog. On sixty citing sentences read by eye from the journals of 1827 to 1922, 58 of 60 cite the '
              'passage they are attached to (October 2026). On a read of sixty citations from the Project MUSE index, '
              '88 percent were right.'},
     {'id': 'citing', 'title': 'Articles that cite these passages',
