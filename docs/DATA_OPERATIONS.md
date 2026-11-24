@@ -35,6 +35,28 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-11-23 Coptic data release: README and Downloads page brought to the article's current title and numbering (RUN 21:08 EST, by hand, at the owner's request)
+- What: `static/downloads/coptic_article/README.md` and the Downloads page's
+  "Coptic Text-Reuse Study" section now name the article "Multi-Channel Fusion
+  Search for Coptic Text Reuse" by Neil Coffee and Walter Scheirer. The README's
+  section pointers follow the article's current numbering (§3.2 benchmarks, §3.3
+  Greek diagnostic, §3.4 semantic test, §3.5 Besa dictionary test, §4.1 top-50
+  precision, §4.2 held-out Romans-Isaiah test, §4.3 Shenoute review; licensing
+  in the Data Availability statement). Three statements corrected: the run-to-run
+  note (18 of 124 is the last row of Table 2, measured August 2026; the May 2026
+  sweep reached 17), the strict eleven-pair subset (five verbatim quotations and
+  six thematic cross-references, as Appendix B says), and the Greek gold file
+  (the Table 1 Greek row was scored on the 124 of the 849 pairs with 20 or more
+  votes, as `scripts/run_greek_validation.py` filters). The zip size on the
+  Downloads page corrected from "~280 KB" to "about 575 KB".
+- Scripts: `research/coptic_article/checks_2026-11-12/rebuild_manifest_zip.py`
+  (private): zip rebuilt, 47 members, testzip clean, 587,165 bytes; manifest
+  unchanged, 45 rows, because no data file changed. Private source copy
+  `research/coptic_article/data_release/` and the public copy are byte-identical.
+- Backups: none; the previous README and zip are in git history (aba69365).
+- Checks: the zip's README opens with the new title; the Downloads page text
+  checked in the built bundle after deploy.
+
 ## 2026-11-14 Downloads: expert ratings of the top 50 Lucan-Vergil results added to the benchmark files (RUN 13:27 EST, by hand, at the owner's request)
 One file copied into `/var/www/tesseraev6_flask/static/downloads/benchmarks/` (mode 664, not in git, like the other benchmark files of that folder outside `v6_gold/`): `lucan_vergil_top50_ratings_coffee.csv`, 4,880 bytes, 32 data rows, columns Rank, BC, BC line, Aen., Aen. line, Type, Reason. It holds the owner's ratings, on the type scale of Coffee et al. 2012, of the 32 pairs among the top 50 rows of the archived Lucan-Vergil ranked output of 10 March 2026 (`static/downloads/evaluation/lucan_vergil_ranked.csv.gz`) that are not benchmark parallels (the 50 rows hold 43 distinct pairs, 11 in the benchmark, 7 repeats left out). Counts 13 of type 4, 10 of type 3, 9 of type 2. The Latin lines are the archived lines with two readings corrected by hand (quo at Aeneid 2.338, pila at Lucan 1.242), matched words wrapped in double asterisks, references to be read as text. The file carries no date; the page records the upload date. Listed on the Downloads page under Latin to Latin beside the Lucan-Vergil benchmark files (this pull request). It touches the article's Data Availability in that the release gains one file; the article text is not edited here.
 
