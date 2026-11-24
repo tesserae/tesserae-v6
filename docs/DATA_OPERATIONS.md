@@ -35,6 +35,29 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-11-24 Coptic data release: README rewritten in plain ASCII and the Downloads page Latin recall headline corrected to 789 of 862 (RUN 09:21 EST, by hand, at the owner's request)
+- What: `static/downloads/coptic_article/README.md` is served as text/markdown
+  with no charset, and a browser showed its em dashes and section signs as
+  garbled characters. The file is now plain ASCII (0 bytes above 127): the 24
+  em dashes are hyphens and the 11 section signs read "Section 3.2" and so on,
+  the form the article uses. No statement changed. On the Downloads page, the
+  Latin Benchmarks headline under V6 Evaluation Results now reads 789/862
+  (91.5%). The five rows below it (189 of 213, 479 of 521, 50 of 53, 21 of 23,
+  50 of 52) sum to 789 of 862, and the five downloadable files mark exactly
+  those gold pairs (is_gold rows counted 2026-11-24). The earlier 792 was the
+  benchmark script's own count of 10 March 2026, which runs up to three pairs
+  above the export's because of multiprocessing (`recall_summary.csv`, notes
+  column; fact-check report of 2026-11-13, section 10). The preprint reports
+  789 of 862.
+- Scripts: `research/coptic_article/checks_2026-11-12/rebuild_manifest_zip.py`
+  (private): zip rebuilt, 47 members, testzip clean, 587,148 bytes; manifest
+  unchanged, 45 rows. Private source `research/coptic_article/data_release/`
+  and the public copy are byte-identical.
+- Backups: none; the previous README and zip are in git history (54a36ba6).
+- Checks: the zip's README member decodes as ASCII and opens with the title;
+  the served README fetched after deploy and checked for bytes above 127; the
+  Downloads page text checked in the built bundle after deploy.
+
 ## 2026-11-23 Coptic data release: README and Downloads page brought to the article's current title and numbering (RUN 21:08 EST, by hand, at the owner's request)
 - What: `static/downloads/coptic_article/README.md` and the Downloads page's
   "Coptic Text-Reuse Study" section now name the article "Multi-Channel Fusion

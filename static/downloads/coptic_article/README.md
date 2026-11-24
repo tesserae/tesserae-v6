@@ -9,26 +9,26 @@ at https://github.com/tesserae/tesserae-v6.
 ## Contents
 
 ### gold/
-- `romans_isaiah_gold_22.csv` — the held-out benchmark (article §3.2
-  and §4.2): the 22 citations of Isaiah in Romans marked by an explicit
+- `romans_isaiah_gold_22.csv` - the held-out benchmark (article Sections 3.2
+  and 4.2): the 22 citations of Isaiah in Romans marked by an explicit
   citation formula. Fixed from standard reference lists before any V6
   output for the pair was seen; all 22 appear as direct citations in
   Nestle-Aland 28, Appendix III (loci citati vel allegati), s.v. Isaias.
-- `tsk_hebrews_psalms_gold_124.csv` — the broad development benchmark
-  (article §3.2): Hebrews-Psalms cross-references derived from the
+- `tsk_hebrews_psalms_gold_124.csv` - the broad development benchmark
+  (article Section 3.2): Hebrews-Psalms cross-references derived from the
   OpenBible.info dataset (itself derived from the Treasury of Scripture
   Knowledge), filtered to crowd-vote counts of 20 or higher, with Psalm
   numbers converted to LXX numbering (conversion table in the article's
   Appendix B).
-- `tsk_hebrews_psalms_strict_11.csv` — the stricter subset (votes >= 50,
+- `tsk_hebrews_psalms_strict_11.csv` - the stricter subset (votes >= 50,
   best Psalm verse per NT verse): 11 pairs, of which five are verbatim
   quotations and six are thematic cross-references with high vote counts
   (article Appendix B). Three of the five (Hebrews 1:5 with Psalm 2:7, 3:7
   with 94:7, 13:6 with 117:6) are on the hand-curated list of 29 in
   `hebrews_psalms_verbatim_29.csv`, and the other two (1:8 with 44:6, 10:7
   with 39:7) sit one verse from the listed pair (44:7 and 39:8).
-- `hebrews_psalms_verbatim_29.csv` — the hand-curated list of 29 verbatim
-  Hebrews x Psalms quotations (article §3.2 and the verified-quotation
+- `hebrews_psalms_verbatim_29.csv` - the hand-curated list of 29 verbatim
+  Hebrews x Psalms quotations (article Section 3.2 and the verified-quotation
   benchmark), one row per pair with the Hebrews verse, the LXX Psalm verse
   and a short English gloss. Curated by hand from standard listings of New
   Testament quotations of the Psalms on 2026-05-15, after the weight sweeps
@@ -41,11 +41,11 @@ at https://github.com/tesserae/tesserae-v6.
   citations there (italic entries, grouped Psalm ranges covering each verse),
   and the one exception, Hebrews 10:13 with Psalm 109:1 (110:1 in the Hebrew
   numbering), is listed as an allusion at Hebrews 10:12.
-- `tsk_hebrews_psalms_all_votes_lxx.csv` — the unfiltered Hebrews-Psalms
+- `tsk_hebrews_psalms_all_votes_lxx.csv` - the unfiltered Hebrews-Psalms
   candidate set with vote counts, before the vote-20 filter (all NT books,
   LXX numbering), for anyone who wants a different threshold.
-- `greek_hebrews_psalms_gold_849.csv` — the Greek-diagnostic gold set
-  (article §3.3): the 849 Hebrews-Psalms candidate pairs with their vote
+- `greek_hebrews_psalms_gold_849.csv` - the Greek-diagnostic gold set
+  (article Section 3.3): the 849 Hebrews-Psalms candidate pairs with their vote
   counts and references into the Greek texts (SBL Greek New Testament,
   Swete's Septuagint). The Greek-Greek row of the article's Table 1 was
   scored on the 124 of these pairs with 20 or more votes, the same
@@ -54,18 +54,18 @@ at https://github.com/tesserae/tesserae-v6.
   500 and 1,000 (`logs/greek_baseline_log.jsonl`).
 
 ### outputs/
-- `hebrews_psalms_ranked_10000.jsonl` — Sahidic Hebrews x Sahidic Psalms,
+- `hebrews_psalms_ranked_10000.jsonl` - Sahidic Hebrews x Sahidic Psalms,
   top 10,000 fused ranks, produced 2026-08-27 on the deployed system with
   the shipped biblical-Coptic profile. Fields: rank, source_ref (Psalms),
   target_ref (Hebrews), fused_score, match_basis, quotation_run_length.
-- `romans_isaiah_ranked_10000.jsonl` — Sahidica Romans x Sahidic Isaiah,
+- `romans_isaiah_ranked_10000.jsonl` - Sahidica Romans x Sahidic Isaiah,
   the single held-out run reported in the article (produced 2026-08-27,
   weights frozen, never re-run). Recomputing the article's Table 4 from
   this file with `gold/romans_isaiah_gold_22.csv` reproduces it exactly:
   8 / 11 / 13 / 17 / 17 / 20 of 22 at top 10 / 50 / 100 / 500 / 1,000 /
   5,000.
-- `shenoute_abraham_bible_top50.csv` — Sahidic Bible x Shenoute, Abraham
-  Our Father, top 50 fused ranks with matched text (article §4.3),
+- `shenoute_abraham_bible_top50.csv` - Sahidic Bible x Shenoute, Abraham
+  Our Father, top 50 fused ranks with matched text (article Section 4.3),
   generated 2026-06-15 with the post-punctuation-fix configuration whose
   ranks the article cites. New Testament line text is omitted per the
   Sahidica license (see Licensing below); references are given instead.
@@ -74,9 +74,9 @@ at https://github.com/tesserae/tesserae-v6.
   ranks the 9-token Isaiah 56:5 fragment below the top 50; see the
   run-to-run note below.
 
-- `hebrews_psalms_top50_adjudicated.csv` — the top 50 rows of
+- `hebrews_psalms_top50_adjudicated.csv` - the top 50 rows of
   `hebrews_psalms_ranked_10000.jsonl` with a category for each pair
-  (article §4.1 and its precision figure), added 2026-09-04. Categories:
+  (article Section 4.1 and its precision figure), added 2026-09-04. Categories:
   Q = documented quotation of the cited psalm, including re-quotations of
   the same verse at other points in Hebrews and verse-boundary spillover;
   A = unmarked allusion to the cited psalm; D = the same wording in a
@@ -100,13 +100,13 @@ weights reached 17 (`logs/phase9_log.jsonl`). The
 held-out Romans-Isaiah run is the single run the article reports and is
 not subject to this caveat.
 
-- `hebrews_psalms_benchmark124_shared_runs.csv` — for each of the 124
+- `hebrews_psalms_benchmark124_shared_runs.csv` - for each of the 124
   broad-benchmark pairs, the longest run of consecutive shared words and of
   shared lemmas between the Hebrews verse and the Psalm verse, in the Sahidic
   texts and in the Greek (Swete's Septuagint for the Psalms, the SBL Greek New
   Testament for Hebrews), with the vote count
   and whether the pair is on the hand-curated list of verbatim quotations
-  (article §3.2). Added 2026-11-11, produced by
+  (article Section 3.2). Added 2026-11-11, produced by
   `scripts/measure_benchmark_shared_runs.py` from the production lemma caches.
   94 of the 124 pairs share no run of three or more words in either language.
   Words are compared lower-cased with punctuation tokens dropped; Greek verses
@@ -114,9 +114,9 @@ not subject to this caveat.
 
 - `besa_wordnet_2026-11-11.json`, `besa_psalms_ranked_2026-11-11.json`,
   `besa_psalms_ranked_2026-11-11_no_dictionary.json`,
-  `besa_psalms_ranked_2026-11-11_latin_epic_weights.json` — the search of
+  `besa_psalms_ranked_2026-11-11_latin_epic_weights.json` - the search of
   Besa's Letters (156 lines) against the Sahidic Psalms (2,531 lines) on the
-  deployed code of 2026-11-11 (article §3.5), 5,000 ranked results, run with
+  deployed code of 2026-11-11 (article Section 3.5), 5,000 ranked results, run with
   the default Coptic weight profile, again with the dictionary channel (the
   Coptic Wordnet synonym pairs) turned off, and again under the latin_epic
   profile, whose weights are the defaults the first run of this comparison
@@ -131,10 +131,10 @@ not subject to this caveat.
   by `scripts/besa_wordnet.py`. Added 2026-11-11.
 
 - `greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12.json` and
-  `greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12_scoring_table.jsonl` —
+  `greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12_scoring_table.jsonl` -
   the Greek Hebrews (SBL Greek New Testament) against the Greek Psalms
   (Swete's Septuagint) on the deployed code of 2026-11-12 (commit 4066a232)
-  with the `latin_epic` weight profile, the search of article §3.3 as the
+  with the `latin_epic` weight profile, the search of article Section 3.3 as the
   code runs it today, 50,000 results kept. The summary file gives, for
   Hebrews 13:6 with Psalm 117:6 and with Psalm 117:7, the rank (35 and 121),
   the fused score as listed (26.11 and 15.28), the channels that fired, and
@@ -149,11 +149,11 @@ not subject to this caveat.
   these figures describe today's code, not the May run. Produced by
   `scripts/greek_two_pairs_latin_epic.py`. Added 2026-11-12.
 - `hebrews_psalms_semantic_ablation_2026-11-12.json` and
-  `hebrews_psalms_semantic_ablation_2026-11-12_ranked.json` — Sahidic Hebrews
+  `hebrews_psalms_semantic_ablation_2026-11-12_ranked.json` - Sahidic Hebrews
   against Sahidic Psalms on the deployed code of 2026-11-12 (commit 4066a232),
   10,000 ranked results, run twice with the shipped biblical-Coptic weights and
   once with the semantic weight set from 11.216 to 0 (the ablation of article
-  §3.4, first run 2026-08-27 and then recorded as recall only). The summary
+  Section 3.4, first run 2026-08-27 and then recorded as recall only). The summary
   file compares the three lists position by position and as sets (first
   position that differs, pairs shared in the top 10 to 10,000, pairs whose
   score changed) and gives the recall of the 124-pair benchmark and of the
@@ -179,35 +179,35 @@ logs used the hand-curated quotation list `gold/hebrews_psalms_verbatim_29.csv` 
 no result in the article depends on that profile.
 
 ### scripts/
-- `build_gold_set.py`, `build_greek_gold.py` — benchmark construction
+- `build_gold_set.py`, `build_greek_gold.py` - benchmark construction
   from the OpenBible.info cross-reference data (download that dataset
   from OpenBible.info; it is not redistributed here).
 - `run_optimization.py`, `run_optimization_thematic.py`,
-  `run_greek_validation.py` — the weight sweeps.
-- `run_pair_search.py` — reproduces the two ranked JSONL outputs on a
+  `run_greek_validation.py` - the weight sweeps.
+- `run_pair_search.py` - reproduces the two ranked JSONL outputs on a
   Tesserae V6 checkout with the Coptic corpus.
-- `becky_abraham_parallels.py` — generates the Shenoute x Bible parallels
+- `becky_abraham_parallels.py` - generates the Shenoute x Bible parallels
   file (the specialist-review deliverable and the released top-50 CSV).
-- `check_punct_fix.py` — the punctuation-tolerance regression check.
-- `strip_sahidica_text.py` — produced the released Shenoute CSV from the
+- `check_punct_fix.py` - the punctuation-tolerance regression check.
+- `strip_sahidica_text.py` - produced the released Shenoute CSV from the
   raw output; documents exactly what was omitted and why.
 
-- `measure_benchmark_shared_runs.py` — produces
+- `measure_benchmark_shared_runs.py` - produces
   `outputs/hebrews_psalms_benchmark124_shared_runs.csv` from the lemma caches
   of a Tesserae V6 checkout with the Coptic and Greek corpora (added
   2026-11-11).
-- `besa_wordnet.py` — runs Besa's Letters against the Sahidic Psalms on a
+- `besa_wordnet.py` - runs Besa's Letters against the Sahidic Psalms on a
   Tesserae V6 checkout with the Coptic corpus, with and without the dictionary
   channel and under two weight profiles, and writes the four `outputs/besa_*`
   files (added 2026-11-11).
-- `greek_two_pairs_latin_epic.py` — runs the Greek Hebrews against the Greek
+- `greek_two_pairs_latin_epic.py` - runs the Greek Hebrews against the Greek
   Psalms on a Tesserae V6 checkout with the Greek corpus under the `latin_epic`
   profile and writes the two `outputs/greek_hebrews_psalms_two_pairs_*` files,
   re-executing the two scoring functions of `backend/fusion.py` from their own
   source with recording lines so that each channel's score and the rarity
   multiplier of the two pairs are the ones the code computed (added
   2026-11-12).
-- `semantic_ablation_lists.py` — runs Sahidic Hebrews against Sahidic Psalms on
+- `semantic_ablation_lists.py` - runs Sahidic Hebrews against Sahidic Psalms on
   a Tesserae V6 checkout with the Coptic corpus twice with the shipped weights
   and once with the semantic weight at 0, and writes the two
   `outputs/hebrews_psalms_semantic_ablation_*` files (added 2026-11-12). It sets
