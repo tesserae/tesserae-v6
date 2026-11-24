@@ -10,22 +10,22 @@
 // two searches (the Hebrew fusion row also describes Cross-Language) is one
 // object, so the Help table lists it once.
 
-const FUSION_LA = { search: "Verbal parallels (Fusion)", language: "Latin", against: "862 parallels from five published commentaries and studies (Lucan, Valerius Flaccus and Statius against Vergil, Ovid and Statius)", result: "About 92 percent found (788 to 798 of 862, depending on the run); on the Valerius Flaccus set, nine of the first ten results are attested in the commentaries", date: "September 2026" };
+const FUSION_LA = { search: "Verbal parallels (Fusion)", language: "Latin", against: "862 parallels from five published commentaries and studies (Lucan, Valerius Flaccus and Statius against Vergil, Ovid and Statius)", result: "789 of 862 (91.5 percent) in the run of March 2026 that the preprint reports. The same test on the code of 13 November 2026 found 751 of 862 (87 percent), because a limit set in September 2026 on how many candidates each channel keeps drops some low-ranked matches. On the Valerius Flaccus set, nine of the first ten results are attested in the commentaries (March 2026)", date: "November 2026" };
 const FUSION_GRC = { search: "Verbal parallels (Fusion)", language: "Greek", against: "121 Homeric parallels in later epic (Iliad and Odyssey benchmarks)", result: "69 percent found searching whole works, 97 percent searching book by book", date: "early 2026" };
 const FUSION_COP = { search: "Verbal parallels (Fusion)", language: "Coptic", against: "Scripture quoted in scripture: the 22 marked citations of Isaiah in Romans (held out from all tuning), and a broad 124-pair reference list", result: "On the held-out citations, 59 percent in the first hundred and eight of the first ten are genuine; on the broad list, 14.5 percent in the first hundred, since Coptic search is tuned for quotation rather than loose allusion", date: "August 2026" };
 const FUSION_HE = { search: "Verbal parallels (Fusion)", language: "Hebrew", against: "The 22 marked citations of Isaiah in Romans, searched from the Hebrew through the Septuagint into the Greek New Testament", result: "15 of 22 in the first hundred, 9 in the first ten; the direct word-for-word route found none", date: "August 2026" };
 const FUSION_EN = { search: "Verbal parallels (Fusion)", language: "English", against: "No published list of parallels has been run yet", result: "Not measured", date: "" };
-const CROSS_GRC_LA = { search: "Cross-Language (Greek to Latin)", language: "Greek and Latin", against: "412 Homeric parallels in the Aeneid from Knauer's index", result: "About 40 percent in the first fifty for a given target line, 94 percent found somewhere in the ranking; only 31 percent of the listed parallels share any vocabulary across the two languages", date: "2026" };
-const THEME_LAGRC = { search: "Theme Search", language: "Latin, Greek and English", against: "Confidence band: 90 test subjects, 30 a language, two thirds present in the corpus and a third absent, refitted on 12 October 2026 to the index of 693,611 windows. Recall: the works Curtius cites for eleven topoi (57 works held here)", result: "The band agrees with the test set on 80 percent of Latin and of Greek subjects and 73 percent of English (86 percent over all 178 subjects in eight language settings). Sixty historical subjects with graded lists: two now fall in the lowest band, and lists in that band were as relevant as lists in the moderate band. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13. Precision of the first ten results, sixteen test themes, judged against a scholar's grading rule: about 29 percent by description order, about 43 percent after the reading step (see The reading step under Theme Search)", date: "October 2026" };
-const THEME_OTHER = { search: "Theme Search", language: "Persian, Urdu, Hebrew, Coptic", against: "Confidence band: 17 or 18 test subjects a language, two thirds present and a third absent, the same refit", result: "The band agrees with the test set on 94 percent of subjects in each of the four languages", date: "October 2026" };
+const CROSS_GRC_LA = { search: "Cross-Language (Greek to Latin)", language: "Greek and Latin", against: "412 Homeric parallels in the Aeneid from Knauer's index", result: "171 of 412 (41.5 percent) in the first fifty for a given target line and 99 of 412 (24 percent) in the first ten, with the dictionary in use. 411 of 412 register on at least one channel somewhere in the ranking", date: "October 2026" };
+const THEME_LAGRC = { search: "Theme Search", language: "Latin, Greek and English", against: "Confidence band: 178 test subjects in eight language settings, 30 each for Latin, Greek and English and 17 or 18 for the other four, two thirds present in the corpus and a third absent, fitted on 12 October 2026 to the index of 693,611 windows and refitted on 10 November 2026 to 1,006,240. Recall: the works Curtius cites for eleven topoi (57 works held here)", result: "The band of 10 November agrees with the test set on 83 percent of the 178 subjects. The fit of 12 October agreed on 86 percent, 80 percent of Latin and of Greek subjects and 73 percent of English. At that fit, of sixty historical subjects with graded lists two fell in the lowest band, and lists in that band were as relevant as lists in the moderate band. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten, and a frontier language model asked the same questions from memory names 14 and 13 (September 2026, on an index of 625,154 windows). Precision of the first ten results, sixteen test themes, judged against a scholar's grading rule: about 29 percent by description order, about 43 percent after the reading step (see The reading step under Theme Search)", date: "November 2026" };
+const THEME_OTHER = { search: "Theme Search", language: "Persian, Urdu, Hebrew, Coptic", against: "Confidence band: 17 or 18 test subjects a language, two thirds present and a third absent, at the fit of 8 October 2026 on an index of about 531,000 windows. The later fits report the total over all eight language settings only", result: "The band agreed with the test set on 17 of 18 Persian subjects, 16 of 18 Urdu, 17 of 17 Hebrew and 16 of 17 Coptic", date: "October 2026" };
 const RARE_ALL = { search: "Rare words, rare pairs, line and string search", language: "All", against: "Exact lookups in the index", result: "They return every occurrence the index holds; there is no recall to measure, only the coverage of the corpus and the accuracy of the dictionary forms (see each language section)", date: "" };
 
 const NOT_YET = 'Not measured yet';
 
-const ASK_A_WORK_ROW = { search: 'Theme Search, one text', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, two judges, a Sonnet model and the gateway\'s Qwen model, reading the first twenty passages of each', result: 'A passage directly about the subject in the first five for 14 of 15 questions. Of the first ten, 0.44 were directly about it and 0.75 at least touched it (nDCG at 10 of 0.75). Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view. The second judge agreed with the first on 69 percent of grades (kappa 0.71 with quadratic weights) and put the precision of the strong marks at 0.87 for passages at least touching the subject', date: 'October 2026' };
+const ASK_A_WORK_ROW = { search: 'Theme Search, one text', language: 'Latin and Greek', against: 'Fifteen questions on the Aeneid, Thucydides 1 and 2 and Annals 1 to 6, the first twenty passages of each graded by a Sonnet model, with the gateway\'s Qwen model as a second judge, run on 11 October 2026 and again on 12 October on the paragraph windows for prose in use since', result: 'On the windows in use now, a passage directly about the subject in the first five for 15 of 15 questions. Of the first ten, 0.59 were directly about it and 0.80 at least touched it, and the order of the first ten scored 0.71 on a scale of 0 to 1 (nDCG at 10). The first run gave 14 of 15, 0.44, 0.75 and 0.75, and its second judge agreed with the first on 69 percent of grades (kappa 0.71 with quadratic weights) and put the precision of the strong marks at 0.87 for passages at least touching the subject. Weakest when one account fills a few windows (the plague) or the question is a named speaker\'s view', date: 'October 2026' };
 
 const DOCUMENTS_ROW = { search: 'Inscriptions & Papyri', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
-const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: '43 passages historians cite for twelve events', result: 'About a third of the first twenty passages listed for an event were among them (precision at 20 of 0.32 to 0.40 by method)', date: 'October 2026' };
+const EVENTS_ROW = { search: 'Events', language: 'Latin and Greek', against: 'Twelve events with 43 passages listed by hand from the researcher\'s own knowledge, and the first twenty passages listed for each event read by eye', result: 'With the model check the site uses, about six in ten of the first twenty passages listed for an event were about it (precision at 20 of 0.61), and 33 of the 43 hand-listed passages stood in the first twenty. Without the check, 0.22 to 0.40 by method', date: 'October 2026' };
 const COINS_ROW = { search: 'Coins', language: 'Latin', against: "Ten passages with known coin parallels, the Reader's related imagery", result: '17 of the 50 coin types offered were real parallels (about one in three). The Greek catalogues, included for a test, took 27 of the 50 places with about three real ones, so a Latin passage now uses the Roman catalogues only', date: 'October 2026' };
 const MENTIONS_ROW = { search: 'People & Places', language: 'Latin, Greek and English', against: 'Lines drawn at random and read by eye: a fresh sample of 40 literary lines (17 October, before the repair of 19 October), and 100 links from the Attic inscriptions (20 October)', result: '38 of 40 literary lines name the person, place or god they are listed under (33 if a god standing for a thing, Mars for war, is counted wrong); 95 of the 100 Attic links are right', date: 'October 2026' };
 const MAP_ROW = { search: 'Similarity Map', language: 'All', against: 'No test list yet', result: NOT_YET, date: '' };
@@ -34,8 +34,8 @@ const OBJECTS_ROW = { search: 'Objects', language: 'English descriptions', again
 
 const SCHOLARSHIP_THEME_ROW = { search: 'Scholarship (Theme Search)', language: 'English and Latin and Greek notes', against: 'Fifteen scholar questions, one judge, the first 230 characters of each note', result: 'A strongly relevant note in the first ten for 13 of 15 questions (nDCG at 10 of 0.64). Meaning alone 11 of 15, keyword alone 12 of 15', date: 'October 2026' };
 
-const REUSE_ROW = { search: 'Reuse (Reader)', language: 'Latin and Greek', against: 'No test list yet', result: NOT_YET, date: '' };
-const SCHOLARSHIP_ROW = { search: 'Scholarship (Reader)', language: 'Latin and Greek', against: 'Sixty citing sentences read by eye from the citation index', result: '58 of 60 cite the passage they are attached to', date: 'October 2026' };
+const REUSE_ROW = { search: 'Reuse (Reader)', language: 'Latin, Greek, English, Persian and Urdu', against: 'No test list yet', result: NOT_YET, date: '' };
+const SCHOLARSHIP_ROW = { search: 'Scholarship (Reader)', language: 'Latin and Greek', against: 'Two hundred citing rows from the journal citation indexes, outside the tuning sample, read by eye', result: '181 of 200 name the right work and 167 of 200 the right work and passage (the 1827 to 1922 index 86 of 100, Project MUSE 95 of 100)', date: 'October 2026' };
 const TRANSLATION_ROW = { search: 'Translation (Reader)', language: 'Latin and Greek', against: 'Not a search', result: 'Not measured', date: '' };
 
 const NO_CONFIDENCE_NOTE = 'A search restricted to one author or work has no confidence band.';
@@ -48,7 +48,7 @@ export const SEARCH_SCOPE = {
     scope: 'Two chosen works are compared line by line through eleven channels (lemma, single lemma, exact form, sound, edit distance, semantic, dictionary synonyms, syntax, structural syntax, rare word and quotation), and the channels\' scores are fused into one. A result is a pair of lines, one from each work.',
     covers: 'The literary corpus, by language.',
     liveOnly: true,
-    limits: 'It compares one pair of works at a time. English has no syntax data and Greek has it for about half its texts. Coptic is tuned for quotation, and Persian and Urdu run nine channels, including a refrain-and-rhyme channel of their own.',
+    limits: 'It compares one pair of works at a time. English has no syntax data, and every Latin and Greek text has it since October 2026. Coptic is tuned for quotation, and Persian and Urdu run nine channels, including a refrain-and-rhyme channel of their own.',
     measured: [FUSION_LA, FUSION_GRC, FUSION_COP, FUSION_HE, FUSION_EN],
     helpSection: 'fusion-search',
   },
@@ -59,7 +59,7 @@ export const SEARCH_SCOPE = {
     scope: 'A work in one language is compared with a work in another through a dictionary, shared vocabulary and a model of meaning trained on both. A result is a pair of passages, one from each work.',
     covers: 'The literary corpus, by language.',
     liveOnly: true,
-    limits: 'Seven language pairs are open, and each works through what its two languages have in common. Greek to Latin finds most known parallels somewhere in the ranking but few of them near the top. Persian to Urdu works through the vocabulary the two languages share.',
+    limits: 'Seven language pairs are open, and each works through what its two languages have in common. Greek to Latin puts fewer than half of the known parallels in the first fifty. Persian to Urdu works through the vocabulary the two languages share.',
     measured: [CROSS_GRC_LA, FUSION_HE],
     helpSection: 'cross-lingual',
   },
@@ -68,7 +68,7 @@ export const SEARCH_SCOPE = {
     name: 'Theme Search: whole corpus',
     does: 'Describe a scene or an idea in English and get the passages about it, across languages, ranked by meaning.',
     scope: 'Your description is compared with a short description written for each passage, and the closest passages come back from every indexed language at once. A result is a passage window.',
-    covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 684,650 since 2026-10-19 (paragraph-sized prose windows since 2026-10-11, duplicate whole-work windows dropped on 2026-10-13, De legibus of Cicero added on 2026-10-19).',
+    covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 1,006,240 since 2026-11-10 (paragraph-sized prose windows since 2026-10-11, duplicate whole-work windows dropped on 2026-10-13, 1,025 Greek works of the CLLG Freed Corpus added on 2026-11-09).',
     limits: `A subject that is absent from the corpus gets the lowest band, "Closest passages", and not an empty list, and a modern subject can read as a moderate match over its nearest neighbours. ${NO_CONFIDENCE_NOTE} The ranking rests on a model's description of each passage, so very short or fragmentary passages rank poorly.`,
     measured: [THEME_LAGRC, THEME_OTHER],
     helpSection: 'theme-search',
@@ -77,9 +77,9 @@ export const SEARCH_SCOPE = {
     id: 'ask_a_work',
     name: 'Theme Search: one text',
     does: 'Every passage in one work whose content matches a subject you describe, listed by how well it matches, with a strip showing where in the work they fall.',
-    scope: 'The Theme Search index restricted to one work, or to a run of its books. The model-written description of each passage window is matched against the subject. When the question names a person, a second list gives the passages whose description contains that name, the closest to the question first. In Latin and Greek works whose descriptions leave the person unnamed, the text is searched for the name. A short summary of the best passages is written from their descriptions. A second paragraph is written from the commentary notes and articles in the scholarship collection that concern the same work, and a line says what that collection holds for it, or that it holds nothing. Articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list for the question, of any year, are shown beside it as each service answers, and the paragraph may cite up to four of them, known only from an abstract or a short excerpt. Each article has a Cite link, and the cited notes and articles can be exported as RIS or BibTeX. The passages come first and these three boxes stand beside them on a wide screen, under them on a phone.',
+    scope: 'The Theme Search index restricted to one work, or to a run of its books. The model-written description of each passage window is matched against the subject. When the question names a person, a second list gives the passages whose description contains that name, the closest to the question first. In Latin and Greek works whose descriptions leave the person unnamed, the text is searched for the name. A short summary of the best passages is written from their descriptions. A second paragraph is written from the commentary notes and articles in the scholarship collection that concern the same work, and a line says what that collection holds for it, or that it holds nothing. Articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list for the question, of any year, are shown beside it as each service answers, and the paragraph may cite up to four of them, known only from an abstract or a short excerpt. Each article has a Cite link, and the cited notes and articles can be exported as RIS or BibTeX. A further list gives the articles in the citation indexes (journals of 1827 to 1922, and Project MUSE journals from 1996) whose pages cite one of the passages found. The passages come first, and the summary and the scholarship stand beside them on a wide screen, under them on a phone.',
     covers: 'Any work the passage index holds.',
-    limits: 'A passage is a window of about twenty lines, so a subject spread thinly through a long chapter can be missed. The search matches content, so it does not find a name on its own as a word search would. The summary is written from the descriptions, not the text. The band inside one work was refitted in October 2026 on 55 subjects the works treat and 86 they do not, over eleven works, and agrees with that set on 84 percent; its lowest level, "Closest passages", is a caution about the order and claims nothing about absence.',
+    limits: 'A passage is a window of about twelve lines of verse, or a paragraph of long prose, so a subject spread thinly through a long chapter can be missed. The search matches content, so it does not find a name on its own as a word search would. The summary is written from the descriptions, not the text. The band inside one work was refitted in October 2026 on 55 subjects the works treat and 86 they do not, over eleven works, and agrees with that set on 84 percent. Its lowest level, "Closest passages", is a caution about the order and claims nothing about absence.',
     measured: [ASK_A_WORK_ROW],
     helpSection: 'ask-a-work',
   },
@@ -90,7 +90,7 @@ export const SEARCH_SCOPE = {
     scope: 'Every line in the corpus that carries the words you type, with the lines that quote the whole phrase first.',
     covers: 'The literary corpus, by language.',
     liveOnly: true,
-    limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless the phrase is only common words. It searches one language at a time.',
+    limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless that would leave fewer than two words, and a query of more than twelve words is cut to its twelve rarest. It searches one language at a time.',
     measured: [RARE_ALL],
     helpSection: 'start-here',
   },
@@ -109,7 +109,7 @@ export const SEARCH_SCOPE = {
     id: 'bigram',
     name: 'Rare Pairs',
     does: 'Finds rare two-word combinations that two chosen texts share. It can catch unusual pairings of otherwise ordinary words.',
-    scope: 'Two chosen works are searched for word pairs they share that occur in few other works, ranked by how often the pair occurs in the corpus. A result is a pair of words and the two lines that hold it.',
+    scope: 'Two chosen works are searched for word pairs they share that occur in few other works, ranked by how many works hold the pair. A result is a pair of words and the two lines that hold it.',
     covers: 'The literary corpus, by language.',
     liveOnly: true,
     limits: 'Rarity is measured against the corpus held here, so a word that was common in lost literature can look rare.',
@@ -120,7 +120,7 @@ export const SEARCH_SCOPE = {
     id: 'hapax',
     name: 'Rare Words',
     does: 'Finds rare individual words that two chosen texts share.',
-    scope: 'Two chosen works are searched for words they share that occur in few other works, ranked by how often the word occurs in the corpus. A result is a word and the two lines that hold it.',
+    scope: 'Two chosen works are searched for words they share that occur in few other works, ranked by how many works hold the word. A result is a word and the two lines that hold it.',
     covers: 'The literary corpus, by language.',
     liveOnly: true,
     limits: 'Rarity is measured against the corpus held here, so a word that was common in lost literature can look rare.',
@@ -131,8 +131,8 @@ export const SEARCH_SCOPE = {
     id: 'documents',
     name: 'Inscriptions & Papyri',
     does: 'Finds the words of a phrase in about 255,000 inscriptions and papyri, with the literature or on their own.',
-    scope: 'A phrase is looked up in the inscriptions and papyri, alone or together with the literature, and the list can be narrowed by date, region, place, kind and material. A result is a line of a document, with its edition, date, findspot and source.',
-    covers: 'About 255,000 inscriptions and papyri in Latin and Greek, from the Epigraphic Database Heidelberg, the Epigraphic Database Roma, papyri.info, I.Sicily, and Attic Inscriptions Online with the Greek of the Berlin Inscriptiones Graecae and of PHI Greek Inscriptions.',
+    scope: 'A phrase is looked up in the inscriptions and papyri, alone or together with the literature, and the list can be narrowed by date, region, place, kind, material and source. A result is a line of a document, with its edition, date, findspot and source.',
+    covers: 'About 255,000 inscriptions and papyri, nearly all in Latin and Greek and about 2,400 in Coptic, from the Epigraphic Database Heidelberg, the Epigraphic Database Roma, papyri.info, I.Sicily, and Attic Inscriptions Online with the Greek of the Berlin Inscriptiones Graecae and of PHI Greek Inscriptions.',
     limits: 'Restored text is marked and can be excluded. Formulas (phrases common on stone) can be hidden. Coverage follows the source corpora named in Help, and editions are shown as each source records them.',
     measured: [DOCUMENTS_ROW],
     helpSection: 'documents',
@@ -172,7 +172,7 @@ export const SEARCH_SCOPE = {
     name: 'People & Places',
     does: 'Every line where a named person, place or god is mentioned, grouped by work under one heading for each.',
     scope: 'A name is looked up by its English, Latin or Greek form, and close spellings are offered. An entry lists its lines work by work, each opening in the Reader, then the inscriptions and papyri that carry the name, and for a place the lines that name it only by its adjective (Rusellanum for Rusellae). A result is an entry for one person, place or god.',
-    covers: 'The Latin, Greek and English literary works: about 42,000 names, among them 3,682 persons, 2,207 places and 165 gods, with their lines in the literature and some 600,000 mentions in inscriptions and papyri.',
+    covers: 'The Latin, Greek and English literary works: about 74,000 names (November 2026), among them 3,683 persons, 2,208 places, 962 peoples and 165 gods, with their lines in the literature and some 600,000 mentions in inscriptions and papyri.',
     limits: 'The entries are built from a list of names by rules and a language model, so a line can be filed under the wrong person who shares a name. Inscriptions and papyri are matched by the forms of the name alone, without the model\'s check, and in the Attic inscriptions persons are not linked at all. A people and its city are separate entries (the Romans and Rome).',
     measured: [MENTIONS_ROW],
     helpSection: 'mentions',
@@ -193,7 +193,7 @@ export const SEARCH_SCOPE = {
     does: 'Two whole works, or two books, read against each other for the passages most alike in content, across languages as well.',
     scope: 'Each passage window of one work is compared with each of the other by their model-written descriptions. A pair marked strong stands well above the two works\' general resemblance, and a confidence line says whether the works echo one another or only resemble each other as most texts do. Where a word-level search of the same works has been run, each pair also lists the wording they share.',
     covers: 'Any two works the passage index holds.',
-    limits: 'It matches content, so a shared scene type (a storm, an invocation) can look like an echo. It reads windows of about twenty lines, so a brief echo inside a long passage can be missed.',
+    limits: 'It matches content, so a shared scene type (a storm, an invocation) can look like an echo. It reads windows of about twelve lines of verse, or paragraphs of long prose, so a brief echo inside a long passage can be missed.',
     measured: [COMPARE_WORKS_ROW],
     helpSection: 'theme-search',
   },
@@ -202,7 +202,7 @@ export const SEARCH_SCOPE = {
     name: 'Similar (Reader)',
     does: 'Passages whose content is closest to the lines you selected, from every language in the index.',
     scope: 'Your selection is matched by the model-written description of its passage window against every other window\'s description, in two groups: Same kind of scene (the closest in meaning), and Same people and places (the closest that also share a rare proper name). A result is a passage with its description.',
-    covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 684,650 since 2026-10-19 (paragraph-sized prose windows since 2026-10-11, duplicate whole-work windows dropped on 2026-10-13, De legibus of Cicero added on 2026-10-19).',
+    covers: 'The passage index: 603,594 windows at the 2026-08-25 release, 1,006,240 since 2026-11-10 (paragraph-sized prose windows since 2026-10-11, duplicate whole-work windows dropped on 2026-10-13, 1,025 Greek works of the CLLG Freed Corpus added on 2026-11-09).',
     limits: 'The names group is weak for a passage with few distinctive names, and the scene group ranks a short or fragmentary passage poorly. Both groups are the Theme Search index at work, so they share its measured figures.',
     measured: [THEME_LAGRC, THEME_OTHER],
     helpSection: 'reader',
@@ -224,7 +224,7 @@ export const SEARCH_SCOPE = {
     scope: 'The selected line is sent to Line Search as a query: every line that carries two or more of its words, the lines quoting the whole line first.',
     covers: 'The literary corpus, by language.',
     liveOnly: true,
-    limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless the phrase is only common words. It searches one language at a time.',
+    limits: 'It matches dictionary forms, so an inflected form is found but a misspelling is not. Common words are dropped unless that would leave fewer than two words, and a query of more than twelve words is cut to its twelve rarest. It searches one language at a time.',
     measured: [RARE_ALL],
     helpSection: 'start-here',
   },
@@ -232,9 +232,9 @@ export const SEARCH_SCOPE = {
     id: 'reader_scholarship',
     name: 'Scholarship (Reader)',
     does: 'Commentaries, articles and books on the selected passage.',
-    scope: 'The passage\'s reference is looked up in the public-domain commentaries held here, in the citation index of journals from 1827 to 1922, in the index of Project MUSE journals from 1996 on where the library\'s license allows, and live in OpenAlex, Crossref, Semantic Scholar, CORE and Google Books. Every note and article can be cited as a reference line, RIS or BibTeX, and the whole tab exported in one file.',
-    covers: '393 commentary files, a citation index of 29,055 articles from 24 journals (1827 to 1922), the Project MUSE index from 1996 where licensed, and five live lookups.',
-    limits: 'The two indexes stop at 1922 and resume in 1996, and the later one covers four American journals, so most twentieth-century work comes only from the live lookups, which depend on those services and know a recent article only from its abstract or a short excerpt. A reference the indexes could not read is missed.',
+    scope: 'The passage\'s reference is looked up in the public-domain commentaries held here, in the citation index of journals from 1827 to 1922, in the index of Project MUSE journals from 1996 on where the library\'s license allows, in the index of 222,035 JSTOR articles from 54 journals (1832 to 2025), and live in OpenAlex, Crossref, Semantic Scholar, CORE and Google Books. Every note and article can be cited as a reference line, RIS or BibTeX, and the whole tab exported in one file.',
+    covers: '397 commentary files, a citation index of 29,055 articles from 24 journals (1827 to 1922), the Project MUSE index of 3,034 articles from four journals (1996 on, where licensed), the JSTOR index of 222,035 articles from 54 journals (1832 to 2025), and five live lookups.',
+    limits: 'The early index stops at 1922 and the Project MUSE index covers four American journals from 1996, so the twentieth century rests on the 54 journals of the JSTOR index and on the live lookups, which depend on those services and know a recent article only from its abstract or a short excerpt. A reference the indexes could not read is missed.',
     measured: [SCHOLARSHIP_ROW],
     helpSection: 'reader',
   },
