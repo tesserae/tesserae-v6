@@ -2602,10 +2602,10 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Coptic Text-Reuse Study</h3>
-<p class="text-sm text-gray-600 mb-4">Complete evaluation data for the article “Multi-Channel Feature Fusion for Finding Coptic Text Reuse”: gold-standard benchmarks, ranked search outputs, weight-optimization logs, and the scripts that reproduce them. Because the Sahidica New Testament is licensed for academic use only, its line text is replaced with verse references throughout; every result is reproducible with the freely obtainable Sahidica text. See the README for the full inventory and licensing.</p>
+<p class="text-sm text-gray-600 mb-4">Complete evaluation data for the article “Multi-Channel Fusion Search for Coptic Text Reuse” by Neil Coffee and Walter Scheirer: gold-standard benchmarks, ranked search outputs, weight-optimization logs, and the scripts that reproduce them. Because the Sahidica New Testament is licensed for academic use only, its line text is replaced with verse references throughout; every result is reproducible with the freely obtainable Sahidica text. See the README for the full inventory and licensing.</p>
 <ul class="space-y-2 text-sm">
 <li>
-<a href="/static/downloads/coptic_article/coptic_v6_data_release_DATE.zip" class="text-red-600 hover:underline font-medium" download="">Complete release (zip, ~280 KB)</a> — all files below in one archive, with MANIFEST.csv checksums.</li>
+<a href="/static/downloads/coptic_article/coptic_v6_data_release_DATE.zip" class="text-red-600 hover:underline font-medium" download="">Complete release (zip, about 575 KB)</a> — all files below in one archive, with MANIFEST.csv checksums.</li>
 <li>
 <a href="/static/downloads/coptic_article/README.md" class="text-red-600 hover:underline">README</a> — inventory, methods, licensing, and the run-to-run variation note.</li>
 <li>
