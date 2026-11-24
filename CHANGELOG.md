@@ -7,6 +7,9 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-23
+- Coptic data release: the README and the Downloads page now give the article's current title, "Multi-Channel Fusion Search for Coptic Text Reuse," by Neil Coffee and Walter Scheirer. The README's section pointers follow the article's current numbering (benchmarks §3.2, Greek diagnostic §3.3, semantic test §3.4, Besa dictionary test §3.5, top-50 precision §4.1, held-out Romans-Isaiah test §4.2, Shenoute review §4.3, licensing in the Data Availability statement). Three statements corrected: the 18 of 124 in the released Hebrews-Psalms run is the figure of the last row of the article's Table 2 (the May 2026 sweep reached 17); the strict eleven-pair subset holds five verbatim quotations and six thematic cross-references, as Appendix B says, not eleven quotations; the Greek diagnostic of Table 1 was scored on the 124 of the 849 Greek pairs with 20 or more votes. Zip rebuilt (47 members), manifest unchanged (45 rows, no data file changed). Help: not needed, a text correction in the Downloads page's Coptic section, which Help does not describe.
+
 ## 2026-11-18
 - Sources and credits: a Scholarship row for Matteo Romanello's CitationExtractor and HuCit knowledge base (GPL-3.0), whose rules and abbreviations the site's citation recognition is built from; the same credit in the "How a citation is recognized" method on the Scholarship sources page and in the Help passage on the Scholarship tab. (#1353)
 

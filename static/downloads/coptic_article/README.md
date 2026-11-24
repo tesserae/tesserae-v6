@@ -1,16 +1,16 @@
-# Data release: Multi-Channel Feature Fusion for Finding Coptic Text Reuse
+# Data release: Multi-Channel Fusion Search for Coptic Text Reuse
 
 Evaluation data, gold-standard files, run logs, ranked outputs, and
-reproduction scripts for the article "Multi-Channel Feature Fusion for
-Finding Coptic Text Reuse" (Coffee et al.). The Coptic search itself is
+reproduction scripts for the article "Multi-Channel Fusion Search for
+Coptic Text Reuse" (Neil Coffee and Walter Scheirer). The Coptic search itself is
 free to use at https://tesserae.caset.buffalo.edu. The Tesserae V6 code is
 at https://github.com/tesserae/tesserae-v6.
 
 ## Contents
 
 ### gold/
-- `romans_isaiah_gold_22.csv` — the held-out benchmark (article §3.2,
-  §4.3): the 22 citations of Isaiah in Romans marked by an explicit
+- `romans_isaiah_gold_22.csv` — the held-out benchmark (article §3.2
+  and §4.2): the 22 citations of Isaiah in Romans marked by an explicit
   citation formula. Fixed from standard reference lists before any V6
   output for the pair was seen; all 22 appear as direct citations in
   Nestle-Aland 28, Appendix III (loci citati vel allegati), s.v. Isaias.
@@ -21,7 +21,12 @@ at https://github.com/tesserae/tesserae-v6.
   numbers converted to LXX numbering (conversion table in the article's
   Appendix B).
 - `tsk_hebrews_psalms_strict_11.csv` — the stricter subset (votes >= 50,
-  best Psalm verse per NT verse): 11 widely attested verbatim quotations.
+  best Psalm verse per NT verse): 11 pairs, of which five are verbatim
+  quotations and six are thematic cross-references with high vote counts
+  (article Appendix B). Three of the five (Hebrews 1:5 with Psalm 2:7, 3:7
+  with 94:7, 13:6 with 117:6) are on the hand-curated list of 29 in
+  `hebrews_psalms_verbatim_29.csv`, and the other two (1:8 with 44:6, 10:7
+  with 39:7) sit one verse from the listed pair (44:7 and 39:8).
 - `hebrews_psalms_verbatim_29.csv` — the hand-curated list of 29 verbatim
   Hebrews x Psalms quotations (article §3.2 and the verified-quotation
   benchmark), one row per pair with the Hebrews verse, the LXX Psalm verse
@@ -40,8 +45,13 @@ at https://github.com/tesserae/tesserae-v6.
   candidate set with vote counts, before the vote-20 filter (all NT books,
   LXX numbering), for anyone who wants a different threshold.
 - `greek_hebrews_psalms_gold_849.csv` — the Greek-diagnostic gold set
-  (article §3.3), the 849 candidate pairs used in the Greek NT x LXX
-  comparison.
+  (article §3.3): the 849 Hebrews-Psalms candidate pairs with their vote
+  counts and references into the Greek texts (SBL Greek New Testament,
+  Swete's Septuagint). The Greek-Greek row of the article's Table 1 was
+  scored on the 124 of these pairs with 20 or more votes, the same
+  threshold as the Coptic benchmark (`scripts/run_greek_validation.py`
+  keeps only those rows): 0, 4, 15 and 16 of 124 within the top 50, 100,
+  500 and 1,000 (`logs/greek_baseline_log.jsonl`).
 
 ### outputs/
 - `hebrews_psalms_ranked_10000.jsonl` — Sahidic Hebrews x Sahidic Psalms,
@@ -55,7 +65,7 @@ at https://github.com/tesserae/tesserae-v6.
   8 / 11 / 13 / 17 / 17 / 20 of 22 at top 10 / 50 / 100 / 500 / 1,000 /
   5,000.
 - `shenoute_abraham_bible_top50.csv` — Sahidic Bible x Shenoute, Abraham
-  Our Father, top 50 fused ranks with matched text (article §4.4),
+  Our Father, top 50 fused ranks with matched text (article §4.3),
   generated 2026-06-15 with the post-punctuation-fix configuration whose
   ranks the article cites. New Testament line text is omitted per the
   Sahidica license (see Licensing below); references are given instead.
@@ -66,7 +76,7 @@ at https://github.com/tesserae/tesserae-v6.
 
 - `hebrews_psalms_top50_adjudicated.csv` — the top 50 rows of
   `hebrews_psalms_ranked_10000.jsonl` with a category for each pair
-  (article §4.2 and its precision figure), added 2026-09-04. Categories:
+  (article §4.1 and its precision figure), added 2026-09-04. Categories:
   Q = documented quotation of the cited psalm, including re-quotations of
   the same verse at other points in Hebrews and verse-boundary spillover;
   A = unmarked allusion to the cited psalm; D = the same wording in a
@@ -83,8 +93,10 @@ text and redistribute nothing.
 Note on run-to-run variation: the V6 fusion search parallelizes across
 worker processes, and tie-adjacent ranks can shift by a pair or two
 between runs. Against `tsk_hebrews_psalms_gold_124.csv`, this release's
-Hebrews-Psalms run finds 18 of 124 in the top 100; the article's
-development-sequence table, measured on earlier runs, reports 17. The
+Hebrews-Psalms run finds 18 of 124 in the top 100, the figure the last
+row of the article's Table 2 reports, measured on the deployed system in
+August 2026. The development sweep of May 2026 that produced the shipped
+weights reached 17 (`logs/phase9_log.jsonl`). The
 held-out Romans-Isaiah run is the single run the article reports and is
 not subject to this caveat.
 
@@ -104,7 +116,7 @@ not subject to this caveat.
   `besa_psalms_ranked_2026-11-11_no_dictionary.json`,
   `besa_psalms_ranked_2026-11-11_latin_epic_weights.json` — the search of
   Besa's Letters (156 lines) against the Sahidic Psalms (2,531 lines) on the
-  deployed code of 2026-11-11 (article §5), 5,000 ranked results, run with
+  deployed code of 2026-11-11 (article §3.5), 5,000 ranked results, run with
   the default Coptic weight profile, again with the dictionary channel (the
   Coptic Wordnet synonym pairs) turned off, and again under the latin_epic
   profile, whose weights are the defaults the first run of this comparison
@@ -204,7 +216,8 @@ no result in the article depends on that profile.
   and sound weights.
 
 ## Licensing
-The Coptic corpus is not uniformly licensed (article §3.1 note): of the
+The Coptic corpus is not uniformly licensed (see the article's Data
+Availability statement): of the
 180 indexed texts, 97 are CC BY-SA, 51 CC BY 4.0, 27 are the Sahidica
 New Testament ((c) 2000-2006 J. Warren Wells, academic use only), 4 are
 CC BY-NC-SA 4.0, and 1 is unstated. This release therefore includes no

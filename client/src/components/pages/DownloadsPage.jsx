@@ -443,8 +443,8 @@ const DownloadsPage = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Coptic Text-Reuse Study</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Complete evaluation data for the article &ldquo;Multi-Channel Feature Fusion for Finding
-          Coptic Text Reuse&rdquo;: gold-standard benchmarks, ranked search outputs,
+          Complete evaluation data for the article &ldquo;Multi-Channel Fusion Search for Coptic
+          Text Reuse&rdquo; by Neil Coffee and Walter Scheirer: gold-standard benchmarks, ranked search outputs,
           weight-optimization logs, and the scripts that reproduce them. Because the Sahidica New
           Testament is licensed for academic use only, its line text is replaced with verse
           references throughout; every result is reproducible with the freely obtainable Sahidica
@@ -454,7 +454,7 @@ const DownloadsPage = () => {
           <li>
             <a href="/static/downloads/coptic_article/coptic_v6_data_release_2026-09-04.zip"
                className="text-red-600 hover:underline font-medium" download>
-              Complete release (zip, ~280 KB)
+              Complete release (zip, about 575 KB)
             </a>
             {' '}&mdash; all files below in one archive, with MANIFEST.csv checksums.
           </li>
