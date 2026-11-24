@@ -707,7 +707,7 @@ const DownloadsPage = () => {
           <div>
             <h4 className="font-medium text-gray-800 mb-2">Latin Benchmarks</h4>
             <p className="text-xs text-gray-500 mb-2">
-              Full ranked output with benchmark annotations. Recall: 792/862 (91.9%) across 5 benchmarks.
+              Full ranked output with benchmark annotations. Recall: 789/862 (91.5%) across 5 benchmarks.
             </p>
             <div className="space-y-2 text-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-gray-50 rounded">
