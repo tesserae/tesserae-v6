@@ -68,7 +68,7 @@ describe('SEARCH_SCOPE', () => {
     for (const f of FIELDS) expect(e[f], `ask_a_work.${f}`).toBeTruthy();
     expect(e.helpSection).toBe('ask-a-work');
     expect(e.measured).toHaveLength(1);
-    expect(e.measured[0].result).toMatch(/14 of 15 questions/);
+    expect(e.measured[0].result).toMatch(/15 of 15 questions/);
     expect(e.measured[0].date).toBe('October 2026');
     const searches = allMeasuredRows().map((m) => m.search);
     const themeRows = searches.filter((s) => s === 'Theme Search').length;

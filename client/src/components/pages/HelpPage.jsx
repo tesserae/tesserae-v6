@@ -641,7 +641,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
                 <strong>A note on examples:</strong> this section, and the ones that follow, uses <strong>Latin</strong> for its
                 examples, but the same process applies to Greek, English, Coptic, Hebrew, Persian and Urdu. Where a language
-                differs, it is noted along the way. English has no syntax data and Greek has it for about half its texts, Coptic is
+                differs, it is noted along the way. English has no syntax data, every Latin and Greek text has it since October 2026, Coptic is
                 tuned for quotation, and Persian and Urdu add a refrain-and-rhyme channel for the ghazal.
               </div>
               <p className="text-gray-700 mb-4">
@@ -730,8 +730,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Performance</h4>
                 <p className="text-gray-700 text-sm">
-                  Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search found <strong>92% of known Latin parallels</strong> in August 2026,
-                  up from ~27% in Tesserae V3. That figure was measured before the Latin lemma table was corrected in October 2026 and has not been re-run since. Other languages are measured separately, on the <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-600 hover:underline">How well does it work?</button> page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
+                  Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search found <strong>789 of 862 known Latin parallels (91.5 percent)</strong> in March 2026, the run the preprint reports,
+                  up from about 27 percent in Tesserae V3. The same test on the code of 13 November 2026 found 751 of 862 (87 percent), because a limit set in September 2026 on how many candidates each channel keeps drops some low-ranked matches. Other languages are measured separately, on the <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-600 hover:underline">How well does it work?</button> page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary (March 2026).
                 </p>
               </div>
 
@@ -1385,7 +1385,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
               <p className="text-gray-700 mb-3">
                 Theme Search and Similar Passages cover the works that have passage descriptions, about
-                2,100 works and 730,000 passage windows, not the whole corpus. A work outside that
+                2,100 works and about a million passage windows, not the whole corpus. A work outside that
                 index never appears in either feature. The list is in Browse Corpus:{' '}
                 <a href="/corpus?theme=1&language=la" className="text-red-600 hover:underline">
                   See the list of covered works
@@ -1633,9 +1633,11 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 articles that OpenAlex, Crossref, CORE, Google Books and Semantic Scholar list
                 for the question, of any year. It knows those only from their abstracts or short open-access excerpts,
                 and says so when it cites one. Those articles are listed beside the paragraph
-                as Books and articles found online, each service's answer as it arrives, each marked book or article, and a link goes to a free copy where one exists,
+                as Found online for this question, each service's answer as it arrives, each marked book or article, and a link goes to a free copy where one exists,
                 otherwise to the DOI. Each bracketed number in the paragraph links to its note
-                or article. Greek and Hebrew words in the written paragraphs are kept in their own
+                or article. A further list, Articles that cite these passages, gives the articles
+                in the citation indexes (journals of 1827 to 1922, and Project MUSE journals from
+                1996) whose pages cite one of the passages found. Greek and Hebrew words in the written paragraphs are kept in their own
                 letters, with a transliteration in parentheses made by a fixed table of letters,
                 and the link under the Scholarship box hides the transliterations or brings them back.
                 A line in small type says what was found. Where nothing is found, as
@@ -1672,10 +1674,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </p>
               <p className="text-gray-700 mb-4">
                 Measured in October 2026 on fifteen questions over the Aeneid, Thucydides 1 and 2
-                and Annals 1 to 6, two judges reading the first twenty passages of each, a Sonnet model and
-                the university gateway&rsquo;s Qwen model. A passage
-                directly about the subject stood in the first five for 14 of the 15 questions, and
-                of the first ten passages 0.44 were directly about it and 0.75 at least touched it.
+                and Annals 1 to 6, the first twenty passages of each graded by a Sonnet model, with
+                the university gateway&rsquo;s Qwen model as a second judge. The questions were run
+                on 11 October and again on 12 October, when the paragraph windows for prose now in
+                use were installed. On those windows a passage directly about the subject stood in
+                the first five for all 15 questions, and of the first ten passages 0.59 were directly
+                about it and 0.80 at least touched it. The first run gave 14 of 15, 0.44 and 0.75.
                 It was weakest when one account fills a few windows (the plague at Athens) and when
                 the question asks for a named speaker&rsquo;s view, which came back in the
                 narrator&rsquo;s voice. The two judges agreed on 69 percent of grades, the second being
@@ -1866,9 +1870,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 the results are on one page. <AboutSourcesLink anchor="methods" />
               </p>
               <p className="text-gray-700 mb-3">
-                What the site does not hold matters as much. The two citation indexes stop at 1922 and
-                resume in 1996, and the later one covers four American journals, so most of the twentieth
-                century and nearly all European journals are absent from the citation lists. In-copyright
+                What the site does not hold matters as much. The early citation index stops at 1922, the
+                Project MUSE index covers four American journals from 1996, and the JSTOR index covers 54
+                journals from 1832 to 2025, so much of the twentieth century and many European journals are absent from the citation lists. In-copyright
                 books are not indexed at all. A search of the scholarship on a passage is not complete
                 without L&rsquo;Ann&eacute;e philologique, your library&rsquo;s catalog and JSTOR&rsquo;s own
                 search. The sources page says exactly what is missing and where to look for it.{' '}
@@ -3173,13 +3177,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   Knauer's catalog of 412 parallels between Vergil's <em>Aeneid</em> Book 1 and Homer's <em>Iliad</em>:
                 </p>
                 <ul className="text-gray-700 text-sm space-y-1 ml-4 list-disc list-inside">
-                  <li><strong>~40%</strong> of gold-standard parallels found in top 50 (per-target-line ranking)</li>
-                  <li><strong>~24%</strong> found in top 10</li>
-                  <li>Only 31% of scholarly parallels have any shared vocabulary across languages</li>
-                  <li>94% are found somewhere in the full ranking. Most of the parallels outside the top 50 share no words and are found through meaning, but rank lower</li>
+                  <li><strong>171 of 412 (41.5 percent)</strong> of the listed parallels found in the first 50 for a given target line (October 2026)</li>
+                  <li><strong>99 of 412 (24 percent)</strong> found in the first 10</li>
+                  <li>411 of 412 register on at least one channel somewhere in the ranking. Most of the parallels outside the first 50 share no words and are found through meaning, but rank lower</li>
                 </ul>
                 <p className="text-gray-700 text-sm mt-2">
-                  For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
+                  For comparison, the Latin fusion system found 789 of 862 known parallels (91.5 percent) across five benchmarks in March 2026 using
                   eleven channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
                   cross-lingual syntax (structural fingerprint matching via Universal Dependencies),
                   and phonetic transliteration (Greek→Latin character mapping for detecting sound echoes like μῆνιν ≈ Mene).
@@ -3775,7 +3778,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 the theme words as tags. The tags are the model&rsquo;s own words for that window,
                 not a controlled list, so &ldquo;transience&rdquo; on one passage and
                 &ldquo;impermanence&rdquo; on another mean the same thing. There are about
-                730,000 descriptions on the site, covering Latin, Greek, English, Coptic,
+                a million descriptions on the site (1,006,240 since 10 November 2026), covering Latin, Greek, English, Coptic,
                 Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
                 High German. This is why a Persian passage can answer an English description of a Greek scene.
                 Nothing is being translated and no words are being matched.
@@ -3798,10 +3801,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 text-sm mb-3">
                 The confidence band&rsquo;s thresholds are fitted against test queries, two thirds of them subjects the
                 corpus certainly holds and a third it certainly does not, and they are published
-                with the code so anyone can check them. They were refitted in October 2026 after the index grew by a third. On 178
-                test subjects in eight language settings the fit agreed with its test set on 86
-                percent: 80 percent for Latin and for Greek, 73 percent for English, 94 percent
-                for Persian, Urdu, Hebrew and Coptic. Almost every miss is a subject the corpus
+                with the code so anyone can check them. They were refitted in October 2026 after the index grew by a third, and again on 10 November 2026 after it grew to a million windows. On 178
+                test subjects in eight language settings the November fit agrees with its test set on 83
+                percent. The October fit agreed on 86 percent, 80 percent for Latin and for Greek and 73 percent for English. The four other languages were last measured separately on 8 October (Persian 17 of 18, Urdu 16 of 18, Hebrew 17 of 17, Coptic 16 of 17). Almost every miss is a subject the corpus
                 holds that reads in the lowest band, or a subject from the modern world that
                 reads moderate over its nearest neighbors. Until October 2026 the lowest band held the
                 passages back behind a link, and a test of sixty historical subjects (short
