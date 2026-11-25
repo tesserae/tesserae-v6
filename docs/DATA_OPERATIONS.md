@@ -35,7 +35,7 @@ Conventions
   hand and are the models the helper matches.
 
 
-## 2026-11-25 Coptic data release: README sentence on the experimental thematic profile corrected (RUN 09:5x EST, by hand, at the owner's request)
+## 2026-11-25 Coptic data release: README sentence on the experimental thematic profile corrected (RUN 11:51 EST, by hand, at the owner's request)
 
 **What.** The logs/ section of `README.md` said "no result in the article depends on that profile" of the experimental thematic sweeps. Note 15 of the article (Section 5) reports the compromise profile that the wide sweep reached, so the sentence now names the row (iteration 24 of `logs/optimization_thematic_wide_log.jsonl`, marked "new best": recall at 500 of 22 of 124, at 100 of 19 of 124, three of the 29 verbatim quotations out of the top 50) and says that no table in the article uses the profile and the deployed profile does not derive from it. The figures were read from the released log and agree with note 15.
 
