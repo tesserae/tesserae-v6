@@ -1,0 +1,7358 @@
+{
+ "date": "2026-11-24 12:33:14 EST",
+ "code": "35c12157",
+ "language": "grc",
+ "source": "novum_testamentum.ad_hebraeos.tess",
+ "target": "septuaginta.psalmi.tess",
+ "weights": {
+  "edit_distance": 2.0,
+  "sound": 5.0,
+  "exact": 0.5,
+  "lemma": 2.0,
+  "dictionary": 0.1,
+  "semantic": 1.0,
+  "rare_word": 7.0,
+  "syntax": 0.3,
+  "syntax_structural": 0.5,
+  "lemma_min1": 0.3,
+  "quotation": 0.0,
+  "form": 0.0
+ },
+ "max_results": 5000,
+ "n_results": 5000,
+ "elapsed_s": 168,
+ "n_gold": 124,
+ "recall": {
+  "50": 8,
+  "100": 12,
+  "500": 15,
+  "1000": 21,
+  "5000": 30
+ },
+ "gold_pairs": [
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "6"
+   ],
+   "votes": 308,
+   "rank": 446,
+   "diag": {
+    "mult": 0.7196547775194645,
+    "geom_idf": 1.038254927679118,
+    "base": 13.107879279716458,
+    "quot": 0.0,
+    "conv": 1.7732728396210116,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 3.506166324441452,
+     "exact": 2.8499579962152883,
+     "quotation": 0.0,
+     "dictionary": 0.121508137459119,
+     "lemma_min1": 0.5259249486662178,
+     "semantic": 0.8064495325088501,
+     "sound": 3.2978723404255317,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "7"
+   ],
+   "votes": 308,
+   "rank": 334,
+   "diag": {
+    "mult": 1.023804543878718,
+    "geom_idf": 1.7302957910503798,
+    "base": 4.9421582097259495,
+    "quot": 0.0,
+    "conv": 4.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.2501738948022263,
+     "exact": 1.021124897370056,
+     "quotation": 0.0,
+     "lemma_min1": 0.3375260842203339,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "8"
+   ],
+   "votes": 308,
+   "rank": 4527,
+   "diag": {
+    "mult": 0.6814449650805641,
+    "geom_idf": 0.9753211189562231,
+    "base": 1.916936369762079,
+    "quot": 0.0,
+    "conv": 0.29606097141582555,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.137348385676996,
+     "semantic": 0.779587984085083
+    },
+    "channels": [
+     "lemma",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "9"
+   ],
+   "votes": 308,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "1"
+   ],
+   "votes": 221,
+   "rank": 3364,
+   "diag": {
+    "mult": 0.6843092644397812,
+    "geom_idf": 0.9800387884890515,
+    "base": 2.8216918225844716,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.5284247521698875,
+     "exact": 1.0640033575891013,
+     "lemma_min1": 0.2292637128254831
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "2"
+   ],
+   "votes": 221,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "3"
+   ],
+   "votes": 221,
+   "rank": null,
+   "diag": {
+    "mult": 0.12700515379139257,
+    "geom_idf": 1.4350175482958942,
+    "base": 1.0524924130012834,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.3041693896820389,
+     "semantic": 0.7483230233192444
+    },
+    "channels": [
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "123",
+    "8"
+   ],
+   "votes": 172,
+   "rank": null,
+   "diag": {
+    "mult": 0.606376245374431,
+    "geom_idf": 0.8516785217931804,
+    "base": 1.8900722237528287,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.6435410641328945,
+     "lemma_min1": 0.24653115961993416
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "55",
+    "4"
+   ],
+   "votes": 159,
+   "rank": null,
+   "diag": {
+    "mult": 0.12700515379139257,
+    "geom_idf": 1.4350175482958942,
+    "base": 1.118399593310579,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.3041693896820389,
+     "semantic": 0.81423020362854
+    },
+    "channels": [
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "7"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "8"
+   ],
+   "votes": 136,
+   "rank": 728,
+   "diag": {
+    "mult": 0.7168567717661986,
+    "geom_idf": 1.0336464476149152,
+    "base": 10.516393059726346,
+    "quot": 0.0,
+    "conv": 1.3981468153512746,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 3.8622363311534524,
+     "exact": 2.4333234787092173,
+     "quotation": 0.0,
+     "dictionary": 0.17150468844089473,
+     "lemma_min1": 0.5793354496730179,
+     "semantic": 0.751956582069397,
+     "sound": 1.3013698630136985,
+     "edit_distance": 1.4166666666666667
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "9"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "10"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {
+    "mult": 0.4240426270531716,
+    "geom_idf": 0.551364326911106,
+    "base": 0.9525598741463271,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.9525598741463271
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "11"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "55",
+    "11"
+   ],
+   "votes": 134,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "55",
+    "12"
+   ],
+   "votes": 134,
+   "rank": 1187,
+   "diag": {
+    "mult": 0.5775857048080206,
+    "geom_idf": 0.8042588079190927,
+    "base": 9.669754236136352,
+    "quot": 0.0,
+    "conv": 1.4651314129964546,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "lemma": 3.2506790646611323,
+     "exact": 1.8288330988452326,
+     "quotation": 0.0,
+     "dictionary": 0.121508137459119,
+     "lemma_min1": 0.4876018596991698,
+     "sound": 1.9811320754716983,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "53",
+    "4"
+   ],
+   "votes": 130,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "32",
+    "20"
+   ],
+   "votes": 123,
+   "rank": 2018,
+   "diag": {
+    "mult": 0.9020473529217812,
+    "geom_idf": 1.3386662283417572,
+    "base": 2.127314690498973,
+    "quot": 0.0,
+    "conv": 0.2840514733742636,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.8498388613034544,
+     "lemma_min1": 0.27747582919551816
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "62",
+    "7"
+   ],
+   "votes": 118,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "118",
+    "130"
+   ],
+   "votes": 111,
+   "rank": null,
+   "diag": {
+    "mult": 0.06697708549807072,
+    "geom_idf": 0.7475121316426172,
+    "base": 0.9435713627663854,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.3004461863366369,
+     "semantic": 0.6431251764297485
+    },
+    "channels": [
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "93",
+    "17"
+   ],
+   "votes": 106,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.3333333333333335,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "39",
+    "17"
+   ],
+   "votes": 105,
+   "rank": null,
+   "diag": {
+    "mult": 0.5957747035394597,
+    "geom_idf": 0.8342171587708748,
+    "base": 1.3570106158031965,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.3570106158031965
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "8"
+   ],
+   "lxx": [
+    "44",
+    "6"
+   ],
+   "votes": 92,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "8"
+   ],
+   "lxx": [
+    "44",
+    "7"
+   ],
+   "votes": 92,
+   "rank": 27,
+   "diag": {
+    "mult": 1.026039338251112,
+    "geom_idf": 1.5801879325388888,
+    "base": 21.34831142689771,
+    "quot": 0.0,
+    "conv": 1.940433069411041,
+    "n_unique": 7,
+    "n_content": 7,
+    "per_ch_w": {
+     "lemma": 3.6179568827152475,
+     "exact": 3.629709926414432,
+     "quotation": 0.0,
+     "rare_word": 8.46773936863916,
+     "dictionary": 0.06293898944885476,
+     "lemma_min1": 0.5426935324072871,
+     "sound": 3.625,
+     "edit_distance": 1.4022727272727273
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "9"
+   ],
+   "votes": 87,
+   "rank": null,
+   "diag": {
+    "mult": 0.15809837783890765,
+    "geom_idf": 2.5336298369640033,
+    "base": 1.7248110488427797,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.3359221599538907,
+     "edit_distance": 1.388888888888889
+    },
+    "channels": [
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "104",
+    "3"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.04895985814872672,
+    "geom_idf": 0.5161983700683805,
+    "base": 0.5955455303192139,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "semantic": 0.5955455303192139
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "104",
+    "4"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.04895985814872672,
+    "geom_idf": 0.5161983700683805,
+    "base": 0.603091835975647,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "semantic": 0.603091835975647
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "1"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "2"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "3"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "4"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "5"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.05193729086776921,
+    "geom_idf": 0.5551048789414095,
+    "base": 0.27452187119620414,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27452187119620414
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "6"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "7"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "8"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "9"
+   ],
+   "votes": 85,
+   "rank": 2179,
+   "diag": {
+    "mult": 0.6800684131357853,
+    "geom_idf": 0.9730538569295286,
+    "base": 2.643983970041867,
+    "quot": 0.0,
+    "conv": 0.9260772100613954,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.6342518726602806,
+     "lemma_min1": 0.2451377808990421,
+     "semantic": 0.764594316482544
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "10"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.05454156523919069,
+    "geom_idf": 0.5889259606725723,
+    "base": 0.27358813453348685,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27358813453348685
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "11"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.5282767618303431,
+    "geom_idf": 0.7230440783088004,
+    "base": 0.9469731257516305,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.9469731257516305
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "12"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.07158769958335064,
+    "geom_idf": 0.8050034072647847,
+    "base": 0.27989706174309814,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27989706174309814
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "13"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "14"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "15"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "16"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.05947703441882969,
+    "geom_idf": 0.6524591534858004,
+    "base": 0.27358813453348685,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27358813453348685
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "17"
+   ],
+   "votes": 85,
+   "rank": 599,
+   "diag": {
+    "mult": 1.023804543878718,
+    "geom_idf": 1.7302957910503798,
+    "base": 4.769261615461632,
+    "quot": 0.0,
+    "conv": 2.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.6979086511260566,
+     "lemma_min1": 0.40468629766890846,
+     "edit_distance": 1.666666666666667
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "18"
+   ],
+   "votes": 85,
+   "rank": 600,
+   "diag": {
+    "mult": 1.023804543878718,
+    "geom_idf": 1.7302957910503798,
+    "base": 4.769261615461632,
+    "quot": 0.0,
+    "conv": 2.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.6979086511260566,
+     "lemma_min1": 0.40468629766890846,
+     "edit_distance": 1.666666666666667
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "19"
+   ],
+   "votes": 85,
+   "rank": 742,
+   "diag": {
+    "mult": 1.016091099756726,
+    "geom_idf": 1.625670924020111,
+    "base": 4.155434975285659,
+    "quot": 0.0,
+    "conv": 2.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 2.1641463553208626,
+     "lemma_min1": 0.3246219532981294,
+     "edit_distance": 1.666666666666667
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "20"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.6800684131357853,
+    "geom_idf": 0.9730538569295286,
+    "base": 1.3611867525242387,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.3611867525242387
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "21"
+   ],
+   "votes": 85,
+   "rank": 1715,
+   "diag": {
+    "mult": 0.8799065674240494,
+    "geom_idf": 1.3021990522278462,
+    "base": 1.9289847622250755,
+    "quot": 0.0,
+    "conv": 1.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.6773780541087613,
+     "lemma_min1": 0.2516067081163142
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "22"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "23"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.6223950932980814,
+    "geom_idf": 0.8780625066086045,
+    "base": 1.3570106158031965,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.3570106158031965
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "24"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.6814449650805641,
+    "geom_idf": 0.9753211189562231,
+    "base": 1.0072606093746066,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.0072606093746066
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "25"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "26"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.6800684131357853,
+    "geom_idf": 0.9730538569295286,
+    "base": 1.3611867525242387,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.3611867525242387
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "1"
+   ],
+   "lxx": [
+    "26",
+    "13"
+   ],
+   "votes": 80,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "145",
+    "3"
+   ],
+   "votes": 79,
+   "rank": null,
+   "diag": {
+    "mult": 0.07158769958335064,
+    "geom_idf": 0.8050034072647847,
+    "base": 0.27989706174309814,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27989706174309814
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "5"
+   ],
+   "lxx": [
+    "36",
+    "25"
+   ],
+   "votes": 76,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.361904761904762,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.361904761904762
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "5"
+   ],
+   "lxx": [
+    "2",
+    "7"
+   ],
+   "votes": 70,
+   "rank": 683,
+   "diag": {
+    "mult": 0.823739998917288,
+    "geom_idf": 1.2096894099814155,
+    "base": 7.197984745937903,
+    "quot": 0.0,
+    "conv": 2.1215040843870097,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 2.0502802244434513,
+     "exact": 1.3209924472411199,
+     "quotation": 0.0,
+     "dictionary": 0.10251401122217257,
+     "lemma_min1": 0.30754203366651767,
+     "semantic": 0.7643030881881714,
+     "sound": 1.25,
+     "edit_distance": 1.4023529411764706
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "17",
+    "1"
+   ],
+   "votes": 68,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "17",
+    "2"
+   ],
+   "votes": 68,
+   "rank": null,
+   "diag": {
+    "mult": 0.5957747035394597,
+    "geom_idf": 0.8342171587708748,
+    "base": 2.2861823124075324,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.9879846194848108,
+     "lemma_min1": 0.2981976929227216
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "118",
+    "10"
+   ],
+   "votes": 66,
+   "rank": null,
+   "diag": {
+    "mult": 0.18970164714079274,
+    "geom_idf": 3.426978999595752,
+    "base": 8.045425130224094,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "rare_word": 7.71479122076283,
+     "lemma_min1": 0.33063390946126414
+    },
+    "channels": [
+     "rare_word",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "89",
+    "2"
+   ],
+   "votes": 61,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "101",
+    "27"
+   ],
+   "votes": 61,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "101",
+    "28"
+   ],
+   "votes": 61,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "10",
+    "36"
+   ],
+   "lxx": [
+    "36",
+    "7"
+   ],
+   "votes": 56,
+   "rank": null,
+   "diag": {
+    "mult": 0.05947703441882969,
+    "geom_idf": 0.6524591534858004,
+    "base": 0.27358813453348685,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27358813453348685
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "7"
+   ],
+   "lxx": [
+    "39",
+    "7"
+   ],
+   "votes": 55,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "10",
+    "7"
+   ],
+   "lxx": [
+    "39",
+    "8"
+   ],
+   "votes": 55,
+   "rank": 12,
+   "diag": {
+    "mult": 1.0053899925050545,
+    "geom_idf": 1.5162574475989512,
+    "base": 26.64823726083236,
+    "quot": 0.0,
+    "conv": 2.98858855227229,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 5.208393771836588,
+     "exact": 4.0771108772913776,
+     "quotation": 0.0,
+     "rare_word": 10.004694131455167,
+     "dictionary": 0.132783098695053,
+     "lemma_min1": 0.7812590657754881,
+     "semantic": 0.9556242227554321,
+     "sound": 3.488372093023256,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "1"
+   ],
+   "lxx": [
+    "41",
+    "11"
+   ],
+   "votes": 55,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.6,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.6
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "80",
+    "13"
+   ],
+   "votes": 54,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "149",
+    "6"
+   ],
+   "votes": 51,
+   "rank": 98,
+   "diag": {
+    "mult": 1.0377179106092451,
+    "geom_idf": 1.8809417302401203,
+    "base": 13.191314034310803,
+    "quot": 0.0,
+    "conv": 0.9953442370695562,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.436619902855636,
+     "rare_word": 10.004694131455167,
+     "edit_distance": 1.75
+    },
+    "channels": [
+     "lemma",
+     "rare_word",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "7"
+   ],
+   "lxx": [
+    "103",
+    "4"
+   ],
+   "votes": 46,
+   "rank": 62,
+   "diag": {
+    "mult": 0.8463447685990014,
+    "geom_idf": 1.2469207953395318,
+    "base": 22.34081762093501,
+    "quot": 0.0,
+    "conv": 2.064298708504406,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 3.4746885645701173,
+     "exact": 2.6425509698631973,
+     "quotation": 0.0,
+     "rare_word": 9.516874210382104,
+     "dictionary": 0.09046655566469777,
+     "lemma_min1": 0.5212032846855176,
+     "semantic": 0.6859431266784668,
+     "sound": 3.4090909090909087,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "10"
+   ],
+   "lxx": [
+    "101",
+    "25"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "10"
+   ],
+   "lxx": [
+    "101",
+    "26"
+   ],
+   "votes": 45,
+   "rank": 33,
+   "diag": {
+    "mult": 0.8927139263259362,
+    "geom_idf": 1.3232935257133065,
+    "base": 21.462195428501957,
+    "quot": 0.0,
+    "conv": 7.320374565524528,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 3.1877886875377657,
+     "exact": 3.3753380718278776,
+     "quotation": 0.0,
+     "rare_word": 8.604395477891543,
+     "dictionary": 0.1029710535276392,
+     "lemma_min1": 0.47816830313066483,
+     "sound": 4.342105263157895,
+     "edit_distance": 1.3714285714285717
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "10"
+   ],
+   "lxx": [
+    "101",
+    "27"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "10",
+    "5"
+   ],
+   "lxx": [
+    "39",
+    "6"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "10",
+    "5"
+   ],
+   "lxx": [
+    "39",
+    "7"
+   ],
+   "votes": 45,
+   "rank": 6,
+   "diag": {
+    "mult": 1.08500480640972,
+    "geom_idf": 1.7779743682449713,
+    "base": 20.24788993556821,
+    "quot": 0.0,
+    "conv": 10.013105704048607,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 4.075813402622625,
+     "exact": 3.3517121307360362,
+     "quotation": 0.0,
+     "rare_word": 6.833095182790812,
+     "dictionary": 0.08066539276243356,
+     "syntax": 0.3,
+     "lemma_min1": 0.6113720103933937,
+     "semantic": 0.7982621192932129,
+     "sound": 2.196969696969697,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "syntax",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "5"
+   ],
+   "lxx": [
+    "39",
+    "8"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {
+    "mult": 0.05454156523919069,
+    "geom_idf": 0.5889259606725723,
+    "base": 1.0113000409665922,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27358813453348685,
+     "semantic": 0.7377119064331055
+    },
+    "channels": [
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "5"
+   ],
+   "lxx": [
+    "36",
+    "28"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.3012121212121213,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.3012121212121213
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "102",
+    "17"
+   ],
+   "votes": 44,
+   "rank": 4093,
+   "diag": {
+    "mult": 0.6911365154807456,
+    "geom_idf": 0.991283672556522,
+    "base": 2.3830370584911105,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.8897037251577768,
+     "edit_distance": 1.4933333333333336
+    },
+    "channels": [
+     "lemma",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "72",
+    "28"
+   ],
+   "votes": 42,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "4"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "5"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.08023928570986705,
+    "geom_idf": 0.9542647058217044,
+    "base": 11.363422112607326,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 6,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 3.048694911870162,
+     "exact": 2.49338882898054,
+     "quotation": 0.0,
+     "dictionary": 0.08229878471087304,
+     "lemma_min1": 0.45730423678052423,
+     "semantic": 0.9319150447845459,
+     "sound": 3.0188679245283017,
+     "edit_distance": 1.3309523809523809
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "6"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.04971458796122508,
+    "geom_idf": 0.535298266134462,
+    "base": 0.8221057057039788,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma": 0.8221057057039788
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "7"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.04895985814872672,
+    "geom_idf": 0.5161983700683805,
+    "base": 0.650693416595459,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "semantic": 0.650693416595459
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "8"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "32",
+    "13"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.057011190374539805,
+    "geom_idf": 0.6208109425350186,
+    "base": 0.9248389883943829,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.22914132317984437,
+     "semantic": 0.6956976652145386
+    },
+    "channels": [
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "32",
+    "14"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.432985203030874,
+    "geom_idf": 0.566093275580263,
+    "base": 0.9793520373868815,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.9793520373868815
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "32",
+    "15"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.432985203030874,
+    "geom_idf": 0.566093275580263,
+    "base": 0.8815603799339783,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.8815603799339783
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "9"
+   ],
+   "lxx": [
+    "44",
+    "7"
+   ],
+   "votes": 40,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.3,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3
+    },
+    "channels": [
+     "syntax"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "138",
+    "2"
+   ],
+   "votes": 40,
+   "rank": null,
+   "diag": {
+    "mult": 0.057011190374539805,
+    "geom_idf": 0.6208109425350186,
+    "base": 0.22914132317984437,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.22914132317984437
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "3"
+   ],
+   "lxx": [
+    "32",
+    "6"
+   ],
+   "votes": 39,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.521888256072998,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "semantic": 0.521888256072998
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "12"
+   ],
+   "lxx": [
+    "21",
+    "22"
+   ],
+   "votes": 38,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "80",
+    "11"
+   ],
+   "votes": 38,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "89",
+    "4"
+   ],
+   "votes": 37,
+   "rank": null,
+   "diag": {
+    "mult": 0.1994109048804737,
+    "geom_idf": 3.6578845562454507,
+    "base": 10.43346673708896,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "rare_word": 10.004694131455167,
+     "lemma_min1": 0.4287726056337929
+    },
+    "channels": [
+     "rare_word",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "33",
+    "7"
+   ],
+   "votes": 36,
+   "rank": null,
+   "diag": {
+    "mult": 0.057011190374539805,
+    "geom_idf": 0.6208109425350186,
+    "base": 0.22914132317984437,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.22914132317984437
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "15"
+   ],
+   "lxx": [
+    "106",
+    "21"
+   ],
+   "votes": 34,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "15"
+   ],
+   "lxx": [
+    "106",
+    "22"
+   ],
+   "votes": 34,
+   "rank": 168,
+   "diag": {
+    "mult": 1.0102546275472304,
+    "geom_idf": 1.5468629715079987,
+    "base": 12.039294106134111,
+    "quot": 0.0,
+    "conv": 0.33230378630626367,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.5413759855909033,
+     "exact": 1.247095664364967,
+     "rare_word": 7.686282725006271,
+     "lemma_min1": 0.23120639783863547,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "rare_word",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "13"
+   ],
+   "lxx": [
+    "109",
+    "1"
+   ],
+   "votes": 33,
+   "rank": 10,
+   "diag": {
+    "mult": 1.0077971142110493,
+    "geom_idf": 1.5235746793617577,
+    "base": 22.97792820073039,
+    "quot": 0.0,
+    "conv": 8.751003014505937,
+    "n_unique": 7,
+    "n_content": 7,
+    "per_ch_w": {
+     "lemma": 4.1458442478339235,
+     "exact": 3.8064472569115284,
+     "quotation": 0.0,
+     "rare_word": 9.516874210382104,
+     "dictionary": 0.10481585187651613,
+     "lemma_min1": 0.6218766371750885,
+     "semantic": 0.8561440706253052,
+     "sound": 2.5925925925925926,
+     "edit_distance": 1.3333333333333333
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "102",
+    "20"
+   ],
+   "votes": 31,
+   "rank": null,
+   "diag": {
+    "mult": 0.057011190374539805,
+    "geom_idf": 0.6208109425350186,
+    "base": 0.22914132317984437,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.22914132317984437
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "102",
+    "21"
+   ],
+   "votes": 31,
+   "rank": null,
+   "diag": {
+    "mult": 0.057011190374539805,
+    "geom_idf": 0.6208109425350186,
+    "base": 1.5981889422274635,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.22914132317984437,
+     "edit_distance": 1.3690476190476193
+    },
+    "channels": [
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "44",
+    "3"
+   ],
+   "votes": 31,
+   "rank": null,
+   "diag": {
+    "mult": 0.07243965539579131,
+    "geom_idf": 0.8155456735768096,
+    "base": 0.8362314980892925,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.21770635065124325,
+     "semantic": 0.6185251474380493
+    },
+    "channels": [
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "90",
+    "11"
+   ],
+   "votes": 30,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.8251162052154541,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3,
+     "semantic": 0.5251162052154541
+    },
+    "channels": [
+     "syntax",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "90",
+    "12"
+   ],
+   "votes": 30,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "143",
+    "3"
+   ],
+   "votes": 30,
+   "rank": null,
+   "diag": {
+    "mult": 0.06312751920316607,
+    "geom_idf": 0.719397322396397,
+    "base": 7.504821482656885,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 4,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.7999681878283391,
+     "exact": 1.7787678195908856,
+     "quotation": 0.0,
+     "lemma_min1": 0.26999522817425087,
+     "semantic": 0.8031140565872192,
+     "sound": 1.5625,
+     "edit_distance": 1.2904761904761906
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "12"
+   ],
+   "lxx": [
+    "101",
+    "26"
+   ],
+   "votes": 28,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "12"
+   ],
+   "lxx": [
+    "101",
+    "27"
+   ],
+   "votes": 28,
+   "rank": 3,
+   "diag": {
+    "mult": 1.185531771477086,
+    "geom_idf": 2.173912742529021,
+    "base": 29.05655443201128,
+    "quot": 0.0,
+    "conv": 2.064298708504406,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 3.6582705314722497,
+     "exact": 3.288014118840091,
+     "quotation": 0.0,
+     "rare_word": 16.910244269631413,
+     "dictionary": 0.11915918172396484,
+     "lemma_min1": 0.5487405797208375,
+     "semantic": 0.8968793153762817,
+     "sound": 2.22972972972973,
+     "edit_distance": 1.4055167055167057
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "15"
+   ],
+   "lxx": [
+    "49",
+    "14"
+   ],
+   "votes": 27,
+   "rank": 65,
+   "diag": {
+    "mult": 1.0610731050594615,
+    "geom_idf": 1.8016166906821978,
+    "base": 13.332920334606102,
+    "quot": 0.0,
+    "conv": 2.3255737284492604,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 2.700590322875548,
+     "exact": 1.7585191487925234,
+     "rare_word": 7.686282725006271,
+     "lemma_min1": 0.4050885484313322,
+     "semantic": 0.7824395895004272
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "rare_word",
+     "lemma_min1",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "105",
+    "21"
+   ],
+   "votes": 25,
+   "rank": null,
+   "diag": {
+    "mult": 0.4832196078571595,
+    "geom_idf": 0.648832295294145,
+    "base": 1.0443258394125903,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.0443258394125903
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "105",
+    "22"
+   ],
+   "votes": 25,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "77",
+    "32"
+   ],
+   "votes": 25,
+   "rank": 4615,
+   "diag": {
+    "mult": 0.5906155342251802,
+    "geom_idf": 0.8257197034297086,
+    "base": 3.06265590495423,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.1812470159533546,
+     "semantic": 0.5821106433868408,
+     "edit_distance": 1.299298245614035
+    },
+    "channels": [
+     "lemma",
+     "semantic",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "7"
+   ],
+   "lxx": [
+    "8",
+    "5"
+   ],
+   "votes": 23,
+   "rank": null,
+   "diag": {
+    "mult": 0.04971458796122508,
+    "geom_idf": 0.535298266134462,
+    "base": 0.851937095880104,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma": 0.851937095880104
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "12",
+    "6"
+   ],
+   "lxx": [
+    "118",
+    "75"
+   ],
+   "votes": 23,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "12",
+    "11"
+   ],
+   "lxx": [
+    "117",
+    "18"
+   ],
+   "votes": 23,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.6705771684646606,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "semantic": 0.6705771684646606
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "3"
+   ],
+   "lxx": [
+    "94",
+    "11"
+   ],
+   "votes": 22,
+   "rank": 93,
+   "diag": {
+    "mult": 1.0307336163913294,
+    "geom_idf": 1.5950934771622263,
+    "base": 12.55144041590082,
+    "quot": 0.0,
+    "conv": 2.2204743141168546,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 2.746449976558038,
+     "exact": 2.589157630961466,
+     "quotation": 0.0,
+     "rare_word": 2.764710855467621,
+     "dictionary": 0.09474918680718665,
+     "lemma_min1": 0.41196749648370573,
+     "semantic": 0.8069052696228027,
+     "sound": 1.6875,
+     "edit_distance": 1.4500000000000002
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "5",
+    "6"
+   ],
+   "lxx": [
+    "109",
+    "4"
+   ],
+   "votes": 22,
+   "rank": 30,
+   "diag": {
+    "mult": 1.0503153855137748,
+    "geom_idf": 1.658802371663738,
+    "base": 19.80670419777215,
+    "quot": 0.0,
+    "conv": 1.940433069411041,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 3.526538326559402,
+     "exact": 2.373854769504059,
+     "quotation": 0.0,
+     "rare_word": 8.854943823217999,
+     "lemma_min1": 0.5289807489839103,
+     "semantic": 0.8813608884811401,
+     "sound": 2.307692307692308,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "57",
+    "11"
+   ],
+   "votes": 22,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "43",
+    "21"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.5104199760463732,
+    "geom_idf": 0.6936329017234382,
+    "base": 1.7346811115285121,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.50841835785088,
+     "lemma_min1": 0.226262753677632
+    },
+    "channels": [
+     "lemma",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "5",
+    "5"
+   ],
+   "lxx": [
+    "2",
+    "7"
+   ],
+   "votes": 21,
+   "rank": 743,
+   "diag": {
+    "mult": 0.8285032368121821,
+    "geom_idf": 1.2175347429847705,
+    "base": 6.895304821011783,
+    "quot": 0.0,
+    "conv": 1.8844053347327159,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 2.210464412214013,
+     "exact": 1.3209924472411199,
+     "quotation": 0.0,
+     "dictionary": 0.2565640215034177,
+     "lemma_min1": 0.33156966183210196,
+     "semantic": 0.7757142782211304,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "7",
+    "21"
+   ],
+   "lxx": [
+    "109",
+    "4"
+   ],
+   "votes": 21,
+   "rank": 28,
+   "diag": {
+    "mult": 1.0199068678487786,
+    "geom_idf": 1.5609253895303776,
+    "base": 21.34072600138617,
+    "quot": 0.0,
+    "conv": 2.2204743141168546,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 3.5330031912109683,
+     "exact": 2.872266162559687,
+     "quotation": 0.0,
+     "rare_word": 9.729968198869901,
+     "dictionary": 0.10173822084852552,
+     "lemma_min1": 0.5299504786816452,
+     "semantic": 0.8967164158821106,
+     "sound": 2.34375,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "dictionary",
+     "lemma_min1",
+     "semantic",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "105",
+    "24"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.5906155342251802,
+    "geom_idf": 0.8257197034297086,
+    "base": 1.1812470159533546,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.1812470159533546
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "77",
+    "22"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.5885479892899734,
+    "geom_idf": 0.8223143353011325,
+    "base": 1.446953963825696,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.446953963825696
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "12",
+    "5"
+   ],
+   "lxx": [
+    "93",
+    "12"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.5634708908550303,
+    "geom_idf": 0.781010879055344,
+    "base": 0.9050498254740925,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.9050498254740925
+    },
+    "channels": [
+     "lemma"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "12",
+    "14"
+   ],
+   "lxx": [
+    "33",
+    "14"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "6"
+   ],
+   "lxx": [
+    "96",
+    "7"
+   ],
+   "votes": 20,
+   "rank": 2107,
+   "diag": {
+    "mult": 0.7259326381358884,
+    "geom_idf": 1.0485949334002866,
+    "base": 3.638020131985209,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "lemma": 2.1346780742051443,
+     "exact": 1.183140346649293,
+     "lemma_min1": 0.3202017111307716
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "7"
+   ],
+   "votes": 20,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.2866666666666666,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.2866666666666666
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  }
+ ],
+ "top50": [
+  {
+   "rank": 1,
+   "source": "novum_testamentum.ad_hebraeos.3.17",
+   "target": "septuaginta.psalmi 94.10",
+   "gold": false,
+   "score": 43.9798,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.2391173118067358,
+   "geom_idf": 3.0735002033533534,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 4.9332146584373735,
+    "exact": 1.2954339731008278,
+    "rare_word": 14.427964740991523,
+    "lemma_min1": 0.739982198765606,
+    "semantic": 0.6906391382217407,
+    "edit_distance": 1.7142857142857144
+   },
+   "base": 23.80152042380279,
+   "conv": 6.0
+  },
+  {
+   "rank": 2,
+   "source": "novum_testamentum.ad_hebraeos.3.8",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 43.3565,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.196570135896064,
+   "geom_idf": 2.222439307674949,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 4.056106590504578,
+    "exact": 3.7744204493431437,
+    "quotation": 0.0,
+    "rare_word": 7.818048658171783,
+    "dictionary": 0.0900165306066119,
+    "lemma_min1": 0.6084159885756867,
+    "semantic": 0.8832451701164246,
+    "sound": 3.559322033898305,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 22.2062420878832,
+   "conv": 9.662671267374956
+  },
+  {
+   "rank": 3,
+   "source": "novum_testamentum.ad_hebraeos.1.12",
+   "target": "septuaginta.psalmi 101.27",
+   "gold": true,
+   "score": 43.2859,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.185531771477086,
+   "geom_idf": 2.173912742529021,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.6582705314722497,
+    "exact": 3.288014118840091,
+    "quotation": 0.0,
+    "rare_word": 16.910244269631413,
+    "dictionary": 0.11915918172396484,
+    "lemma_min1": 0.5487405797208375,
+    "semantic": 0.8968793153762817,
+    "sound": 2.22972972972973,
+    "edit_distance": 1.4055167055167057
+   },
+   "base": 29.05655443201128,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 4,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 34.8052,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.1644783938783314,
+   "geom_idf": 2.0842767151628077,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.3529909377120233,
+    "exact": 1.255458576189041,
+    "quotation": 0.0,
+    "rare_word": 7.380207115700461,
+    "dictionary": 0.10090902349464675,
+    "lemma_min1": 0.5029486406568034,
+    "semantic": 0.8137785792350769,
+    "sound": 1.6860465116279069,
+    "edit_distance": 1.5580808080808082
+   },
+   "base": 16.650420192696767,
+   "conv": 10.5
+  },
+  {
+   "rank": 5,
+   "source": "novum_testamentum.ad_hebraeos.1.9",
+   "target": "septuaginta.psalmi 44.8",
+   "gold": false,
+   "score": 34.7646,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0981201843023425,
+   "geom_idf": 1.8252290330334102,
+   "n_content": 10,
+   "per_ch_w": {
+    "lemma": 5.093524554547473,
+    "exact": 4.8709043285306555,
+    "quotation": 0.0,
+    "rare_word": 8.64055249856119,
+    "dictionary": 0.17136520794410237,
+    "lemma_min1": 0.7640286831821209,
+    "semantic": 0.9883704781532288,
+    "sound": 4.516129032258064,
+    "edit_distance": 1.75
+   },
+   "base": 26.794874783176837,
+   "conv": 2.23433601688341
+  },
+  {
+   "rank": 6,
+   "source": "novum_testamentum.ad_hebraeos.10.5",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": true,
+   "score": 34.7008,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "syntax",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.08500480640972,
+   "geom_idf": 1.7779743682449713,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 4.075813402622625,
+    "exact": 3.3517121307360362,
+    "quotation": 0.0,
+    "rare_word": 6.833095182790812,
+    "dictionary": 0.08066539276243356,
+    "syntax": 0.3,
+    "lemma_min1": 0.6113720103933937,
+    "semantic": 0.7982621192932129,
+    "sound": 2.196969696969697,
+    "edit_distance": 2.0
+   },
+   "base": 20.24788993556821,
+   "conv": 10.013105704048607
+  },
+  {
+   "rank": 7,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 50.18",
+   "gold": false,
+   "score": 33.4964,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.1952356696803337,
+   "geom_idf": 2.216515675732711,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.9292400021558516,
+    "exact": 1.3471169967623688,
+    "rare_word": 7.059219123105171,
+    "dictionary": 0.11314302722443122,
+    "lemma_min1": 0.4393860003233777,
+    "semantic": 0.7709969282150269,
+    "sound": 1.375,
+    "edit_distance": 1.4649122807017545
+   },
+   "base": 15.499014358487983,
+   "conv": 9.5
+  },
+  {
+   "rank": 8,
+   "source": "novum_testamentum.ad_hebraeos.5.10",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 33.4072,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0889389253371542,
+   "geom_idf": 2.557675044582712,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 5.120851895692512,
+    "exact": 1.280212973923128,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.7681277843538769,
+    "semantic": 0.742192268371582,
+    "sound": 1.349206349206349,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.448868428098777,
+   "conv": 9.5
+  },
+  {
+   "rank": 9,
+   "source": "novum_testamentum.ad_hebraeos.10.4",
+   "target": "septuaginta.psalmi 49.13",
+   "gold": false,
+   "score": 32.2869,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0955794342033598,
+   "geom_idf": 1.9981133507379716,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.760236771133768,
+    "exact": 1.9599897032361357,
+    "rare_word": 9.516874210382104,
+    "lemma_min1": 0.5640355156700652,
+    "semantic": 0.7241595387458801,
+    "sound": 1.282051282051282,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.140680354552565,
+   "conv": 8.5
+  },
+  {
+   "rank": 10,
+   "source": "novum_testamentum.ad_hebraeos.1.13",
+   "target": "septuaginta.psalmi 109.1",
+   "gold": true,
+   "score": 32.1569,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0077971142110493,
+   "geom_idf": 1.5235746793617577,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 4.1458442478339235,
+    "exact": 3.8064472569115284,
+    "quotation": 0.0,
+    "rare_word": 9.516874210382104,
+    "dictionary": 0.10481585187651613,
+    "lemma_min1": 0.6218766371750885,
+    "semantic": 0.8561440706253052,
+    "sound": 2.5925925925925926,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 22.97792820073039,
+   "conv": 8.751003014505937
+  },
+  {
+   "rank": 11,
+   "source": "novum_testamentum.ad_hebraeos.10.6",
+   "target": "septuaginta.psalmi 50.18",
+   "gold": false,
+   "score": 30.1277,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "syntax",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.1481832658812352,
+   "geom_idf": 3.6494070538418537,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.2860127427332286,
+    "rare_word": 8.0010445995663,
+    "dictionary": 0.09594870723828036,
+    "syntax": 0.3,
+    "lemma_min1": 0.3429019114099843,
+    "semantic": 0.7682523727416992,
+    "sound": 1.5217391304347827,
+    "edit_distance": 1.263157894736842
+   },
+   "base": 14.57905735886112,
+   "conv": 9.5
+  },
+  {
+   "rank": 12,
+   "source": "novum_testamentum.ad_hebraeos.10.7",
+   "target": "septuaginta.psalmi 39.8",
+   "gold": true,
+   "score": 29.941,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0053899925050545,
+   "geom_idf": 1.5162574475989512,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 5.208393771836588,
+    "exact": 4.0771108772913776,
+    "quotation": 0.0,
+    "rare_word": 10.004694131455167,
+    "dictionary": 0.132783098695053,
+    "lemma_min1": 0.7812590657754881,
+    "semantic": 0.9556242227554321,
+    "sound": 3.488372093023256,
+    "edit_distance": 2.0
+   },
+   "base": 26.64823726083236,
+   "conv": 2.98858855227229
+  },
+  {
+   "rank": 13,
+   "source": "novum_testamentum.ad_hebraeos.3.10",
+   "target": "septuaginta.psalmi 94.10",
+   "gold": false,
+   "score": 29.3001,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9697816002482037,
+   "geom_idf": 1.450228518055865,
+   "n_content": 11,
+   "per_ch_w": {
+    "lemma": 5.692134323605119,
+    "exact": 5.373356213983069,
+    "quotation": 0.0,
+    "rare_word": 10.552842560357425,
+    "dictionary": 0.14221535731526347,
+    "lemma_min1": 0.8538201485407678,
+    "semantic": 0.977154016494751,
+    "sound": 3.9344262295081966,
+    "edit_distance": 1.5000000000000002
+   },
+   "base": 29.02594884980459,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 14,
+   "source": "novum_testamentum.ad_hebraeos.10.6",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 28.99,
+   "channels": [
+    "lemma",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.102653986223835,
+   "geom_idf": 2.777049478601105,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.3168433798251593,
+    "quotation": 0.0,
+    "rare_word": 8.955559289712223,
+    "dictionary": 0.0750403648222338,
+    "lemma_min1": 0.3475265069737739,
+    "semantic": 0.7853149175643921,
+    "sound": 1.293103448275862,
+    "edit_distance": 1.4545454545454546
+   },
+   "base": 15.227933361719098,
+   "conv": 9.5
+  },
+  {
+   "rank": 15,
+   "source": "novum_testamentum.ad_hebraeos.9.13",
+   "target": "septuaginta.psalmi 49.13",
+   "gold": false,
+   "score": 28.0724,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0955794342033598,
+   "geom_idf": 1.9981133507379716,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.760236771133768,
+    "exact": 1.9599897032361357,
+    "rare_word": 9.516874210382104,
+    "lemma_min1": 0.5640355156700652,
+    "semantic": 0.7769230604171753,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 17.91139259417258,
+   "conv": 6.0
+  },
+  {
+   "rank": 16,
+   "source": "novum_testamentum.ad_hebraeos.10.13",
+   "target": "septuaginta.psalmi 109.1",
+   "gold": false,
+   "score": 28.007,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.010260593653118,
+   "geom_idf": 1.5310997919013045,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.466835651023764,
+    "exact": 1.8375437641216048,
+    "quotation": 0.0,
+    "rare_word": 9.516874210382104,
+    "dictionary": 0.1016844902136963,
+    "lemma_min1": 0.5200253476535646,
+    "semantic": 0.716702938079834,
+    "sound": 1.25,
+    "edit_distance": 1.3692307692307693
+   },
+   "base": 18.778897170705335,
+   "conv": 8.751003014505937
+  },
+  {
+   "rank": 17,
+   "source": "novum_testamentum.ad_hebraeos.7.11",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 27.3969,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1451931319776478,
+   "geom_idf": 2.318787695454165,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.3539083334864777,
+    "exact": 1.280212973923128,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.3530862500229716,
+    "semantic": 0.6022869944572449,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 14.777771708441156,
+   "conv": 7.0
+  },
+  {
+   "rank": 18,
+   "source": "novum_testamentum.ad_hebraeos.3.11",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": false,
+   "score": 26.8568,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0307336163913294,
+   "geom_idf": 1.5950934771622263,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.189639122513502,
+    "exact": 2.589157630961466,
+    "quotation": 0.0,
+    "rare_word": 8.763926062505776,
+    "dictionary": 0.1189214186556963,
+    "lemma_min1": 0.4784458683770253,
+    "semantic": 0.9847380518913269,
+    "sound": 5.0,
+    "edit_distance": 2.0
+   },
+   "base": 23.124828154904794,
+   "conv": 2.2204743141168546
+  },
+  {
+   "rank": 19,
+   "source": "novum_testamentum.ad_hebraeos.9.20",
+   "target": "septuaginta.psalmi 104.8",
+   "gold": false,
+   "score": 26.4004,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound"
+   ],
+   "mult": 1.096260573695249,
+   "geom_idf": 2.6725379133229623,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.308522302005734,
+    "exact": 1.247095664364967,
+    "rare_word": 8.07982805702007,
+    "dictionary": 0.11542611510028672,
+    "lemma_min1": 0.3462783453008601,
+    "semantic": 0.6745631098747253,
+    "sound": 1.442307692307692
+   },
+   "base": 14.214021285974333,
+   "conv": 8.5
+  },
+  {
+   "rank": 20,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 88.12",
+   "gold": false,
+   "score": 26.3685,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.070621502738104,
+   "geom_idf": 2.291471355443111,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.2455796402450838,
+    "exact": 1.342714715041121,
+    "quotation": 0.0,
+    "rare_word": 8.604395477891543,
+    "semantic": 0.8916072249412537,
+    "sound": 1.6666666666666665,
+    "edit_distance": 1.3142857142857145
+   },
+   "base": 15.065249439071383,
+   "conv": 8.5
+  },
+  {
+   "rank": 21,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 8.4",
+   "gold": false,
+   "score": 25.6523,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.047035435056315,
+   "geom_idf": 1.727320585324064,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.930317542512105,
+    "exact": 1.1856514900425417,
+    "rare_word": 8.604395477891543,
+    "lemma_min1": 0.2895476313768158,
+    "semantic": 0.8462713956832886,
+    "sound": 1.3709677419354838,
+    "edit_distance": 1.3866666666666667
+   },
+   "base": 15.613817946108446,
+   "conv": 8.151737757631848
+  },
+  {
+   "rank": 22,
+   "source": "novum_testamentum.ad_hebraeos.3.15",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 25.1307,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0181409544764883,
+   "geom_idf": 1.555422195377961,
+   "n_content": 9,
+   "per_ch_w": {
+    "lemma": 4.92486162474961,
+    "exact": 4.361253439182759,
+    "quotation": 0.0,
+    "rare_word": 6.308507880534456,
+    "dictionary": 0.20001530097704442,
+    "lemma_min1": 0.7387292437124415,
+    "semantic": 0.9087352752685547,
+    "sound": 3.384615384615385,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 22.215607037929143,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 23,
+   "source": "novum_testamentum.ad_hebraeos.10.18",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 25.048,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0760109924548915,
+   "geom_idf": 2.3667816124427254,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.67497777076171,
+    "rare_word": 9.195555442733465,
+    "lemma_min1": 0.25124666561425646,
+    "semantic": 0.6465349197387695,
+    "sound": 1.3793103448275863,
+    "edit_distance": 1.5163398692810457
+   },
+   "base": 14.663965012956835,
+   "conv": 7.5
+  },
+  {
+   "rank": 24,
+   "source": "novum_testamentum.ad_hebraeos.3.9",
+   "target": "septuaginta.psalmi 94.9",
+   "gold": false,
+   "score": 24.6607,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9088412032269881,
+   "geom_idf": 1.3498560994326863,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.7033008059408763,
+    "exact": 1.8377707583142036,
+    "quotation": 0.0,
+    "rare_word": 8.680833357126954,
+    "dictionary": 0.1483165261099376,
+    "lemma_min1": 0.40549512089113143,
+    "semantic": 0.8704617023468018,
+    "sound": 2.8571428571428568,
+    "edit_distance": 1.263157894736842
+   },
+   "base": 18.766479022609605,
+   "conv": 10.0784193908175
+  },
+  {
+   "rank": 25,
+   "source": "novum_testamentum.ad_hebraeos.7.14",
+   "target": "septuaginta.psalmi 77.68",
+   "gold": false,
+   "score": 24.5506,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0929897132262352,
+   "geom_idf": 2.6206002313393135,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.2335027480471332,
+    "exact": 1.3747744578037149,
+    "rare_word": 9.195555442733465,
+    "lemma_min1": 0.33502541220707,
+    "semantic": 0.6974567174911499,
+    "edit_distance": 1.225
+   },
+   "base": 15.061314778282533,
+   "conv": 6.0
+  },
+  {
+   "rank": 26,
+   "source": "novum_testamentum.ad_hebraeos.7.15",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 24.4679,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.111602863160305,
+   "geom_idf": 2.9302340109845915,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.980475852351341,
+    "exact": 1.2721787937807303,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.29707137785270116,
+    "semantic": 0.7325208187103271,
+    "edit_distance": 1.2666666666666666
+   },
+   "base": 14.403857332579765,
+   "conv": 6.0
+  },
+  {
+   "rank": 27,
+   "source": "novum_testamentum.ad_hebraeos.1.8",
+   "target": "septuaginta.psalmi 44.7",
+   "gold": true,
+   "score": 24.4655,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.026039338251112,
+   "geom_idf": 1.5801879325388888,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 3.6179568827152475,
+    "exact": 3.629709926414432,
+    "quotation": 0.0,
+    "rare_word": 8.46773936863916,
+    "dictionary": 0.06293898944885476,
+    "lemma_min1": 0.5426935324072871,
+    "sound": 3.625,
+    "edit_distance": 1.4022727272727273
+   },
+   "base": 21.34831142689771,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 28,
+   "source": "novum_testamentum.ad_hebraeos.7.21",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": true,
+   "score": 24.4635,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0199068678487786,
+   "geom_idf": 1.5609253895303776,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.5330031912109683,
+    "exact": 2.872266162559687,
+    "quotation": 0.0,
+    "rare_word": 9.729968198869901,
+    "dictionary": 0.10173822084852552,
+    "lemma_min1": 0.5299504786816452,
+    "semantic": 0.8967164158821106,
+    "sound": 2.34375,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 21.34072600138617,
+   "conv": 2.2204743141168546
+  },
+  {
+   "rank": 29,
+   "source": "novum_testamentum.ad_hebraeos.3.13",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 24.088,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.063538692376358,
+   "geom_idf": 1.7032573277195855,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.3016869924795302,
+    "exact": 1.1574279536202385,
+    "rare_word": 9.195555442733465,
+    "dictionary": 0.0923774131924564,
+    "lemma_min1": 0.34525304887192954,
+    "semantic": 0.8500636219978333,
+    "edit_distance": 1.3192982456140352
+   },
+   "base": 15.26166271850949,
+   "conv": 6.417510446869534
+  },
+  {
+   "rank": 30,
+   "source": "novum_testamentum.ad_hebraeos.5.6",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": true,
+   "score": 23.8881,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0503153855137748,
+   "geom_idf": 1.658802371663738,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.526538326559402,
+    "exact": 2.373854769504059,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.5289807489839103,
+    "semantic": 0.8813608884811401,
+    "sound": 2.307692307692308,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.80670419777215,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 31,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 50.21",
+   "gold": false,
+   "score": 23.8707,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.2175336267509393,
+   "geom_idf": 2.880794108794378,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.2628605444886243,
+    "rare_word": 6.184350463791363,
+    "dictionary": 0.11314302722443122,
+    "lemma_min1": 0.3394290816732936,
+    "semantic": 0.8101488947868347,
+    "edit_distance": 1.4649122807017545
+   },
+   "base": 11.174844292666302,
+   "conv": 6.0
+  },
+  {
+   "rank": 32,
+   "source": "novum_testamentum.ad_hebraeos.7.17",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 23.8533,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0503153855137748,
+   "geom_idf": 1.658802371663738,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.526538326559402,
+    "exact": 2.373854769504059,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.5289807489839103,
+    "semantic": 0.8933839797973633,
+    "sound": 2.2641509433962264,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.775185924792293,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 33,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 101.26",
+   "gold": true,
+   "score": 23.639,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8927139263259362,
+   "geom_idf": 1.3232935257133065,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.1877886875377657,
+    "exact": 3.3753380718278776,
+    "quotation": 0.0,
+    "rare_word": 8.604395477891543,
+    "dictionary": 0.1029710535276392,
+    "lemma_min1": 0.47816830313066483,
+    "sound": 4.342105263157895,
+    "edit_distance": 1.3714285714285717
+   },
+   "base": 21.462195428501957,
+   "conv": 7.320374565524528
+  },
+  {
+   "rank": 34,
+   "source": "novum_testamentum.ad_hebraeos.9.13",
+   "target": "septuaginta.psalmi 67.31",
+   "gold": false,
+   "score": 22.7984,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0981042833545414,
+   "geom_idf": 2.702266345746851,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.7639225536780323,
+    "rare_word": 10.004694131455167,
+    "lemma_min1": 0.4145883830517048,
+    "semantic": 0.71463942527771,
+    "edit_distance": 1.36624649859944
+   },
+   "base": 15.264090992062053,
+   "conv": 4.0
+  },
+  {
+   "rank": 35,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 49.8",
+   "gold": false,
+   "score": 22.7477,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0940474427200335,
+   "geom_idf": 2.6372844343987314,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.7668801137304555,
+    "rare_word": 8.955559289712223,
+    "dictionary": 0.08834400568652279,
+    "lemma_min1": 0.2650320170595683,
+    "semantic": 0.7334952354431152,
+    "edit_distance": 1.7113442113442112
+   },
+   "base": 13.520654872976095,
+   "conv": 6.0
+  },
+  {
+   "rank": 36,
+   "source": "novum_testamentum.ad_hebraeos.13.15",
+   "target": "septuaginta.psalmi 115.8",
+   "gold": false,
+   "score": 22.2079,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.096585075441183,
+   "geom_idf": 2.677746441520735,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.40870278925253,
+    "exact": 1.247095664364967,
+    "rare_word": 7.686282725006271,
+    "lemma_min1": 0.6613054183878795,
+    "semantic": 0.8170760869979858
+   },
+   "base": 14.820462684009634,
+   "conv": 4.0
+  },
+  {
+   "rank": 37,
+   "source": "novum_testamentum.ad_hebraeos.10.6",
+   "target": "septuaginta.psalmi 50.21",
+   "gold": false,
+   "score": 21.5056,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1481832658812352,
+   "geom_idf": 3.6494070538418537,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.918974144765607,
+    "rare_word": 6.716409506679625,
+    "dictionary": 0.09594870723828036,
+    "lemma_min1": 0.28784612171484103,
+    "semantic": 0.8048653602600098,
+    "edit_distance": 1.263157894736842
+   },
+   "base": 11.087201735395205,
+   "conv": 6.0
+  },
+  {
+   "rank": 38,
+   "source": "novum_testamentum.ad_hebraeos.11.21",
+   "target": "septuaginta.psalmi 76.16",
+   "gold": false,
+   "score": 21.2975,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1327728780527417,
+   "geom_idf": 2.2339777530884684,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.8442208954370494,
+    "rare_word": 7.672202533753616,
+    "lemma_min1": 0.4266331343155574,
+    "semantic": 0.6566402912139893,
+    "edit_distance": 1.4666666666666668
+   },
+   "base": 13.066363521386878,
+   "conv": 4.0
+  },
+  {
+   "rank": 39,
+   "source": "novum_testamentum.ad_hebraeos.2.16",
+   "target": "septuaginta.psalmi 104.6",
+   "gold": false,
+   "score": 20.8334,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0662265704628864,
+   "geom_idf": 2.2318359236008463,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.734210012565952,
+    "rare_word": 8.46773936863916,
+    "lemma_min1": 0.7101315018848927,
+    "edit_distance": 1.6
+   },
+   "base": 15.512080883090004,
+   "conv": 3.0
+  },
+  {
+   "rank": 40,
+   "source": "novum_testamentum.ad_hebraeos.4.5",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": false,
+   "score": 20.7786,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9789101652827636,
+   "geom_idf": 1.465263801642199,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.0253323844123488,
+    "exact": 1.3366021180796837,
+    "quotation": 0.0,
+    "rare_word": 8.763926062505776,
+    "lemma_min1": 0.45379985766185227,
+    "semantic": 0.8863322734832764,
+    "sound": 3.235294117647059,
+    "edit_distance": 2.0
+   },
+   "base": 19.701286813789995,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 41,
+   "source": "novum_testamentum.ad_hebraeos.6.20",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 20.7363,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0329603464230963,
+   "geom_idf": 1.602213003757076,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.9347033868842156,
+    "exact": 1.7341719630960426,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.4402055080326323,
+    "semantic": 0.8295968770980835,
+    "sound": 1.4285714285714284,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 17.55552632023373,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 42,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 132.3",
+   "gold": false,
+   "score": 20.5651,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0485844798851773,
+   "geom_idf": 2.0076642615351474,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.2805892361624,
+    "rare_word": 7.805808981475054,
+    "lemma_min1": 0.64208838542436,
+    "semantic": 0.743729829788208,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 14.888883099516688,
+   "conv": 4.0
+  },
+  {
+   "rank": 43,
+   "source": "novum_testamentum.ad_hebraeos.7.1",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 20.4506,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.111602863160305,
+   "geom_idf": 2.9302340109845915,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8843000352468033,
+    "exact": 1.2721787937807303,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.28264500528702047,
+    "semantic": 0.6578662395477295
+   },
+   "base": 12.951933897080282,
+   "conv": 4.0
+  },
+  {
+   "rank": 44,
+   "source": "novum_testamentum.ad_hebraeos.11.17",
+   "target": "septuaginta.psalmi 104.9",
+   "gold": false,
+   "score": 20.1985,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1180665913479475,
+   "geom_idf": 3.04610783555666,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.191590336637783,
+    "rare_word": 7.6705661782322405,
+    "lemma_min1": 0.32873855049566747,
+    "semantic": 0.7560475468635559,
+    "edit_distance": 1.6333333333333335
+   },
+   "base": 12.58027594556258,
+   "conv": 4.0
+  },
+  {
+   "rank": 45,
+   "source": "novum_testamentum.ad_hebraeos.11.31",
+   "target": "septuaginta.psalmi 27.3",
+   "gold": false,
+   "score": 19.9871,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0730087510672521,
+   "geom_idf": 2.324529410604257,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8587609812587729,
+    "rare_word": 9.729968198869901,
+    "dictionary": 0.09293804906293865,
+    "lemma_min1": 0.2788141471888159,
+    "edit_distance": 1.6714285714285715
+   },
+   "base": 13.631909947809,
+   "conv": 4.0
+  },
+  {
+   "rank": 46,
+   "source": "novum_testamentum.ad_hebraeos.3.18",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": false,
+   "score": 18.885,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0348555994266453,
+   "geom_idf": 1.6082977265762597,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.8233396247167244,
+    "rare_word": 8.763926062505776,
+    "dictionary": 0.09800819565784882,
+    "lemma_min1": 0.4235009437075086,
+    "semantic": 0.7547075748443604,
+    "sound": 1.5686274509803921,
+    "edit_distance": 1.5976689976689977
+   },
+   "base": 16.02977885008161,
+   "conv": 1.6603918247052276
+  },
+  {
+   "rank": 47,
+   "source": "novum_testamentum.ad_hebraeos.2.17",
+   "target": "septuaginta.psalmi 24.11",
+   "gold": false,
+   "score": 18.7535,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0937017353728749,
+   "geom_idf": 2.631819732287946,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.993330505710414,
+    "rare_word": 9.34276374429106,
+    "dictionary": 0.14966652528552069,
+    "lemma_min1": 0.4489995758565621
+   },
+   "base": 12.934760351143556,
+   "conv": 3.0
+  },
+  {
+   "rank": 48,
+   "source": "novum_testamentum.ad_hebraeos.12.19",
+   "target": "septuaginta.psalmi 150.3",
+   "gold": false,
+   "score": 18.698,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0221833689701032,
+   "geom_idf": 1.603221776589953,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.0829697573993085,
+    "exact": 1.3943977387026625,
+    "rare_word": 10.004694131455167,
+    "dictionary": 0.2742892796312662,
+    "lemma_min1": 0.3124454636098963,
+    "semantic": 0.7193284034729004,
+    "edit_distance": 2.0
+   },
+   "base": 16.788124774271203,
+   "conv": 1.1316860580900219
+  },
+  {
+   "rank": 49,
+   "source": "novum_testamentum.ad_hebraeos.7.14",
+   "target": "septuaginta.psalmi 98.6",
+   "gold": false,
+   "score": 18.6007,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0741282268691856,
+   "geom_idf": 1.8735776571804348,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.6039568020538262,
+    "rare_word": 8.241996669579342,
+    "lemma_min1": 0.2405935203080739,
+    "semantic": 0.6447689533233643,
+    "edit_distance": 1.666666666666667
+   },
+   "base": 12.397982611931273,
+   "conv": 4.0
+  },
+  {
+   "rank": 50,
+   "source": "novum_testamentum.ad_hebraeos.2.12",
+   "target": "septuaginta.psalmi 21.23",
+   "gold": false,
+   "score": 18.5154,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9572047058418997,
+   "geom_idf": 1.429513633151364,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.6489806240552514,
+    "exact": 3.217936887025932,
+    "quotation": 0.0,
+    "dictionary": 0.11020217921091886,
+    "lemma_min1": 0.5473470936082877,
+    "semantic": 0.9205448031425476,
+    "sound": 2.9761904761904763,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 12.754535396566748,
+   "conv": 7.134483497325163
+  }
+ ],
+ "top100_rows": [
+  {
+   "rank": 1,
+   "source": "novum_testamentum.ad_hebraeos.3.17",
+   "target": "septuaginta.psalmi 94.10",
+   "gold": false,
+   "score": 43.9798,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.2391173118067358,
+   "geom_idf": 3.0735002033533534,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 4.9332146584373735,
+    "exact": 1.2954339731008278,
+    "rare_word": 14.427964740991523,
+    "lemma_min1": 0.739982198765606,
+    "semantic": 0.6906391382217407,
+    "edit_distance": 1.7142857142857144
+   },
+   "base": 23.80152042380279,
+   "conv": 6.0
+  },
+  {
+   "rank": 2,
+   "source": "novum_testamentum.ad_hebraeos.3.8",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 43.3565,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.196570135896064,
+   "geom_idf": 2.222439307674949,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 4.056106590504578,
+    "exact": 3.7744204493431437,
+    "quotation": 0.0,
+    "rare_word": 7.818048658171783,
+    "dictionary": 0.0900165306066119,
+    "lemma_min1": 0.6084159885756867,
+    "semantic": 0.8832451701164246,
+    "sound": 3.559322033898305,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 22.2062420878832,
+   "conv": 9.662671267374956
+  },
+  {
+   "rank": 3,
+   "source": "novum_testamentum.ad_hebraeos.1.12",
+   "target": "septuaginta.psalmi 101.27",
+   "gold": true,
+   "score": 43.2859,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.185531771477086,
+   "geom_idf": 2.173912742529021,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.6582705314722497,
+    "exact": 3.288014118840091,
+    "quotation": 0.0,
+    "rare_word": 16.910244269631413,
+    "dictionary": 0.11915918172396484,
+    "lemma_min1": 0.5487405797208375,
+    "semantic": 0.8968793153762817,
+    "sound": 2.22972972972973,
+    "edit_distance": 1.4055167055167057
+   },
+   "base": 29.05655443201128,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 4,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 34.8052,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.1644783938783314,
+   "geom_idf": 2.0842767151628077,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.3529909377120233,
+    "exact": 1.255458576189041,
+    "quotation": 0.0,
+    "rare_word": 7.380207115700461,
+    "dictionary": 0.10090902349464675,
+    "lemma_min1": 0.5029486406568034,
+    "semantic": 0.8137785792350769,
+    "sound": 1.6860465116279069,
+    "edit_distance": 1.5580808080808082
+   },
+   "base": 16.650420192696767,
+   "conv": 10.5
+  },
+  {
+   "rank": 5,
+   "source": "novum_testamentum.ad_hebraeos.1.9",
+   "target": "septuaginta.psalmi 44.8",
+   "gold": false,
+   "score": 34.7646,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0981201843023425,
+   "geom_idf": 1.8252290330334102,
+   "n_content": 10,
+   "per_ch_w": {
+    "lemma": 5.093524554547473,
+    "exact": 4.8709043285306555,
+    "quotation": 0.0,
+    "rare_word": 8.64055249856119,
+    "dictionary": 0.17136520794410237,
+    "lemma_min1": 0.7640286831821209,
+    "semantic": 0.9883704781532288,
+    "sound": 4.516129032258064,
+    "edit_distance": 1.75
+   },
+   "base": 26.794874783176837,
+   "conv": 2.23433601688341
+  },
+  {
+   "rank": 6,
+   "source": "novum_testamentum.ad_hebraeos.10.5",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": true,
+   "score": 34.7008,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "syntax",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.08500480640972,
+   "geom_idf": 1.7779743682449713,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 4.075813402622625,
+    "exact": 3.3517121307360362,
+    "quotation": 0.0,
+    "rare_word": 6.833095182790812,
+    "dictionary": 0.08066539276243356,
+    "syntax": 0.3,
+    "lemma_min1": 0.6113720103933937,
+    "semantic": 0.7982621192932129,
+    "sound": 2.196969696969697,
+    "edit_distance": 2.0
+   },
+   "base": 20.24788993556821,
+   "conv": 10.013105704048607
+  },
+  {
+   "rank": 7,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 50.18",
+   "gold": false,
+   "score": 33.4964,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.1952356696803337,
+   "geom_idf": 2.216515675732711,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.9292400021558516,
+    "exact": 1.3471169967623688,
+    "rare_word": 7.059219123105171,
+    "dictionary": 0.11314302722443122,
+    "lemma_min1": 0.4393860003233777,
+    "semantic": 0.7709969282150269,
+    "sound": 1.375,
+    "edit_distance": 1.4649122807017545
+   },
+   "base": 15.499014358487983,
+   "conv": 9.5
+  },
+  {
+   "rank": 8,
+   "source": "novum_testamentum.ad_hebraeos.5.10",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 33.4072,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0889389253371542,
+   "geom_idf": 2.557675044582712,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 5.120851895692512,
+    "exact": 1.280212973923128,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.7681277843538769,
+    "semantic": 0.742192268371582,
+    "sound": 1.349206349206349,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.448868428098777,
+   "conv": 9.5
+  },
+  {
+   "rank": 9,
+   "source": "novum_testamentum.ad_hebraeos.10.4",
+   "target": "septuaginta.psalmi 49.13",
+   "gold": false,
+   "score": 32.2869,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0955794342033598,
+   "geom_idf": 1.9981133507379716,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.760236771133768,
+    "exact": 1.9599897032361357,
+    "rare_word": 9.516874210382104,
+    "lemma_min1": 0.5640355156700652,
+    "semantic": 0.7241595387458801,
+    "sound": 1.282051282051282,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.140680354552565,
+   "conv": 8.5
+  },
+  {
+   "rank": 10,
+   "source": "novum_testamentum.ad_hebraeos.1.13",
+   "target": "septuaginta.psalmi 109.1",
+   "gold": true,
+   "score": 32.1569,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0077971142110493,
+   "geom_idf": 1.5235746793617577,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 4.1458442478339235,
+    "exact": 3.8064472569115284,
+    "quotation": 0.0,
+    "rare_word": 9.516874210382104,
+    "dictionary": 0.10481585187651613,
+    "lemma_min1": 0.6218766371750885,
+    "semantic": 0.8561440706253052,
+    "sound": 2.5925925925925926,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 22.97792820073039,
+   "conv": 8.751003014505937
+  },
+  {
+   "rank": 11,
+   "source": "novum_testamentum.ad_hebraeos.10.6",
+   "target": "septuaginta.psalmi 50.18",
+   "gold": false,
+   "score": 30.1277,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "syntax",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.1481832658812352,
+   "geom_idf": 3.6494070538418537,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.2860127427332286,
+    "rare_word": 8.0010445995663,
+    "dictionary": 0.09594870723828036,
+    "syntax": 0.3,
+    "lemma_min1": 0.3429019114099843,
+    "semantic": 0.7682523727416992,
+    "sound": 1.5217391304347827,
+    "edit_distance": 1.263157894736842
+   },
+   "base": 14.57905735886112,
+   "conv": 9.5
+  },
+  {
+   "rank": 12,
+   "source": "novum_testamentum.ad_hebraeos.10.7",
+   "target": "septuaginta.psalmi 39.8",
+   "gold": true,
+   "score": 29.941,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0053899925050545,
+   "geom_idf": 1.5162574475989512,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 5.208393771836588,
+    "exact": 4.0771108772913776,
+    "quotation": 0.0,
+    "rare_word": 10.004694131455167,
+    "dictionary": 0.132783098695053,
+    "lemma_min1": 0.7812590657754881,
+    "semantic": 0.9556242227554321,
+    "sound": 3.488372093023256,
+    "edit_distance": 2.0
+   },
+   "base": 26.64823726083236,
+   "conv": 2.98858855227229
+  },
+  {
+   "rank": 13,
+   "source": "novum_testamentum.ad_hebraeos.3.10",
+   "target": "septuaginta.psalmi 94.10",
+   "gold": false,
+   "score": 29.3001,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9697816002482037,
+   "geom_idf": 1.450228518055865,
+   "n_content": 11,
+   "per_ch_w": {
+    "lemma": 5.692134323605119,
+    "exact": 5.373356213983069,
+    "quotation": 0.0,
+    "rare_word": 10.552842560357425,
+    "dictionary": 0.14221535731526347,
+    "lemma_min1": 0.8538201485407678,
+    "semantic": 0.977154016494751,
+    "sound": 3.9344262295081966,
+    "edit_distance": 1.5000000000000002
+   },
+   "base": 29.02594884980459,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 14,
+   "source": "novum_testamentum.ad_hebraeos.10.6",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 28.99,
+   "channels": [
+    "lemma",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.102653986223835,
+   "geom_idf": 2.777049478601105,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.3168433798251593,
+    "quotation": 0.0,
+    "rare_word": 8.955559289712223,
+    "dictionary": 0.0750403648222338,
+    "lemma_min1": 0.3475265069737739,
+    "semantic": 0.7853149175643921,
+    "sound": 1.293103448275862,
+    "edit_distance": 1.4545454545454546
+   },
+   "base": 15.227933361719098,
+   "conv": 9.5
+  },
+  {
+   "rank": 15,
+   "source": "novum_testamentum.ad_hebraeos.9.13",
+   "target": "septuaginta.psalmi 49.13",
+   "gold": false,
+   "score": 28.0724,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0955794342033598,
+   "geom_idf": 1.9981133507379716,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.760236771133768,
+    "exact": 1.9599897032361357,
+    "rare_word": 9.516874210382104,
+    "lemma_min1": 0.5640355156700652,
+    "semantic": 0.7769230604171753,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 17.91139259417258,
+   "conv": 6.0
+  },
+  {
+   "rank": 16,
+   "source": "novum_testamentum.ad_hebraeos.10.13",
+   "target": "septuaginta.psalmi 109.1",
+   "gold": false,
+   "score": 28.007,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.010260593653118,
+   "geom_idf": 1.5310997919013045,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.466835651023764,
+    "exact": 1.8375437641216048,
+    "quotation": 0.0,
+    "rare_word": 9.516874210382104,
+    "dictionary": 0.1016844902136963,
+    "lemma_min1": 0.5200253476535646,
+    "semantic": 0.716702938079834,
+    "sound": 1.25,
+    "edit_distance": 1.3692307692307693
+   },
+   "base": 18.778897170705335,
+   "conv": 8.751003014505937
+  },
+  {
+   "rank": 17,
+   "source": "novum_testamentum.ad_hebraeos.7.11",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 27.3969,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1451931319776478,
+   "geom_idf": 2.318787695454165,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.3539083334864777,
+    "exact": 1.280212973923128,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.3530862500229716,
+    "semantic": 0.6022869944572449,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 14.777771708441156,
+   "conv": 7.0
+  },
+  {
+   "rank": 18,
+   "source": "novum_testamentum.ad_hebraeos.3.11",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": false,
+   "score": 26.8568,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0307336163913294,
+   "geom_idf": 1.5950934771622263,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.189639122513502,
+    "exact": 2.589157630961466,
+    "quotation": 0.0,
+    "rare_word": 8.763926062505776,
+    "dictionary": 0.1189214186556963,
+    "lemma_min1": 0.4784458683770253,
+    "semantic": 0.9847380518913269,
+    "sound": 5.0,
+    "edit_distance": 2.0
+   },
+   "base": 23.124828154904794,
+   "conv": 2.2204743141168546
+  },
+  {
+   "rank": 19,
+   "source": "novum_testamentum.ad_hebraeos.9.20",
+   "target": "septuaginta.psalmi 104.8",
+   "gold": false,
+   "score": 26.4004,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound"
+   ],
+   "mult": 1.096260573695249,
+   "geom_idf": 2.6725379133229623,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.308522302005734,
+    "exact": 1.247095664364967,
+    "rare_word": 8.07982805702007,
+    "dictionary": 0.11542611510028672,
+    "lemma_min1": 0.3462783453008601,
+    "semantic": 0.6745631098747253,
+    "sound": 1.442307692307692
+   },
+   "base": 14.214021285974333,
+   "conv": 8.5
+  },
+  {
+   "rank": 20,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 88.12",
+   "gold": false,
+   "score": 26.3685,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.070621502738104,
+   "geom_idf": 2.291471355443111,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.2455796402450838,
+    "exact": 1.342714715041121,
+    "quotation": 0.0,
+    "rare_word": 8.604395477891543,
+    "semantic": 0.8916072249412537,
+    "sound": 1.6666666666666665,
+    "edit_distance": 1.3142857142857145
+   },
+   "base": 15.065249439071383,
+   "conv": 8.5
+  },
+  {
+   "rank": 21,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 8.4",
+   "gold": false,
+   "score": 25.6523,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.047035435056315,
+   "geom_idf": 1.727320585324064,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.930317542512105,
+    "exact": 1.1856514900425417,
+    "rare_word": 8.604395477891543,
+    "lemma_min1": 0.2895476313768158,
+    "semantic": 0.8462713956832886,
+    "sound": 1.3709677419354838,
+    "edit_distance": 1.3866666666666667
+   },
+   "base": 15.613817946108446,
+   "conv": 8.151737757631848
+  },
+  {
+   "rank": 22,
+   "source": "novum_testamentum.ad_hebraeos.3.15",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 25.1307,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0181409544764883,
+   "geom_idf": 1.555422195377961,
+   "n_content": 9,
+   "per_ch_w": {
+    "lemma": 4.92486162474961,
+    "exact": 4.361253439182759,
+    "quotation": 0.0,
+    "rare_word": 6.308507880534456,
+    "dictionary": 0.20001530097704442,
+    "lemma_min1": 0.7387292437124415,
+    "semantic": 0.9087352752685547,
+    "sound": 3.384615384615385,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 22.215607037929143,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 23,
+   "source": "novum_testamentum.ad_hebraeos.10.18",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 25.048,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0760109924548915,
+   "geom_idf": 2.3667816124427254,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.67497777076171,
+    "rare_word": 9.195555442733465,
+    "lemma_min1": 0.25124666561425646,
+    "semantic": 0.6465349197387695,
+    "sound": 1.3793103448275863,
+    "edit_distance": 1.5163398692810457
+   },
+   "base": 14.663965012956835,
+   "conv": 7.5
+  },
+  {
+   "rank": 24,
+   "source": "novum_testamentum.ad_hebraeos.3.9",
+   "target": "septuaginta.psalmi 94.9",
+   "gold": false,
+   "score": 24.6607,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9088412032269881,
+   "geom_idf": 1.3498560994326863,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.7033008059408763,
+    "exact": 1.8377707583142036,
+    "quotation": 0.0,
+    "rare_word": 8.680833357126954,
+    "dictionary": 0.1483165261099376,
+    "lemma_min1": 0.40549512089113143,
+    "semantic": 0.8704617023468018,
+    "sound": 2.8571428571428568,
+    "edit_distance": 1.263157894736842
+   },
+   "base": 18.766479022609605,
+   "conv": 10.0784193908175
+  },
+  {
+   "rank": 25,
+   "source": "novum_testamentum.ad_hebraeos.7.14",
+   "target": "septuaginta.psalmi 77.68",
+   "gold": false,
+   "score": 24.5506,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0929897132262352,
+   "geom_idf": 2.6206002313393135,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.2335027480471332,
+    "exact": 1.3747744578037149,
+    "rare_word": 9.195555442733465,
+    "lemma_min1": 0.33502541220707,
+    "semantic": 0.6974567174911499,
+    "edit_distance": 1.225
+   },
+   "base": 15.061314778282533,
+   "conv": 6.0
+  },
+  {
+   "rank": 26,
+   "source": "novum_testamentum.ad_hebraeos.7.15",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 24.4679,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.111602863160305,
+   "geom_idf": 2.9302340109845915,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.980475852351341,
+    "exact": 1.2721787937807303,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.29707137785270116,
+    "semantic": 0.7325208187103271,
+    "edit_distance": 1.2666666666666666
+   },
+   "base": 14.403857332579765,
+   "conv": 6.0
+  },
+  {
+   "rank": 27,
+   "source": "novum_testamentum.ad_hebraeos.1.8",
+   "target": "septuaginta.psalmi 44.7",
+   "gold": true,
+   "score": 24.4655,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.026039338251112,
+   "geom_idf": 1.5801879325388888,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 3.6179568827152475,
+    "exact": 3.629709926414432,
+    "quotation": 0.0,
+    "rare_word": 8.46773936863916,
+    "dictionary": 0.06293898944885476,
+    "lemma_min1": 0.5426935324072871,
+    "sound": 3.625,
+    "edit_distance": 1.4022727272727273
+   },
+   "base": 21.34831142689771,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 28,
+   "source": "novum_testamentum.ad_hebraeos.7.21",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": true,
+   "score": 24.4635,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0199068678487786,
+   "geom_idf": 1.5609253895303776,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.5330031912109683,
+    "exact": 2.872266162559687,
+    "quotation": 0.0,
+    "rare_word": 9.729968198869901,
+    "dictionary": 0.10173822084852552,
+    "lemma_min1": 0.5299504786816452,
+    "semantic": 0.8967164158821106,
+    "sound": 2.34375,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 21.34072600138617,
+   "conv": 2.2204743141168546
+  },
+  {
+   "rank": 29,
+   "source": "novum_testamentum.ad_hebraeos.3.13",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 24.088,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.063538692376358,
+   "geom_idf": 1.7032573277195855,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.3016869924795302,
+    "exact": 1.1574279536202385,
+    "rare_word": 9.195555442733465,
+    "dictionary": 0.0923774131924564,
+    "lemma_min1": 0.34525304887192954,
+    "semantic": 0.8500636219978333,
+    "edit_distance": 1.3192982456140352
+   },
+   "base": 15.26166271850949,
+   "conv": 6.417510446869534
+  },
+  {
+   "rank": 30,
+   "source": "novum_testamentum.ad_hebraeos.5.6",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": true,
+   "score": 23.8881,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0503153855137748,
+   "geom_idf": 1.658802371663738,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.526538326559402,
+    "exact": 2.373854769504059,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.5289807489839103,
+    "semantic": 0.8813608884811401,
+    "sound": 2.307692307692308,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.80670419777215,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 31,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 50.21",
+   "gold": false,
+   "score": 23.8707,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.2175336267509393,
+   "geom_idf": 2.880794108794378,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.2628605444886243,
+    "rare_word": 6.184350463791363,
+    "dictionary": 0.11314302722443122,
+    "lemma_min1": 0.3394290816732936,
+    "semantic": 0.8101488947868347,
+    "edit_distance": 1.4649122807017545
+   },
+   "base": 11.174844292666302,
+   "conv": 6.0
+  },
+  {
+   "rank": 32,
+   "source": "novum_testamentum.ad_hebraeos.7.17",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 23.8533,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0503153855137748,
+   "geom_idf": 1.658802371663738,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.526538326559402,
+    "exact": 2.373854769504059,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.5289807489839103,
+    "semantic": 0.8933839797973633,
+    "sound": 2.2641509433962264,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 19.775185924792293,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 33,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 101.26",
+   "gold": true,
+   "score": 23.639,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8927139263259362,
+   "geom_idf": 1.3232935257133065,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.1877886875377657,
+    "exact": 3.3753380718278776,
+    "quotation": 0.0,
+    "rare_word": 8.604395477891543,
+    "dictionary": 0.1029710535276392,
+    "lemma_min1": 0.47816830313066483,
+    "sound": 4.342105263157895,
+    "edit_distance": 1.3714285714285717
+   },
+   "base": 21.462195428501957,
+   "conv": 7.320374565524528
+  },
+  {
+   "rank": 34,
+   "source": "novum_testamentum.ad_hebraeos.9.13",
+   "target": "septuaginta.psalmi 67.31",
+   "gold": false,
+   "score": 22.7984,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0981042833545414,
+   "geom_idf": 2.702266345746851,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.7639225536780323,
+    "rare_word": 10.004694131455167,
+    "lemma_min1": 0.4145883830517048,
+    "semantic": 0.71463942527771,
+    "edit_distance": 1.36624649859944
+   },
+   "base": 15.264090992062053,
+   "conv": 4.0
+  },
+  {
+   "rank": 35,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 49.8",
+   "gold": false,
+   "score": 22.7477,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0940474427200335,
+   "geom_idf": 2.6372844343987314,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.7668801137304555,
+    "rare_word": 8.955559289712223,
+    "dictionary": 0.08834400568652279,
+    "lemma_min1": 0.2650320170595683,
+    "semantic": 0.7334952354431152,
+    "edit_distance": 1.7113442113442112
+   },
+   "base": 13.520654872976095,
+   "conv": 6.0
+  },
+  {
+   "rank": 36,
+   "source": "novum_testamentum.ad_hebraeos.13.15",
+   "target": "septuaginta.psalmi 115.8",
+   "gold": false,
+   "score": 22.2079,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.096585075441183,
+   "geom_idf": 2.677746441520735,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.40870278925253,
+    "exact": 1.247095664364967,
+    "rare_word": 7.686282725006271,
+    "lemma_min1": 0.6613054183878795,
+    "semantic": 0.8170760869979858
+   },
+   "base": 14.820462684009634,
+   "conv": 4.0
+  },
+  {
+   "rank": 37,
+   "source": "novum_testamentum.ad_hebraeos.10.6",
+   "target": "septuaginta.psalmi 50.21",
+   "gold": false,
+   "score": 21.5056,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1481832658812352,
+   "geom_idf": 3.6494070538418537,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.918974144765607,
+    "rare_word": 6.716409506679625,
+    "dictionary": 0.09594870723828036,
+    "lemma_min1": 0.28784612171484103,
+    "semantic": 0.8048653602600098,
+    "edit_distance": 1.263157894736842
+   },
+   "base": 11.087201735395205,
+   "conv": 6.0
+  },
+  {
+   "rank": 38,
+   "source": "novum_testamentum.ad_hebraeos.11.21",
+   "target": "septuaginta.psalmi 76.16",
+   "gold": false,
+   "score": 21.2975,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1327728780527417,
+   "geom_idf": 2.2339777530884684,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.8442208954370494,
+    "rare_word": 7.672202533753616,
+    "lemma_min1": 0.4266331343155574,
+    "semantic": 0.6566402912139893,
+    "edit_distance": 1.4666666666666668
+   },
+   "base": 13.066363521386878,
+   "conv": 4.0
+  },
+  {
+   "rank": 39,
+   "source": "novum_testamentum.ad_hebraeos.2.16",
+   "target": "septuaginta.psalmi 104.6",
+   "gold": false,
+   "score": 20.8334,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0662265704628864,
+   "geom_idf": 2.2318359236008463,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.734210012565952,
+    "rare_word": 8.46773936863916,
+    "lemma_min1": 0.7101315018848927,
+    "edit_distance": 1.6
+   },
+   "base": 15.512080883090004,
+   "conv": 3.0
+  },
+  {
+   "rank": 40,
+   "source": "novum_testamentum.ad_hebraeos.4.5",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": false,
+   "score": 20.7786,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9789101652827636,
+   "geom_idf": 1.465263801642199,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.0253323844123488,
+    "exact": 1.3366021180796837,
+    "quotation": 0.0,
+    "rare_word": 8.763926062505776,
+    "lemma_min1": 0.45379985766185227,
+    "semantic": 0.8863322734832764,
+    "sound": 3.235294117647059,
+    "edit_distance": 2.0
+   },
+   "base": 19.701286813789995,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 41,
+   "source": "novum_testamentum.ad_hebraeos.6.20",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 20.7363,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0329603464230963,
+   "geom_idf": 1.602213003757076,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.9347033868842156,
+    "exact": 1.7341719630960426,
+    "quotation": 0.0,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.4402055080326323,
+    "semantic": 0.8295968770980835,
+    "sound": 1.4285714285714284,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 17.55552632023373,
+   "conv": 1.940433069411041
+  },
+  {
+   "rank": 42,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 132.3",
+   "gold": false,
+   "score": 20.5651,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0485844798851773,
+   "geom_idf": 2.0076642615351474,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.2805892361624,
+    "rare_word": 7.805808981475054,
+    "lemma_min1": 0.64208838542436,
+    "semantic": 0.743729829788208,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 14.888883099516688,
+   "conv": 4.0
+  },
+  {
+   "rank": 43,
+   "source": "novum_testamentum.ad_hebraeos.7.1",
+   "target": "septuaginta.psalmi 109.4",
+   "gold": false,
+   "score": 20.4506,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.111602863160305,
+   "geom_idf": 2.9302340109845915,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8843000352468033,
+    "exact": 1.2721787937807303,
+    "rare_word": 8.854943823217999,
+    "lemma_min1": 0.28264500528702047,
+    "semantic": 0.6578662395477295
+   },
+   "base": 12.951933897080282,
+   "conv": 4.0
+  },
+  {
+   "rank": 44,
+   "source": "novum_testamentum.ad_hebraeos.11.17",
+   "target": "septuaginta.psalmi 104.9",
+   "gold": false,
+   "score": 20.1985,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1180665913479475,
+   "geom_idf": 3.04610783555666,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.191590336637783,
+    "rare_word": 7.6705661782322405,
+    "lemma_min1": 0.32873855049566747,
+    "semantic": 0.7560475468635559,
+    "edit_distance": 1.6333333333333335
+   },
+   "base": 12.58027594556258,
+   "conv": 4.0
+  },
+  {
+   "rank": 45,
+   "source": "novum_testamentum.ad_hebraeos.11.31",
+   "target": "septuaginta.psalmi 27.3",
+   "gold": false,
+   "score": 19.9871,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0730087510672521,
+   "geom_idf": 2.324529410604257,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8587609812587729,
+    "rare_word": 9.729968198869901,
+    "dictionary": 0.09293804906293865,
+    "lemma_min1": 0.2788141471888159,
+    "edit_distance": 1.6714285714285715
+   },
+   "base": 13.631909947809,
+   "conv": 4.0
+  },
+  {
+   "rank": 46,
+   "source": "novum_testamentum.ad_hebraeos.3.18",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": false,
+   "score": 18.885,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0348555994266453,
+   "geom_idf": 1.6082977265762597,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.8233396247167244,
+    "rare_word": 8.763926062505776,
+    "dictionary": 0.09800819565784882,
+    "lemma_min1": 0.4235009437075086,
+    "semantic": 0.7547075748443604,
+    "sound": 1.5686274509803921,
+    "edit_distance": 1.5976689976689977
+   },
+   "base": 16.02977885008161,
+   "conv": 1.6603918247052276
+  },
+  {
+   "rank": 47,
+   "source": "novum_testamentum.ad_hebraeos.2.17",
+   "target": "septuaginta.psalmi 24.11",
+   "gold": false,
+   "score": 18.7535,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0937017353728749,
+   "geom_idf": 2.631819732287946,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.993330505710414,
+    "rare_word": 9.34276374429106,
+    "dictionary": 0.14966652528552069,
+    "lemma_min1": 0.4489995758565621
+   },
+   "base": 12.934760351143556,
+   "conv": 3.0
+  },
+  {
+   "rank": 48,
+   "source": "novum_testamentum.ad_hebraeos.12.19",
+   "target": "septuaginta.psalmi 150.3",
+   "gold": false,
+   "score": 18.698,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0221833689701032,
+   "geom_idf": 1.603221776589953,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.0829697573993085,
+    "exact": 1.3943977387026625,
+    "rare_word": 10.004694131455167,
+    "dictionary": 0.2742892796312662,
+    "lemma_min1": 0.3124454636098963,
+    "semantic": 0.7193284034729004,
+    "edit_distance": 2.0
+   },
+   "base": 16.788124774271203,
+   "conv": 1.1316860580900219
+  },
+  {
+   "rank": 49,
+   "source": "novum_testamentum.ad_hebraeos.7.14",
+   "target": "septuaginta.psalmi 98.6",
+   "gold": false,
+   "score": 18.6007,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0741282268691856,
+   "geom_idf": 1.8735776571804348,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.6039568020538262,
+    "rare_word": 8.241996669579342,
+    "lemma_min1": 0.2405935203080739,
+    "semantic": 0.6447689533233643,
+    "edit_distance": 1.666666666666667
+   },
+   "base": 12.397982611931273,
+   "conv": 4.0
+  },
+  {
+   "rank": 50,
+   "source": "novum_testamentum.ad_hebraeos.2.12",
+   "target": "septuaginta.psalmi 21.23",
+   "gold": false,
+   "score": 18.5154,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9572047058418997,
+   "geom_idf": 1.429513633151364,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 3.6489806240552514,
+    "exact": 3.217936887025932,
+    "quotation": 0.0,
+    "dictionary": 0.11020217921091886,
+    "lemma_min1": 0.5473470936082877,
+    "semantic": 0.9205448031425476,
+    "sound": 2.9761904761904763,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 12.754535396566748,
+   "conv": 7.134483497325163
+  },
+  {
+   "rank": 51,
+   "source": "novum_testamentum.ad_hebraeos.3.16",
+   "target": "septuaginta.psalmi 105.7",
+   "gold": false,
+   "score": 18.5027,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.1114665324977184,
+   "geom_idf": 2.92783810655839,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.359452750730911,
+    "rare_word": 8.763926062505776,
+    "semantic": 0.7396723031997681,
+    "edit_distance": 1.4153846153846155
+   },
+   "base": 12.278435731821071,
+   "conv": 3.0
+  },
+  {
+   "rank": 52,
+   "source": "novum_testamentum.ad_hebraeos.11.22",
+   "target": "septuaginta.psalmi 76.16",
+   "gold": false,
+   "score": 18.4123,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0413165859061226,
+   "geom_idf": 1.9219967575825845,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8046215019765128,
+    "rare_word": 9.068037811705794,
+    "lemma_min1": 0.27069322529647694,
+    "semantic": 0.5732909440994263,
+    "edit_distance": 1.4222222222222225
+   },
+   "base": 13.138865705300432,
+   "conv": 4.0
+  },
+  {
+   "rank": 53,
+   "source": "novum_testamentum.ad_hebraeos.12.17",
+   "target": "septuaginta.psalmi 83.7",
+   "gold": false,
+   "score": 18.3626,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0320366798362373,
+   "geom_idf": 1.8179058143510416,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.9548365600993138,
+    "rare_word": 8.680833357126954,
+    "lemma_min1": 0.29322548401489706,
+    "semantic": 0.6855243444442749,
+    "edit_distance": 1.75
+   },
+   "base": 13.364419745685439,
+   "conv": 4.0
+  },
+  {
+   "rank": 54,
+   "source": "novum_testamentum.ad_hebraeos.1.10",
+   "target": "septuaginta.psalmi 118.152",
+   "gold": false,
+   "score": 18.2937,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0332641332947619,
+   "geom_idf": 1.8313436050759613,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.6145341514344689,
+    "rare_word": 8.604395477891543,
+    "dictionary": 0.08072670757172346,
+    "lemma_min1": 0.2421801227151703,
+    "semantic": 0.820962131023407,
+    "edit_distance": 1.3714285714285717
+   },
+   "base": 12.734227162064887,
+   "conv": 4.546916377016352
+  },
+  {
+   "rank": 55,
+   "source": "novum_testamentum.ad_hebraeos.9.20",
+   "target": "septuaginta.psalmi 110.9",
+   "gold": false,
+   "score": 18.2355,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.096260573695249,
+   "geom_idf": 2.6725379133229623,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.308522302005734,
+    "rare_word": 8.07982805702007,
+    "dictionary": 0.11542611510028672,
+    "lemma_min1": 0.3462783453008601,
+    "semantic": 0.674823522567749
+   },
+   "base": 11.524878341994699,
+   "conv": 4.0
+  },
+  {
+   "rank": 56,
+   "source": "novum_testamentum.ad_hebraeos.1.11",
+   "target": "septuaginta.psalmi 101.27",
+   "gold": false,
+   "score": 18.2181,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8668879123061972,
+   "geom_idf": 1.2807565614455014,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.44173384100447,
+    "exact": 3.2067060130772855,
+    "quotation": 0.0,
+    "rare_word": 8.955559289712223,
+    "dictionary": 0.12229617991112132,
+    "lemma_min1": 0.5162600761506705,
+    "semantic": 0.9722009897232056,
+    "sound": 3.275862068965517,
+    "edit_distance": 1.3706293706293706
+   },
+   "base": 21.861247829173863,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 57,
+   "source": "novum_testamentum.ad_hebraeos.5.7",
+   "target": "septuaginta.psalmi 38.13",
+   "gold": false,
+   "score": 18.2059,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1314099822094732,
+   "geom_idf": 2.2248623637955887,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.7402737007728952,
+    "rare_word": 7.226971299689769,
+    "dictionary": 0.07858616737541396,
+    "lemma_min1": 0.2610410551159343,
+    "edit_distance": 1.38008658008658
+   },
+   "base": 10.686958803040593,
+   "conv": 4.0
+  },
+  {
+   "rank": 59,
+   "source": "novum_testamentum.ad_hebraeos.4.7",
+   "target": "septuaginta.psalmi 94.8",
+   "gold": false,
+   "score": 18.14,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8516145066042901,
+   "geom_idf": 1.2556003638188307,
+   "n_content": 9,
+   "per_ch_w": {
+    "lemma": 4.262601075704172,
+    "exact": 4.197688945561878,
+    "quotation": 0.0,
+    "rare_word": 9.195555442733465,
+    "dictionary": 0.17767233977264676,
+    "lemma_min1": 0.6393901613556258,
+    "semantic": 0.7675658464431763,
+    "sound": 1.958762886597938,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 22.588125587057792,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 60,
+   "source": "novum_testamentum.ad_hebraeos.6.2",
+   "target": "septuaginta.psalmi 9.17",
+   "gold": false,
+   "score": 18.015,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.025812098856076,
+   "geom_idf": 1.751263804414823,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.4801241033554158,
+    "rare_word": 7.531083048889787,
+    "dictionary": 0.07400620516777079,
+    "lemma_min1": 0.22201861550331237,
+    "semantic": 0.6262264251708984,
+    "edit_distance": 1.4666666666666668
+   },
+   "base": 11.400125064753851,
+   "conv": 5.867298817748267
+  },
+  {
+   "rank": 61,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 73.2",
+   "gold": false,
+   "score": 18.0148,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0485844798851773,
+   "geom_idf": 2.0076642615351474,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.2805892361624,
+    "rare_word": 7.805808981475054,
+    "lemma_min1": 0.64208838542436,
+    "semantic": 0.7945891618728638
+   },
+   "base": 13.523075764934678,
+   "conv": 3.0
+  },
+  {
+   "rank": 62,
+   "source": "novum_testamentum.ad_hebraeos.1.7",
+   "target": "septuaginta.psalmi 103.4",
+   "gold": true,
+   "score": 17.7498,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8463447685990014,
+   "geom_idf": 1.2469207953395318,
+   "n_content": 6,
+   "per_ch_w": {
+    "lemma": 3.4746885645701173,
+    "exact": 2.6425509698631973,
+    "quotation": 0.0,
+    "rare_word": 9.516874210382104,
+    "dictionary": 0.09046655566469777,
+    "lemma_min1": 0.5212032846855176,
+    "semantic": 0.6859431266784668,
+    "sound": 3.4090909090909087,
+    "edit_distance": 2.0
+   },
+   "base": 22.34081762093501,
+   "conv": 2.064298708504406
+  },
+  {
+   "rank": 65,
+   "source": "novum_testamentum.ad_hebraeos.13.15",
+   "target": "septuaginta.psalmi 49.14",
+   "gold": true,
+   "score": 17.4788,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0610731050594615,
+   "geom_idf": 1.8016166906821978,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.700590322875548,
+    "exact": 1.7585191487925234,
+    "rare_word": 7.686282725006271,
+    "lemma_min1": 0.4050885484313322,
+    "semantic": 0.7824395895004272
+   },
+   "base": 13.332920334606102,
+   "conv": 2.3255737284492604
+  },
+  {
+   "rank": 66,
+   "source": "novum_testamentum.ad_hebraeos.11.12",
+   "target": "septuaginta.psalmi 77.27",
+   "gold": false,
+   "score": 17.4728,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0477781223729568,
+   "geom_idf": 1.9979743500794918,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.269659838531862,
+    "rare_word": 9.729968198869901,
+    "lemma_min1": 0.3404489757797793,
+    "semantic": 0.7123467922210693
+   },
+   "base": 13.052423805402611,
+   "conv": 3.0
+  },
+  {
+   "rank": 67,
+   "source": "novum_testamentum.ad_hebraeos.13.20",
+   "target": "septuaginta.psalmi 104.10",
+   "gold": false,
+   "score": 17.3281,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0872147511303778,
+   "geom_idf": 2.53135217095055,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.578000001367932,
+    "rare_word": 7.555260636148599,
+    "lemma_min1": 0.6867000002051897
+   },
+   "base": 12.81996063772172,
+   "conv": 2.0
+  },
+  {
+   "rank": 68,
+   "source": "novum_testamentum.ad_hebraeos.1.12",
+   "target": "septuaginta.psalmi 103.6",
+   "gold": false,
+   "score": 17.2907,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "sound"
+   ],
+   "mult": 1.0053333182960855,
+   "geom_idf": 1.5241929593501389,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.220859109025543,
+    "exact": 1.3518231172573834,
+    "rare_word": 9.729968198869901,
+    "lemma_min1": 0.3331288663538315,
+    "semantic": 0.6752539277076721,
+    "sound": 1.5384615384615385
+   },
+   "base": 15.84949475767587,
+   "conv": 1.2649164367206482
+  },
+  {
+   "rank": 69,
+   "source": "novum_testamentum.ad_hebraeos.13.11",
+   "target": "septuaginta.psalmi 105.16",
+   "gold": false,
+   "score": 17.1082,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0917155164329473,
+   "geom_idf": 2.6006416595291073,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.531116227113626,
+    "rare_word": 9.195555442733465,
+    "lemma_min1": 0.2296674340670439,
+    "semantic": 0.6500942707061768
+   },
+   "base": 11.606433374620313,
+   "conv": 3.0
+  },
+  {
+   "rank": 70,
+   "source": "novum_testamentum.ad_hebraeos.9.14",
+   "target": "septuaginta.psalmi 18.14",
+   "gold": false,
+   "score": 17.0667,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1340321820497874,
+   "geom_idf": 3.352338628725674,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.4746690274081655,
+    "rare_word": 8.66134159592858,
+    "lemma_min1": 0.3712003541112248
+   },
+   "base": 11.50721097744797,
+   "conv": 2.0
+  },
+  {
+   "rank": 71,
+   "source": "novum_testamentum.ad_hebraeos.2.17",
+   "target": "septuaginta.psalmi 78.9",
+   "gold": false,
+   "score": 17.0191,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0572286516350506,
+   "geom_idf": 1.7809573610654332,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.7583605317833497,
+    "rare_word": 9.34276374429106,
+    "dictionary": 0.14966652528552069,
+    "lemma_min1": 0.2637540797675024,
+    "edit_distance": 1.5122549019607843
+   },
+   "base": 13.026799783088215,
+   "conv": 2.3255737284492604
+  },
+  {
+   "rank": 72,
+   "source": "novum_testamentum.ad_hebraeos.10.2",
+   "target": "septuaginta.psalmi 18.14",
+   "gold": false,
+   "score": 17.0092,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0877367344514322,
+   "geom_idf": 2.539292540358983,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.302469741754556,
+    "rare_word": 8.854943823217999,
+    "dictionary": 0.1151234870877278,
+    "lemma_min1": 0.3453704612631834
+   },
+   "base": 11.617907513323464,
+   "conv": 3.0
+  },
+  {
+   "rank": 73,
+   "source": "novum_testamentum.ad_hebraeos.10.2",
+   "target": "septuaginta.psalmi 50.4",
+   "gold": false,
+   "score": 17.0092,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0877367344514322,
+   "geom_idf": 2.539292540358983,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.302469741754556,
+    "rare_word": 8.854943823217999,
+    "dictionary": 0.1151234870877278,
+    "lemma_min1": 0.3453704612631834
+   },
+   "base": 11.617907513323464,
+   "conv": 3.0
+  },
+  {
+   "rank": 74,
+   "source": "novum_testamentum.ad_hebraeos.10.8",
+   "target": "septuaginta.psalmi 19.4",
+   "gold": false,
+   "score": 16.9529,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0940474427200335,
+   "geom_idf": 2.6372844343987314,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.0549099891669265,
+    "rare_word": 8.955559289712223,
+    "dictionary": 0.10274549945834632,
+    "lemma_min1": 0.30823649837503897
+   },
+   "base": 11.421451276712535,
+   "conv": 3.0
+  },
+  {
+   "rank": 75,
+   "source": "novum_testamentum.ad_hebraeos.1.13",
+   "target": "septuaginta.psalmi 98.5",
+   "gold": false,
+   "score": 16.9251,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0645530963208385,
+   "geom_idf": 2.2095385349982393,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 3.077519380474374,
+    "rare_word": 9.516874210382104,
+    "lemma_min1": 0.4616279070711561
+   },
+   "base": 13.056021497927635,
+   "conv": 2.0
+  },
+  {
+   "rank": 76,
+   "source": "novum_testamentum.ad_hebraeos.10.28",
+   "target": "septuaginta.psalmi 118.77",
+   "gold": false,
+   "score": 16.7919,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0587055960274345,
+   "geom_idf": 2.1333610296736625,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8414956407987688,
+    "rare_word": 8.53362505556936,
+    "lemma_min1": 0.27622434611981533,
+    "edit_distance": 1.4962962962962962
+   },
+   "base": 12.14764133878424,
+   "conv": 3.0
+  },
+  {
+   "rank": 77,
+   "source": "novum_testamentum.ad_hebraeos.1.9",
+   "target": "septuaginta.psalmi 151.4",
+   "gold": false,
+   "score": 16.6827,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0675819360836825,
+   "geom_idf": 2.250059644676881,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.9253697775069711,
+    "rare_word": 9.516874210382104,
+    "dictionary": 0.09626848887534856,
+    "lemma_min1": 0.28880546662604567
+   },
+   "base": 11.82731794339047,
+   "conv": 3.0
+  },
+  {
+   "rank": 78,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 47.3",
+   "gold": false,
+   "score": 16.6741,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0114753187636703,
+   "geom_idf": 1.5525380826302089,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.526011442674742,
+    "rare_word": 7.805808981475054,
+    "lemma_min1": 0.37890171640121134,
+    "semantic": 0.7649322748184204,
+    "edit_distance": 1.55
+   },
+   "base": 13.025654415369429,
+   "conv": 3.3098209018288873
+  },
+  {
+   "rank": 79,
+   "source": "novum_testamentum.ad_hebraeos.6.14",
+   "target": "septuaginta.psalmi 106.38",
+   "gold": false,
+   "score": 16.4844,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1008808394316363,
+   "geom_idf": 2.74766138575258,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.838979631707534,
+    "rare_word": 6.436428710976369,
+    "dictionary": 0.0919489815853767,
+    "lemma_min1": 0.2758469447561301,
+    "edit_distance": 1.325
+   },
+   "base": 9.96820426902541,
+   "conv": 4.0
+  },
+  {
+   "rank": 80,
+   "source": "novum_testamentum.ad_hebraeos.8.8",
+   "target": "septuaginta.psalmi 113.20",
+   "gold": false,
+   "score": 16.3946,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0336125952775717,
+   "geom_idf": 1.6591458038600633,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.4955057540979093,
+    "exact": 1.0363458965477557,
+    "rare_word": 7.052860833598723,
+    "lemma_min1": 0.22432586311468639,
+    "edit_distance": 1.666666666666667
+   },
+   "base": 11.475705014025742,
+   "conv": 4.0
+  },
+  {
+   "rank": 81,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 134.21",
+   "gold": false,
+   "score": 16.3426,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1214757047595583,
+   "geom_idf": 3.109056601691115,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8642873801114883,
+    "rare_word": 6.525005830390209,
+    "lemma_min1": 0.27964310701672324,
+    "edit_distance": 1.65
+   },
+   "base": 10.318936317518421,
+   "conv": 3.0
+  },
+  {
+   "rank": 82,
+   "source": "novum_testamentum.ad_hebraeos.10.17",
+   "target": "septuaginta.psalmi 50.5",
+   "gold": false,
+   "score": 16.1175,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0776960693927602,
+   "geom_idf": 2.3908322437338896,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.5687576535362755,
+    "rare_word": 6.930784605823154,
+    "dictionary": 0.07843788267681379,
+    "lemma_min1": 0.2353136480304413,
+    "edit_distance": 1.3523809523809525
+   },
+   "base": 10.165674742447639,
+   "conv": 4.0
+  },
+  {
+   "rank": 83,
+   "source": "novum_testamentum.ad_hebraeos.11.22",
+   "target": "septuaginta.psalmi 113.1",
+   "gold": false,
+   "score": 16.1155,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0854036650736525,
+   "geom_idf": 2.50399410386876,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.8676306491395023,
+    "rare_word": 7.052860833598723,
+    "lemma_min1": 0.4301445973709253,
+    "semantic": 0.5646370649337769
+   },
+   "base": 10.915273145042926,
+   "conv": 3.0
+  },
+  {
+   "rank": 84,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 47.12",
+   "gold": false,
+   "score": 16.0925,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0485844798851773,
+   "geom_idf": 2.0076642615351474,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 4.2805892361624,
+    "rare_word": 7.805808981475054,
+    "lemma_min1": 0.64208838542436
+   },
+   "base": 12.728486603061814,
+   "conv": 2.0
+  },
+  {
+   "rank": 85,
+   "source": "novum_testamentum.ad_hebraeos.10.10",
+   "target": "septuaginta.psalmi 39.7",
+   "gold": false,
+   "score": 16.0741,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0133719585494496,
+   "geom_idf": 1.6253072249261795,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.907344343938403,
+    "rare_word": 9.195555442733465,
+    "lemma_min1": 0.4361016515907604,
+    "semantic": 0.622813880443573
+   },
+   "base": 13.161815318706202,
+   "conv": 2.524193825295554
+  },
+  {
+   "rank": 86,
+   "source": "novum_testamentum.ad_hebraeos.1.9",
+   "target": "septuaginta.psalmi 5.6",
+   "gold": false,
+   "score": 16.0382,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.062723884810698,
+   "geom_idf": 2.185420846231939,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.901090998438814,
+    "exact": 1.2248980518404369,
+    "rare_word": 6.930784605823154,
+    "dictionary": 0.0950545499219407,
+    "lemma_min1": 0.2851636497658221
+   },
+   "base": 10.436991855790167,
+   "conv": 4.0
+  },
+  {
+   "rank": 87,
+   "source": "novum_testamentum.ad_hebraeos.10.17",
+   "target": "septuaginta.psalmi 37.19",
+   "gold": false,
+   "score": 16.0046,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0776960693927602,
+   "geom_idf": 2.3908322437338896,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.501673849584044,
+    "rare_word": 6.930784605823154,
+    "dictionary": 0.07508369247920221,
+    "lemma_min1": 0.22525107743760658,
+    "edit_distance": 1.3357142857142859
+   },
+   "base": 10.068507511038293,
+   "conv": 4.0
+  },
+  {
+   "rank": 88,
+   "source": "novum_testamentum.ad_hebraeos.1.12",
+   "target": "septuaginta.psalmi 103.2",
+   "gold": false,
+   "score": 15.9587,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0584853715096112,
+   "geom_idf": 2.1305439808085986,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8614056868572235,
+    "exact": 1.1637743715700744,
+    "rare_word": 7.067440715075536,
+    "dictionary": 0.09307028434286119,
+    "lemma_min1": 0.2792108530285835
+   },
+   "base": 10.464901910874278,
+   "conv": 4.0
+  },
+  {
+   "rank": 89,
+   "source": "novum_testamentum.ad_hebraeos.2.17",
+   "target": "septuaginta.psalmi 77.38",
+   "gold": false,
+   "score": 15.8725,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.026914114733779,
+   "geom_idf": 1.6261373071621015,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.4899619689877601,
+    "rare_word": 9.34276374429106,
+    "dictionary": 0.14966652528552069,
+    "lemma_min1": 0.223494295348164,
+    "semantic": 0.6999781131744385,
+    "edit_distance": 1.4922385620915033
+   },
+   "base": 13.398103209178446,
+   "conv": 1.697843584598527
+  },
+  {
+   "rank": 90,
+   "source": "novum_testamentum.ad_hebraeos.9.10",
+   "target": "septuaginta.psalmi 118.20",
+   "gold": false,
+   "score": 15.8199,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.042749396262475,
+   "geom_idf": 1.9385911262855495,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.07519961615307,
+    "rare_word": 7.658600679917456,
+    "lemma_min1": 0.3112799424229605,
+    "edit_distance": 1.6272727272727274
+   },
+   "base": 11.672352965766214,
+   "conv": 3.0
+  },
+  {
+   "rank": 91,
+   "source": "novum_testamentum.ad_hebraeos.11.22",
+   "target": "septuaginta.psalmi 127.6",
+   "gold": false,
+   "score": 15.7852,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0299554711720411,
+   "geom_idf": 1.795346312597364,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.6635219407745732,
+    "rare_word": 7.052860833598723,
+    "lemma_min1": 0.24952829111618596,
+    "semantic": 0.5863684415817261,
+    "edit_distance": 1.4444444444444446
+   },
+   "base": 10.996723951515653,
+   "conv": 4.0
+  },
+  {
+   "rank": 92,
+   "source": "novum_testamentum.ad_hebraeos.9.19",
+   "target": "septuaginta.psalmi 50.9",
+   "gold": false,
+   "score": 15.7438,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1853058808833101,
+   "geom_idf": 4.559898631787406,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.0470166655530013,
+    "rare_word": 7.164558329435504,
+    "lemma_min1": 0.3070524998329502
+   },
+   "base": 9.518627494821457,
+   "conv": 2.0
+  },
+  {
+   "rank": 93,
+   "source": "novum_testamentum.ad_hebraeos.4.3",
+   "target": "septuaginta.psalmi 94.11",
+   "gold": true,
+   "score": 15.6235,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0307336163913294,
+   "geom_idf": 1.5950934771622263,
+   "n_content": 5,
+   "per_ch_w": {
+    "lemma": 2.746449976558038,
+    "exact": 2.589157630961466,
+    "quotation": 0.0,
+    "rare_word": 2.764710855467621,
+    "dictionary": 0.09474918680718665,
+    "lemma_min1": 0.41196749648370573,
+    "semantic": 0.8069052696228027,
+    "sound": 1.6875,
+    "edit_distance": 1.4500000000000002
+   },
+   "base": 12.55144041590082,
+   "conv": 2.2204743141168546
+  },
+  {
+   "rank": 94,
+   "source": "novum_testamentum.ad_hebraeos.13.15",
+   "target": "septuaginta.psalmi 62.6",
+   "gold": false,
+   "score": 15.5835,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0872530414774784,
+   "geom_idf": 2.0063328032646206,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.032820709363019,
+    "rare_word": 7.686282725006271,
+    "lemma_min1": 0.30492310640445286,
+    "semantic": 0.7531952857971191
+   },
+   "base": 10.777221826570862,
+   "conv": 2.6153259988111834
+  },
+  {
+   "rank": 95,
+   "source": "novum_testamentum.ad_hebraeos.10.17",
+   "target": "septuaginta.psalmi 31.1",
+   "gold": false,
+   "score": 15.4357,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "semantic"
+   ],
+   "mult": 1.0776960693927602,
+   "geom_idf": 2.3908322437338896,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.6488279960218801,
+    "rare_word": 6.930784605823154,
+    "dictionary": 0.08244139980109401,
+    "lemma_min1": 0.247324199403282,
+    "semantic": 0.6693094968795776
+   },
+   "base": 9.57868769792899,
+   "conv": 4.0
+  },
+  {
+   "rank": 96,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 50.20",
+   "gold": false,
+   "score": 15.3696,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1214757047595583,
+   "geom_idf": 3.109056601691115,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.6979039739605561,
+    "rare_word": 5.942663908861946,
+    "lemma_min1": 0.2546855960940834,
+    "edit_distance": 1.65
+   },
+   "base": 9.545253478916585,
+   "conv": 3.0
+  },
+  {
+   "rank": 97,
+   "source": "novum_testamentum.ad_hebraeos.9.12",
+   "target": "septuaginta.psalmi 110.9",
+   "gold": false,
+   "score": 15.3078,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0353191665687655,
+   "geom_idf": 1.667661937131521,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.975678638341416,
+    "rare_word": 9.516874210382104,
+    "lemma_min1": 0.2963517957512124,
+    "semantic": 0.6724107265472412,
+    "edit_distance": 1.4333333333333333
+   },
+   "base": 13.894648704355307,
+   "conv": 0.4002062235290671
+  },
+  {
+   "rank": 98,
+   "source": "novum_testamentum.ad_hebraeos.4.12",
+   "target": "septuaginta.psalmi 149.6",
+   "gold": true,
+   "score": 15.2381,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "edit_distance"
+   ],
+   "mult": 1.0377179106092451,
+   "geom_idf": 1.8809417302401203,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.436619902855636,
+    "rare_word": 10.004694131455167,
+    "edit_distance": 1.75
+   },
+   "base": 13.191314034310803,
+   "conv": 0.9953442370695562
+  },
+  {
+   "rank": 99,
+   "source": "novum_testamentum.ad_hebraeos.10.30",
+   "target": "septuaginta.psalmi 17.48",
+   "gold": false,
+   "score": 15.2354,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0950429624947493,
+   "geom_idf": 2.6530843877566572,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.5747968735410347,
+    "rare_word": 9.068037811705794,
+    "lemma_min1": 0.2362195310311552
+   },
+   "base": 10.879054216277984,
+   "conv": 2.0
+  },
+  {
+   "rank": 100,
+   "source": "novum_testamentum.ad_hebraeos.12.22",
+   "target": "septuaginta.psalmi 124.1",
+   "gold": false,
+   "score": 15.1996,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.118325287230614,
+   "geom_idf": 2.225279959528624,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.1491579878524485,
+    "rare_word": 5.349268550351464,
+    "lemma_min1": 0.32237369817786726,
+    "edit_distance": 1.65
+   },
+   "base": 9.47080023638178,
+   "conv": 3.0
+  }
+ ]
+}

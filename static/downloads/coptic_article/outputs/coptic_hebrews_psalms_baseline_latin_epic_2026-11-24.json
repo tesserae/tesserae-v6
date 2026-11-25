@@ -1,0 +1,6546 @@
+{
+ "date": "2026-11-24 12:27:38 EST",
+ "code": "35c12157",
+ "language": "cop",
+ "source": "sahidica.hebrews.tess",
+ "target": "sahidic.psalms.tess",
+ "weights": {
+  "edit_distance": 2.0,
+  "sound": 5.0,
+  "exact": 0.5,
+  "lemma": 2.0,
+  "dictionary": 0.1,
+  "semantic": 1.0,
+  "rare_word": 7.0,
+  "syntax": 0.3,
+  "syntax_structural": 0.5,
+  "lemma_min1": 0.3,
+  "quotation": 0.0,
+  "form": 0.0
+ },
+ "max_results": 5000,
+ "n_results": 5000,
+ "elapsed_s": 158,
+ "n_gold": 124,
+ "recall": {
+  "50": 4,
+  "100": 4,
+  "500": 6,
+  "1000": 6,
+  "5000": 21
+ },
+ "gold_pairs": [
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "6"
+   ],
+   "votes": 308,
+   "rank": 2042,
+   "diag": {
+    "mult": 0.4922718219976346,
+    "geom_idf": 0.6637418244666922,
+    "base": 6.9823567410223175,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "lemma": 2.111606006165593,
+     "exact": 0.5279228774101472,
+     "quotation": 0.0,
+     "lemma_min1": 0.3167409009248389,
+     "sound": 2.826086956521739,
+     "edit_distance": 1.2
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "7"
+   ],
+   "votes": 308,
+   "rank": 4001,
+   "diag": {
+    "mult": 0.602025250586472,
+    "geom_idf": 0.844512177436542,
+    "base": 2.561415955574255,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.829555456950223,
+     "exact": 0.45742718008149846,
+     "quotation": 0.0,
+     "lemma_min1": 0.27443331854253344
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "8"
+   ],
+   "votes": 308,
+   "rank": null,
+   "diag": {
+    "mult": 0.33546095849424284,
+    "geom_idf": 0.4054651081081646,
+    "base": 2.536480294328399,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.051386601462062,
+     "exact": 0.26287147064411504,
+     "edit_distance": 1.222222222222222
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "117",
+    "9"
+   ],
+   "votes": 308,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "1"
+   ],
+   "votes": 221,
+   "rank": null,
+   "diag": {
+    "mult": 0.24588853073410338,
+    "geom_idf": 0.2579340506208761,
+    "base": 1.4812168067001585,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.1835801026069959,
+     "exact": 0.2976367040931628,
+     "quotation": 0.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "2"
+   ],
+   "votes": 221,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "3"
+   ],
+   "votes": 221,
+   "rank": null,
+   "diag": {
+    "mult": 0.21418994932473684,
+    "geom_idf": 0.2057246224172136,
+    "base": 1.6451731468674522,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.3140334296302356,
+     "exact": 0.33113971723721647,
+     "quotation": 0.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "123",
+    "8"
+   ],
+   "votes": 172,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "55",
+    "4"
+   ],
+   "votes": 159,
+   "rank": null,
+   "diag": {
+    "mult": 0.0627671080676027,
+    "geom_idf": 0.67116827384117,
+    "base": 0.3071938428286089,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "quotation": 0.0,
+     "lemma_min1": 0.3071938428286089
+    },
+    "channels": [
+     "quotation",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "7"
+   ],
+   "votes": 136,
+   "rank": 1773,
+   "diag": {
+    "mult": 0.4992788200318417,
+    "geom_idf": 0.6752827624053863,
+    "base": 7.629049976382548,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 3.3486141358414523,
+     "exact": 1.0162389582601157,
+     "quotation": 0.0,
+     "lemma_min1": 0.5022921203762178,
+     "sound": 1.4285714285714284,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "8"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "9"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "10"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {
+    "mult": 0.3659916794511834,
+    "geom_idf": 0.4557510014490078,
+    "base": 1.4517247392273418,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "dictionary": 0.07394696144956386,
+     "edit_distance": 1.377777777777778
+    },
+    "channels": [
+     "dictionary",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "11"
+   ],
+   "votes": 136,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "55",
+    "11"
+   ],
+   "votes": 134,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "55",
+    "12"
+   ],
+   "votes": 134,
+   "rank": null,
+   "diag": {
+    "mult": 0.40601144247989385,
+    "geom_idf": 0.5216659052610015,
+    "base": 3.5580766434400237,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.684340459600017,
+     "exact": 0.4210851149000043,
+     "quotation": 0.0,
+     "lemma_min1": 0.25265106894000255,
+     "edit_distance": 1.2
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "53",
+    "4"
+   ],
+   "votes": 130,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "32",
+    "20"
+   ],
+   "votes": 123,
+   "rank": 4000,
+   "diag": {
+    "mult": 0.602025250586472,
+    "geom_idf": 0.844512177436542,
+    "base": 2.561415955574255,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.829555456950223,
+     "exact": 0.45742718008149846,
+     "lemma_min1": 0.27443331854253344
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "62",
+    "7"
+   ],
+   "votes": 118,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "118",
+    "130"
+   ],
+   "votes": 111,
+   "rank": null,
+   "diag": {
+    "mult": 0.6425745029491678,
+    "geom_idf": 0.9112991813280411,
+    "base": 0.3379245621178772,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "dictionary": 0.07158709349886087,
+     "lemma_min1": 0.2663374686190163
+    },
+    "channels": [
+     "dictionary",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "93",
+    "17"
+   ],
+   "votes": 106,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "39",
+    "17"
+   ],
+   "votes": 105,
+   "rank": null,
+   "diag": {
+    "mult": 0.8211364027706732,
+    "geom_idf": 1.2054011339752264,
+    "base": 0.2767999125863075,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "exact": 0.2767999125863075
+    },
+    "channels": [
+     "exact"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "8"
+   ],
+   "lxx": [
+    "44",
+    "6"
+   ],
+   "votes": 92,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "8"
+   ],
+   "lxx": [
+    "44",
+    "7"
+   ],
+   "votes": 92,
+   "rank": 491,
+   "diag": {
+    "mult": 0.6247291898217536,
+    "geom_idf": 0.8819069008828883,
+    "base": 9.313780507209973,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 7,
+    "n_content": 7,
+    "per_ch_w": {
+     "lemma": 2.928063808024152,
+     "exact": 0.8618297086273599,
+     "quotation": 0.0,
+     "lemma_min1": 0.43920957120362275,
+     "sound": 3.709677419354839,
+     "edit_distance": 1.375
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "26",
+    "9"
+   ],
+   "votes": 87,
+   "rank": null,
+   "diag": {
+    "mult": 0.1635984308544042,
+    "geom_idf": 1.7589696464050641,
+    "base": 0.3413928498611842,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.3413928498611842
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "104",
+    "3"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.05247216026857938,
+    "geom_idf": 0.5485659517488379,
+    "base": 1.6347645996430518,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "quotation": 0.0,
+     "lemma_min1": 0.2947645996430518,
+     "edit_distance": 1.34
+    },
+    "channels": [
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "104",
+    "4"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "1"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "2"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "3"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.250305985037588,
+    "geom_idf": 0.26520985770896843,
+    "base": 0.1214534376298711,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "dictionary": 0.1214534376298711
+    },
+    "channels": [
+     "dictionary"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "4"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "5"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.250305985037588,
+    "geom_idf": 0.26520985770896843,
+    "base": 0.4214534376298711,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "dictionary": 0.1214534376298711,
+     "syntax": 0.3
+    },
+    "channels": [
+     "dictionary",
+     "syntax"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "6"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "7"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "8"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "9"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "10"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "11"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "12"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.04103246193356232,
+    "geom_idf": 0.4054651081081646,
+    "base": 0.27944377234650675,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27944377234650675
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "13"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "14"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "15"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "16"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "17"
+   ],
+   "votes": 85,
+   "rank": 3599,
+   "diag": {
+    "mult": 0.602025250586472,
+    "geom_idf": 0.844512177436542,
+    "base": 2.8344360305923546,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.0245668790580926,
+     "exact": 0.506184119675548,
+     "lemma_min1": 0.30368503185871387
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "18"
+   ],
+   "votes": 85,
+   "rank": 3600,
+   "diag": {
+    "mult": 0.602025250586472,
+    "geom_idf": 0.844512177436542,
+    "base": 2.8344360305923546,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.0245668790580926,
+     "exact": 0.506184119675548,
+     "lemma_min1": 0.30368503185871387
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "19"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.34235356992113325,
+    "geom_idf": 0.4168176445759842,
+    "base": 5.642884949384574,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "lemma": 2.0165639771791883,
+     "exact": 0.5061893168049784,
+     "lemma_min1": 0.30248459657687826,
+     "sound": 1.6176470588235294,
+     "edit_distance": 1.2
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "20"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "21"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.24588853073410338,
+    "geom_idf": 0.2579340506208761,
+    "base": 2.302352344055152,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.6428106373125309,
+     "exact": 0.4131201111457412,
+     "lemma_min1": 0.24642159559687962
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "22"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "23"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "24"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.33546095849424284,
+    "geom_idf": 0.4054651081081646,
+    "base": 1.0965515642772097,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 0.8772246843770439,
+     "exact": 0.21932687990016578
+    },
+    "channels": [
+     "lemma",
+     "exact"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "25"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {
+    "mult": 0.04103246193356232,
+    "geom_idf": 0.4054651081081646,
+    "base": 1.0,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "semantic": 1.0
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "113",
+    "26"
+   ],
+   "votes": 85,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "11",
+    "1"
+   ],
+   "lxx": [
+    "26",
+    "13"
+   ],
+   "votes": 80,
+   "rank": null,
+   "diag": {
+    "mult": 0.018869213960212287,
+    "geom_idf": 0.11155248590574728,
+    "base": 0.27944377234650675,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27944377234650675
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "145",
+    "3"
+   ],
+   "votes": 79,
+   "rank": null,
+   "diag": {
+    "mult": 0.04103246193356232,
+    "geom_idf": 0.4054651081081646,
+    "base": 0.27944377234650675,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.27944377234650675
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "5"
+   ],
+   "lxx": [
+    "36",
+    "25"
+   ],
+   "votes": 76,
+   "rank": 2896,
+   "diag": {
+    "mult": 0.6237230562087941,
+    "geom_idf": 0.8802497396380138,
+    "base": 3.266125009785095,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "exact": 1.6043870666629676,
+     "lemma_min1": 0.32840460978879416,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "exact",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "5"
+   ],
+   "lxx": [
+    "2",
+    "7"
+   ],
+   "votes": 70,
+   "rank": null,
+   "diag": {
+    "mult": 0.32057014575429665,
+    "geom_idf": 0.38093906359531204,
+    "base": 3.228695807057348,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.4080085873563952,
+     "exact": 0.3540205530342864,
+     "quotation": 0.0,
+     "edit_distance": 1.4666666666666668
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "17",
+    "1"
+   ],
+   "votes": 68,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "6"
+   ],
+   "lxx": [
+    "17",
+    "2"
+   ],
+   "votes": 68,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "118",
+    "10"
+   ],
+   "votes": 66,
+   "rank": null,
+   "diag": {
+    "mult": 0.05247216026857938,
+    "geom_idf": 0.5485659517488379,
+    "base": 0.2947645996430518,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.2947645996430518
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "89",
+    "2"
+   ],
+   "votes": 61,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.4,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.4
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "101",
+    "27"
+   ],
+   "votes": 61,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.688888888888889,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3,
+     "edit_distance": 1.388888888888889
+    },
+    "channels": [
+     "syntax",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "101",
+    "28"
+   ],
+   "votes": 61,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.3,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3
+    },
+    "channels": [
+     "syntax"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "36"
+   ],
+   "lxx": [
+    "36",
+    "7"
+   ],
+   "votes": 56,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.3,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3
+    },
+    "channels": [
+     "syntax"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "7"
+   ],
+   "lxx": [
+    "39",
+    "7"
+   ],
+   "votes": 55,
+   "rank": null,
+   "diag": {
+    "mult": 0.006,
+    "geom_idf": 0.07979470731547753,
+    "base": 0.9876957535743713,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 1,
+    "per_ch_w": {
+     "semantic": 0.9876957535743713
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "7"
+   ],
+   "lxx": [
+    "39",
+    "8"
+   ],
+   "votes": 55,
+   "rank": 7,
+   "diag": {
+    "mult": 0.9772007747577808,
+    "geom_idf": 1.4624483348951685,
+    "base": 18.913407711622092,
+    "quot": 0.0,
+    "conv": 2.1720008749977406,
+    "n_unique": 7,
+    "n_content": 7,
+    "per_ch_w": {
+     "lemma": 3.1265935154088282,
+     "exact": 1.0455142285255148,
+     "quotation": 0.0,
+     "rare_word": 10.00867457674006,
+     "lemma_min1": 0.4689890273113242,
+     "sound": 3.0303030303030303,
+     "edit_distance": 1.2333333333333334
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "1"
+   ],
+   "lxx": [
+    "41",
+    "11"
+   ],
+   "votes": 55,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "80",
+    "13"
+   ],
+   "votes": 54,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "149",
+    "6"
+   ],
+   "votes": 51,
+   "rank": null,
+   "diag": {
+    "mult": 0.44839034550695633,
+    "geom_idf": 0.5914664514232221,
+    "base": 3.744426473689395,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.7598460864519425,
+     "exact": 0.453936807602995,
+     "quotation": 0.0,
+     "lemma_min1": 0.26397691296779136,
+     "edit_distance": 1.2666666666666666
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "7"
+   ],
+   "lxx": [
+    "103",
+    "4"
+   ],
+   "votes": 46,
+   "rank": 23,
+   "diag": {
+    "mult": 0.8241404843448724,
+    "geom_idf": 1.2103490330386135,
+    "base": 21.074579353422095,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 7,
+    "n_content": 7,
+    "per_ch_w": {
+     "lemma": 3.813153420423433,
+     "exact": 1.0729243629450342,
+     "quotation": 0.0,
+     "rare_word": 9.74556081505463,
+     "lemma_min1": 0.571973013063515,
+     "sound": 3.870967741935484,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "10"
+   ],
+   "lxx": [
+    "101",
+    "25"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "10"
+   ],
+   "lxx": [
+    "101",
+    "26"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {
+    "mult": 0.33464718460256304,
+    "geom_idf": 0.40412477463951557,
+    "base": 7.159661073423338,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 1.836509751666664,
+     "exact": 0.6176486760124199,
+     "quotation": 0.0,
+     "dictionary": 0.11415316712123878,
+     "lemma_min1": 0.2754764627499996,
+     "sound": 2.8000000000000003,
+     "edit_distance": 1.5158730158730158
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "10"
+   ],
+   "lxx": [
+    "101",
+    "27"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.3,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3
+    },
+    "channels": [
+     "syntax"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "5"
+   ],
+   "lxx": [
+    "39",
+    "6"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "10",
+    "5"
+   ],
+   "lxx": [
+    "39",
+    "7"
+   ],
+   "votes": 45,
+   "rank": 1701,
+   "diag": {
+    "mult": 0.47737178537833025,
+    "geom_idf": 0.6392005876819556,
+    "base": 8.696292961447767,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 2.660752369520732,
+     "exact": 0.9866985809460722,
+     "quotation": 0.0,
+     "dictionary": 0.07830058412428174,
+     "lemma_min1": 0.39911285542810976,
+     "sound": 2.571428571428571,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "10",
+    "5"
+   ],
+   "lxx": [
+    "39",
+    "8"
+   ],
+   "votes": 45,
+   "rank": 1318,
+   "diag": {
+    "mult": 1.0821580460607791,
+    "geom_idf": 3.411136665405947,
+    "base": 1.0270331138770874,
+    "quot": 0.0,
+    "conv": 1.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "exact": 1.0270331138770874,
+     "quotation": 0.0
+    },
+    "channels": [
+     "exact",
+     "quotation"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "5"
+   ],
+   "lxx": [
+    "36",
+    "28"
+   ],
+   "votes": 45,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "102",
+    "17"
+   ],
+   "votes": 44,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "72",
+    "28"
+   ],
+   "votes": 42,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.0,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "quotation": 0.0
+    },
+    "channels": [
+     "quotation"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "4"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.4136676157615914,
+    "geom_idf": 0.5342760730190916,
+    "base": 0.0986968519812671,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "dictionary": 0.0986968519812671
+    },
+    "channels": [
+     "dictionary"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "5"
+   ],
+   "votes": 41,
+   "rank": 2434,
+   "diag": {
+    "mult": 0.39875815053382835,
+    "geom_idf": 0.5097193067615996,
+    "base": 8.169480628834947,
+    "quot": 0.0,
+    "conv": 0.3152156311453249,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 2.3365045365230293,
+     "exact": 0.606483007672499,
+     "quotation": 0.0,
+     "dictionary": 0.1049647725820178,
+     "lemma_min1": 0.3504756804784544,
+     "sound": 3.4210526315789473,
+     "edit_distance": 1.35
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "dictionary",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "6"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "7"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "8",
+    "8"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.3,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "syntax": 0.3
+    },
+    "channels": [
+     "syntax"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "32",
+    "13"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "32",
+    "14"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {
+    "mult": 0.5199452023540987,
+    "geom_idf": 0.7093215097596919,
+    "base": 0.08355725161586076,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "dictionary": 0.08355725161586076
+    },
+    "channels": [
+     "dictionary"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "32",
+    "15"
+   ],
+   "votes": 41,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "9"
+   ],
+   "lxx": [
+    "44",
+    "7"
+   ],
+   "votes": 40,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.4904761904761905,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.4904761904761905
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "138",
+    "2"
+   ],
+   "votes": 40,
+   "rank": 2541,
+   "diag": {
+    "mult": 0.9604537623224736,
+    "geom_idf": 1.4348650202958388,
+    "base": 0.47438754040001796,
+    "quot": 0.0,
+    "conv": 1.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "dictionary": 0.07865596648702644,
+     "lemma_min1": 0.3957315739129915
+    },
+    "channels": [
+     "dictionary",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "3"
+   ],
+   "lxx": [
+    "32",
+    "6"
+   ],
+   "votes": 39,
+   "rank": null,
+   "diag": {
+    "mult": 0.03974472078412532,
+    "geom_idf": 0.38893580615695367,
+    "base": 0.2663374686190163,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.2663374686190163
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "12"
+   ],
+   "lxx": [
+    "21",
+    "22"
+   ],
+   "votes": 38,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "3",
+    "7"
+   ],
+   "lxx": [
+    "80",
+    "11"
+   ],
+   "votes": 38,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 0.0,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "quotation": 0.0
+    },
+    "channels": [
+     "quotation"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "8"
+   ],
+   "lxx": [
+    "89",
+    "4"
+   ],
+   "votes": 37,
+   "rank": null,
+   "diag": {
+    "mult": 0.041462637597016974,
+    "geom_idf": 0.42203620231199757,
+    "base": 3.2347862302723334,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.5557872533371293,
+     "exact": 0.3889468133342823,
+     "syntax": 0.3,
+     "semantic": 0.9900521636009216
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "syntax",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "33",
+    "7"
+   ],
+   "votes": 36,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "13",
+    "15"
+   ],
+   "lxx": [
+    "106",
+    "21"
+   ],
+   "votes": 34,
+   "rank": null,
+   "diag": {
+    "mult": 0.46477472017701904,
+    "geom_idf": 0.6184524802915606,
+    "base": 0.07100607892421512,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "dictionary": 0.07100607892421512
+    },
+    "channels": [
+     "dictionary"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "15"
+   ],
+   "lxx": [
+    "106",
+    "22"
+   ],
+   "votes": 34,
+   "rank": 3102,
+   "diag": {
+    "mult": 0.8340857227655527,
+    "geom_idf": 1.2267294257314985,
+    "base": 1.4974544905861953,
+    "quot": 0.0,
+    "conv": 0.1854465401023837,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "exact": 1.0691018587362775,
+     "dictionary": 0.0896641027379305,
+     "lemma_min1": 0.3386885291119872
+    },
+    "channels": [
+     "exact",
+     "dictionary",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "13"
+   ],
+   "lxx": [
+    "109",
+    "1"
+   ],
+   "votes": 33,
+   "rank": 175,
+   "diag": {
+    "mult": 0.7599359985737536,
+    "geom_idf": 1.1046004682391237,
+    "base": 6.434790525400506,
+    "quot": 0.0,
+    "conv": 1.6755957110634467,
+    "n_unique": 6,
+    "n_content": 6,
+    "per_ch_w": {
+     "lemma": 2.705959701948346,
+     "exact": 0.6601552053782452,
+     "quotation": 0.0,
+     "lemma_min1": 0.4058939552922519,
+     "sound": 1.3636363636363635,
+     "edit_distance": 1.2991452991452992
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "102",
+    "20"
+   ],
+   "votes": 31,
+   "rank": null,
+   "diag": {
+    "mult": 0.09258578527083927,
+    "geom_idf": 0.15792964559805872,
+    "base": 0.991228461265564,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 0,
+    "per_ch_w": {
+     "semantic": 0.991228461265564
+    },
+    "channels": [
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "102",
+    "21"
+   ],
+   "votes": 31,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "12"
+   ],
+   "lxx": [
+    "44",
+    "3"
+   ],
+   "votes": 31,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "90",
+    "11"
+   ],
+   "votes": 30,
+   "rank": null,
+   "diag": {
+    "mult": 0.05,
+    "geom_idf": 0.05,
+    "base": 1.3,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 0,
+    "n_content": 0,
+    "per_ch_w": {
+     "edit_distance": 1.3
+    },
+    "channels": [
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "14"
+   ],
+   "lxx": [
+    "90",
+    "12"
+   ],
+   "votes": 30,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "2",
+    "6"
+   ],
+   "lxx": [
+    "143",
+    "3"
+   ],
+   "votes": 30,
+   "rank": null,
+   "diag": {
+    "mult": 0.054209210044488594,
+    "geom_idf": 0.5969891574733728,
+    "base": 2.315244865088918,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 5,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 0.9766208275256785,
+     "exact": 0.34840515977088116,
+     "quotation": 0.0,
+     "semantic": 0.9902188777923584
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "semantic"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "1",
+    "12"
+   ],
+   "lxx": [
+    "101",
+    "26"
+   ],
+   "votes": 28,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "12"
+   ],
+   "lxx": [
+    "101",
+    "27"
+   ],
+   "votes": 28,
+   "rank": 2,
+   "diag": {
+    "mult": 1.0144745839384726,
+    "geom_idf": 1.636095501928981,
+    "base": 16.40291046275715,
+    "quot": 0.0,
+    "conv": 9.5,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.595395834993292,
+     "exact": 0.6602261368066374,
+     "quotation": 0.0,
+     "rare_word": 9.74556081505463,
+     "syntax": 0.3,
+     "lemma_min1": 0.38930937524899384,
+     "sound": 1.3235294117647058,
+     "edit_distance": 1.388888888888889
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "syntax",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "13",
+    "15"
+   ],
+   "lxx": [
+    "49",
+    "14"
+   ],
+   "votes": 27,
+   "rank": null,
+   "diag": {
+    "mult": 0.4910346791730291,
+    "geom_idf": 0.6617041774614597,
+    "base": 1.5211465414963856,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.2169172331971085,
+     "exact": 0.30422930829927713
+    },
+    "channels": [
+     "lemma",
+     "exact"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "105",
+    "21"
+   ],
+   "votes": 25,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "105",
+    "22"
+   ],
+   "votes": 25,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "77",
+    "32"
+   ],
+   "votes": 25,
+   "rank": null,
+   "diag": {
+    "mult": 0.0922029957792253,
+    "geom_idf": 0.9882642314992447,
+    "base": 0.38175094909156193,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.38175094909156193
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "2",
+    "7"
+   ],
+   "lxx": [
+    "8",
+    "5"
+   ],
+   "votes": 23,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "12",
+    "6"
+   ],
+   "lxx": [
+    "118",
+    "75"
+   ],
+   "votes": 23,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "12",
+    "11"
+   ],
+   "lxx": [
+    "117",
+    "18"
+   ],
+   "votes": 23,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "3"
+   ],
+   "lxx": [
+    "94",
+    "11"
+   ],
+   "votes": 22,
+   "rank": 1386,
+   "diag": {
+    "mult": 0.8020462982047137,
+    "geom_idf": 1.1739586088077638,
+    "base": 3.3368263785478627,
+    "quot": 0.0,
+    "conv": 0.043771271583653126,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "lemma": 1.4676927451998119,
+     "exact": 0.4524669666813844,
+     "quotation": 0.0,
+     "edit_distance": 1.4166666666666667
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "5",
+    "6"
+   ],
+   "lxx": [
+    "109",
+    "4"
+   ],
+   "votes": 22,
+   "rank": 30,
+   "diag": {
+    "mult": 0.7397998945001546,
+    "geom_idf": 1.0714351203531958,
+    "base": 19.059486464812753,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 4,
+    "n_content": 4,
+    "per_ch_w": {
+     "lemma": 3.075578909420806,
+     "exact": 0.7688947273552015,
+     "quotation": 0.0,
+     "rare_word": 8.907522145469779,
+     "lemma_min1": 0.46133683641312084,
+     "sound": 3.8461538461538463,
+     "edit_distance": 2.0
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "rare_word",
+     "lemma_min1",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "57",
+    "11"
+   ],
+   "votes": 22,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "4",
+    "13"
+   ],
+   "lxx": [
+    "43",
+    "21"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "5",
+    "5"
+   ],
+   "lxx": [
+    "2",
+    "7"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.32057014575429665,
+    "geom_idf": 0.38093906359531204,
+    "base": 4.134779396443356,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.9197021597575528,
+     "exact": 0.4826774682777264,
+     "quotation": 0.0,
+     "lemma_min1": 0.2879553239636329,
+     "edit_distance": 1.4444444444444446
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "7",
+    "21"
+   ],
+   "lxx": [
+    "109",
+    "4"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.374133550518418,
+    "geom_idf": 0.4691611420303356,
+    "base": 4.969142500788197,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 3,
+    "n_content": 3,
+    "per_ch_w": {
+     "lemma": 1.3097530803558917,
+     "exact": 0.327456647323062,
+     "quotation": 0.0,
+     "sound": 1.6176470588235294,
+     "edit_distance": 1.7142857142857144
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "sound",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "105",
+    "24"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.0922029957792253,
+    "geom_idf": 0.9882642314992447,
+    "base": 0.38175094909156193,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 1,
+    "n_content": 1,
+    "per_ch_w": {
+     "lemma_min1": 0.38175094909156193
+    },
+    "channels": [
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "11",
+    "6"
+   ],
+   "lxx": [
+    "77",
+    "22"
+   ],
+   "votes": 21,
+   "rank": 3974,
+   "diag": {
+    "mult": 0.4617290552092135,
+    "geom_idf": 0.6134360909328221,
+    "base": 4.392229555891015,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 2.23767312600274,
+     "exact": 0.559418281500685,
+     "quotation": 0.0,
+     "lemma_min1": 0.33565096890041096,
+     "edit_distance": 1.2594871794871796
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "12",
+    "5"
+   ],
+   "lxx": [
+    "93",
+    "12"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {
+    "mult": 0.43208865535365915,
+    "geom_idf": 0.5646166088177915,
+    "base": 2.4449613024461336,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 2,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.7463757050597837,
+     "exact": 0.43662924162738215,
+     "lemma_min1": 0.26195635575896753
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "lemma_min1"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "12",
+    "14"
+   ],
+   "lxx": [
+    "33",
+    "14"
+   ],
+   "votes": 21,
+   "rank": null,
+   "diag": {}
+  },
+  {
+   "nt": [
+    "1",
+    "6"
+   ],
+   "lxx": [
+    "96",
+    "7"
+   ],
+   "votes": 20,
+   "rank": null,
+   "diag": {
+    "mult": 0.0320063731423866,
+    "geom_idf": 0.2922443372484435,
+    "base": 3.764771608367929,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 6,
+    "n_content": 2,
+    "per_ch_w": {
+     "lemma": 1.2348128667317781,
+     "exact": 0.30870321668294454,
+     "quotation": 0.0,
+     "semantic": 0.987922191619873,
+     "edit_distance": 1.2333333333333334
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "semantic",
+     "edit_distance"
+    ]
+   }
+  },
+  {
+   "nt": [
+    "4",
+    "7"
+   ],
+   "lxx": [
+    "94",
+    "7"
+   ],
+   "votes": 20,
+   "rank": 3574,
+   "diag": {
+    "mult": 0.4992788200318417,
+    "geom_idf": 0.6752827624053863,
+    "base": 4.175772401539563,
+    "quot": 0.0,
+    "conv": 0.0,
+    "n_unique": 5,
+    "n_content": 5,
+    "per_ch_w": {
+     "lemma": 1.955608724340195,
+     "exact": 0.5934890352150056,
+     "quotation": 0.0,
+     "lemma_min1": 0.29334130865102925,
+     "edit_distance": 1.3333333333333335
+    },
+    "channels": [
+     "lemma",
+     "exact",
+     "quotation",
+     "lemma_min1",
+     "edit_distance"
+    ]
+   }
+  }
+ ],
+ "top50": [
+  {
+   "rank": 1,
+   "source": "sahidica.hebrews.9.13",
+   "target": "sahidic.psalms.67.31",
+   "gold": false,
+   "score": 29.2979,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.225229259907736,
+   "geom_idf": 2.3535471788858535,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.1544302655431435,
+    "exact": 0.6999930540936674,
+    "rare_word": 10.00867457674006,
+    "dictionary": 0.099856684866198,
+    "lemma_min1": 0.32316453983147153,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 14.619452454407876,
+   "conv": 6.0
+  },
+  {
+   "rank": 2,
+   "source": "sahidica.hebrews.1.12",
+   "target": "sahidic.psalms.101.27",
+   "gold": true,
+   "score": 26.5187,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "syntax",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0144745839384726,
+   "geom_idf": 1.636095501928981,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.595395834993292,
+    "exact": 0.6602261368066374,
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "syntax": 0.3,
+    "lemma_min1": 0.38930937524899384,
+    "sound": 1.3235294117647058,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 16.40291046275715,
+   "conv": 9.5
+  },
+  {
+   "rank": 3,
+   "source": "sahidica.hebrews.5.10",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 25.2209,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.0693976843871715,
+   "geom_idf": 2.2747069124951427,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 3.248230284262481,
+    "exact": 0.8120575710656203,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.48723454263937216,
+    "sound": 1.5853658536585367
+   },
+   "base": 15.040410397095789,
+   "conv": 7.5
+  },
+  {
+   "rank": 4,
+   "source": "sahidica.hebrews.7.11",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 23.5323,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.076727250935743,
+   "geom_idf": 1.8882431772061037,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.095475319436696,
+    "exact": 0.523868829859174,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.3143212979155044,
+    "sound": 1.4912280701754386
+   },
+   "base": 13.332415662856592,
+   "conv": 7.5
+  },
+  {
+   "rank": 5,
+   "source": "sahidica.hebrews.1.13",
+   "target": "sahidic.psalms.98.5",
+   "gold": false,
+   "score": 22.2722,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.1491911320456876,
+   "geom_idf": 3.6715425987258703,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1571041682111418,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.4289431961460025,
+    "sound": 1.3541666666666665
+   },
+   "base": 12.94888860776387,
+   "conv": 4.5
+  },
+  {
+   "rank": 6,
+   "source": "sahidica.hebrews.11.31",
+   "target": "sahidic.psalms.86.4",
+   "gold": false,
+   "score": 21.2509,
+   "channels": [
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1228818711905741,
+   "geom_idf": 3.135398675605173,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.140093282983745,
+    "quotation": 0.0,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.4289431961460025,
+    "edit_distance": 1.7142857142857144
+   },
+   "base": 13.29199677015552,
+   "conv": 4.0
+  },
+  {
+   "rank": 7,
+   "source": "sahidica.hebrews.10.7",
+   "target": "sahidic.psalms.39.8",
+   "gold": true,
+   "score": 20.1833,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9772007747577808,
+   "geom_idf": 1.4624483348951685,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 3.1265935154088282,
+    "exact": 1.0455142285255148,
+    "quotation": 0.0,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.4689890273113242,
+    "sound": 3.0303030303030303,
+    "edit_distance": 1.2333333333333334
+   },
+   "base": 18.913407711622092,
+   "conv": 2.1720008749977406
+  },
+  {
+   "rank": 8,
+   "source": "sahidica.hebrews.9.19",
+   "target": "sahidic.psalms.65.15",
+   "gold": false,
+   "score": 19.8739,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0863838350603654,
+   "geom_idf": 2.5187635301505455,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.582594007517855,
+    "exact": 0.6456485018794638,
+    "quotation": 0.0,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.38738910112767827
+   },
+   "base": 13.157105536599195,
+   "conv": 4.0
+  },
+  {
+   "rank": 9,
+   "source": "sahidica.hebrews.7.15",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 19.8567,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.045791386502701,
+   "geom_idf": 1.974299056238083,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.688705994576263,
+    "exact": 0.42217649864406576,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.2533058991864394,
+    "sound": 1.625
+   },
+   "base": 12.896710537876547,
+   "conv": 5.5
+  },
+  {
+   "rank": 10,
+   "source": "sahidica.hebrews.11.29",
+   "target": "sahidic.psalms.94.5",
+   "gold": false,
+   "score": 19.2548,
+   "channels": [
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0827752884096535,
+   "geom_idf": 2.4648152085179773,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1212994428633571,
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984,
+    "edit_distance": 1.4445970695970698
+   },
+   "base": 12.729124219588826,
+   "conv": 4.0
+  },
+  {
+   "rank": 11,
+   "source": "sahidica.hebrews.11.28",
+   "target": "sahidic.psalms.44.3",
+   "gold": false,
+   "score": 18.4647,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1075873456785883,
+   "geom_idf": 2.8604792541652455,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0594058014773478,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.40892031111746563,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 12.343133372002347,
+   "conv": 3.0
+  },
+  {
+   "rank": 12,
+   "source": "sahidica.hebrews.11.29",
+   "target": "sahidic.psalms.105.9",
+   "gold": false,
+   "score": 17.3367,
+   "channels": [
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0735957725856997,
+   "geom_idf": 1.870587262841669,
+   "n_content": 3,
+   "per_ch_w": {
+    "quotation": 0.0,
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.07245438796020788,
+    "lemma_min1": 0.40177383412009876,
+    "edit_distance": 1.4665334665334668
+   },
+   "base": 11.315484484749414,
+   "conv": 4.0
+  },
+  {
+   "rank": 13,
+   "source": "sahidica.hebrews.12.6",
+   "target": "sahidic.psalms.72.5",
+   "gold": false,
+   "score": 15.9376,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1043841711085767,
+   "geom_idf": 2.8060284896852994,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.093028058047581,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.25625576517598,
+   "conv": 2.0
+  },
+  {
+   "rank": 14,
+   "source": "sahidica.hebrews.12.6",
+   "target": "sahidic.psalms.72.14",
+   "gold": false,
+   "score": 15.9376,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1043841711085767,
+   "geom_idf": 2.8060284896852994,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.093028058047581,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.25625576517598,
+   "conv": 2.0
+  },
+  {
+   "rank": 15,
+   "source": "sahidica.hebrews.11.13",
+   "target": "sahidic.psalms.38.13",
+   "gold": false,
+   "score": 15.6337,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0038397227295568,
+   "geom_idf": 1.5173786539359662,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.2996406668925506,
+    "exact": 1.5276922830611805,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.3449461000338826,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 15.514286960061007,
+   "conv": 0.0
+  },
+  {
+   "rank": 16,
+   "source": "sahidica.hebrews.2.13",
+   "target": "sahidic.psalms.113.22",
+   "gold": false,
+   "score": 15.5521,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.09079679942578,
+   "geom_idf": 2.586345575562013,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0739834364045218,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.237211143532921,
+   "conv": 2.0
+  },
+  {
+   "rank": 17,
+   "source": "sahidica.hebrews.4.2",
+   "target": "sahidic.psalms.39.10",
+   "gold": false,
+   "score": 15.493,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0967241672458894,
+   "geom_idf": 2.6799820897826185,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1067218079361836,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.40892031111746563
+   },
+   "base": 11.057116045127849,
+   "conv": 2.0
+  },
+  {
+   "rank": 18,
+   "source": "sahidica.hebrews.4.6",
+   "target": "sahidic.psalms.39.10",
+   "gold": false,
+   "score": 15.493,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0967241672458894,
+   "geom_idf": 2.6799820897826185,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1067218079361836,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.40892031111746563
+   },
+   "base": 11.057116045127849,
+   "conv": 2.0
+  },
+  {
+   "rank": 19,
+   "source": "sahidica.hebrews.12.10",
+   "target": "sahidic.psalms.38.12",
+   "gold": false,
+   "score": 15.4819,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0228351902495476,
+   "geom_idf": 1.7202613889614227,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0662054662379894,
+    "rare_word": 9.111609034450211,
+    "lemma_min1": 0.3904975300478662,
+    "edit_distance": 1.296969696969697
+   },
+   "base": 11.865281727705764,
+   "conv": 3.0
+  },
+  {
+   "rank": 20,
+   "source": "sahidica.hebrews.6.16",
+   "target": "sahidic.psalms.80.8",
+   "gold": false,
+   "score": 15.3725,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1029214407924428,
+   "geom_idf": 2.781509463595909,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0474950064817368,
+    "rare_word": 9.37472279613564,
+    "lemma_min1": 0.40177383412009876
+   },
+   "base": 10.823991636737476,
+   "conv": 2.0
+  },
+  {
+   "rank": 21,
+   "source": "sahidica.hebrews.11.35",
+   "target": "sahidic.psalms.37.21",
+   "gold": false,
+   "score": 15.1864,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0590086224223618,
+   "geom_idf": 2.014776397422371,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.4893596858960674,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.652587393024467,
+   "conv": 2.0
+  },
+  {
+   "rank": 22,
+   "source": "sahidica.hebrews.7.1",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 15.053,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word"
+   ],
+   "mult": 1.045791386502701,
+   "geom_idf": 1.974299056238083,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.5899409407607648,
+    "exact": 0.3974852351901912,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779
+   },
+   "base": 10.894948321420735,
+   "conv": 3.0
+  },
+  {
+   "rank": 23,
+   "source": "sahidica.hebrews.1.7",
+   "target": "sahidic.psalms.103.4",
+   "gold": true,
+   "score": 14.314,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8241404843448724,
+   "geom_idf": 1.2103490330386135,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 3.813153420423433,
+    "exact": 1.0729243629450342,
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.571973013063515,
+    "sound": 3.870967741935484,
+    "edit_distance": 2.0
+   },
+   "base": 21.074579353422095,
+   "conv": 0.0
+  },
+  {
+   "rank": 24,
+   "source": "sahidica.hebrews.11.33",
+   "target": "sahidic.psalms.78.6",
+   "gold": false,
+   "score": 14.2964,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0747008414054902,
+   "geom_idf": 2.1792250133554014,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 10.00867457674006,
+    "dictionary": 0.0794193040544408,
+    "lemma_min1": 0.4289431961460025
+   },
+   "base": 10.517037076940502,
+   "conv": 2.0
+  },
+  {
+   "rank": 25,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.96.2",
+   "gold": false,
+   "score": 13.8964,
+   "channels": [
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0272153123220658,
+   "geom_idf": 1.7660704292349696,
+   "n_content": 2,
+   "per_ch_w": {
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "dictionary": 0.08603482140854013,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 10.24926252853694,
+   "conv": 3.0
+  },
+  {
+   "rank": 26,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.17.10",
+   "gold": false,
+   "score": 12.8585,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0272153123220658,
+   "geom_idf": 1.7660704292349696,
+   "n_content": 2,
+   "per_ch_w": {
+    "rare_word": 9.74556081505463,
+    "dictionary": 0.07596031140637358,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 10.239188018534772,
+   "conv": 2.0
+  },
+  {
+   "rank": 27,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.10.6",
+   "gold": false,
+   "score": 12.2381,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0442644791391413,
+   "geom_idf": 1.871588440648448,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 8.820351541749126,
+    "dictionary": 0.10896974567620801,
+    "lemma_min1": 0.37801506607496255
+   },
+   "base": 9.307336353500297,
+   "conv": 2.0
+  },
+  {
+   "rank": 28,
+   "source": "sahidica.hebrews.12.6",
+   "target": "sahidic.psalms.15.7",
+   "gold": false,
+   "score": 11.9357,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "sound"
+   ],
+   "mult": 1.00411491291769,
+   "geom_idf": 1.520716316189072,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.0940265589144402,
+    "exact": 0.38245528705994003,
+    "rare_word": 9.111609034450211,
+    "sound": 1.25
+   },
+   "base": 11.838090880424591,
+   "conv": 0.0
+  },
+  {
+   "rank": 29,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.148.8",
+   "gold": false,
+   "score": 11.6393,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0175732804674307,
+   "geom_idf": 1.6667986171342655,
+   "n_content": 2,
+   "per_ch_w": {
+    "rare_word": 8.820351541749126,
+    "dictionary": 0.07696190283955626,
+    "lemma_min1": 0.37801506607496255
+   },
+   "base": 9.275328510663645,
+   "conv": 2.0
+  },
+  {
+   "rank": 30,
+   "source": "sahidica.hebrews.5.6",
+   "target": "sahidic.psalms.109.4",
+   "gold": true,
+   "score": 10.4313,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.7397998945001546,
+   "geom_idf": 1.0714351203531958,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 3.075578909420806,
+    "exact": 0.7688947273552015,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.46133683641312084,
+    "sound": 3.8461538461538463,
+    "edit_distance": 2.0
+   },
+   "base": 19.059486464812753,
+   "conv": 0.0
+  },
+  {
+   "rank": 31,
+   "source": "sahidica.hebrews.2.16",
+   "target": "sahidic.psalms.104.6",
+   "gold": false,
+   "score": 10.2058,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8549725253150013,
+   "geom_idf": 1.2611312181658847,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 3.0336421860342444,
+    "exact": 0.7584105465085611,
+    "quotation": 0.0,
+    "lemma_min1": 0.45504632790513666,
+    "sound": 1.3636363636363635,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 6.944068757417639,
+   "conv": 6.0
+  },
+  {
+   "rank": 32,
+   "source": "sahidica.hebrews.7.17",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 10.0366,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.7397998945001546,
+   "geom_idf": 1.0714351203531958,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 3.075578909420806,
+    "exact": 0.7688947273552015,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.46133683641312084,
+    "sound": 3.125,
+    "edit_distance": 2.0
+   },
+   "base": 18.338332618658907,
+   "conv": 0.0
+  },
+  {
+   "rank": 33,
+   "source": "sahidica.hebrews.2.10",
+   "target": "sahidic.psalms.92.5",
+   "gold": false,
+   "score": 9.7718,
+   "channels": [
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 0.8521190810879433,
+   "geom_idf": 1.2564314276742596,
+   "n_content": 5,
+   "per_ch_w": {
+    "exact": 1.0849993063583772,
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.08461966157142936,
+    "lemma_min1": 0.40177383412009876,
+    "edit_distance": 1.3666666666666667
+   },
+   "base": 12.312782264852212,
+   "conv": 0.975744233503973
+  },
+  {
+   "rank": 34,
+   "source": "sahidica.hebrews.4.16",
+   "target": "sahidic.psalms.90.1",
+   "gold": false,
+   "score": 9.7654,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.9418891525915236,
+   "geom_idf": 1.4042880160330977,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 9.003884777216648,
+    "dictionary": 0.08519221488312008,
+    "lemma_min1": 0.38588077616642774
+   },
+   "base": 9.474957768266195,
+   "conv": 1.4435047237720808
+  },
+  {
+   "rank": 35,
+   "source": "sahidica.hebrews.6.20",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 9.2172,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.7397998945001546,
+   "geom_idf": 1.0714351203531958,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.8408074657059856,
+    "exact": 0.7102018664264964,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.42612111985589785,
+    "sound": 1.9565217391304348,
+    "edit_distance": 2.0
+   },
+   "base": 16.841174336588594,
+   "conv": 0.0
+  },
+  {
+   "rank": 36,
+   "source": "sahidica.hebrews.1.6",
+   "target": "sahidic.psalms.104.36",
+   "gold": false,
+   "score": 8.4746,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 0.8480441371574965,
+   "geom_idf": 1.2497197553182295,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.1479219119522246,
+    "exact": 1.3103818399347626,
+    "quotation": 0.0,
+    "dictionary": 0.09385195040461837,
+    "lemma_min1": 0.47218828679283364,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 6.441010655751106,
+   "conv": 4.530899898175247
+  },
+  {
+   "rank": 37,
+   "source": "sahidica.hebrews.2.10",
+   "target": "sahidic.psalms.32.1",
+   "gold": false,
+   "score": 7.965,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8763293107753263,
+   "geom_idf": 1.2963071001005375,
+   "n_content": 4,
+   "per_ch_w": {
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.0916321495517819,
+    "lemma_min1": 0.40177383412009876
+   },
+   "base": 9.86812877980752,
+   "conv": 0.4413590417546047
+  },
+  {
+   "rank": 38,
+   "source": "sahidica.hebrews.11.33",
+   "target": "sahidic.psalms.63.4",
+   "gold": false,
+   "score": 7.8152,
+   "channels": [
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0763668257553576,
+   "geom_idf": 1.8155385990737445,
+   "n_content": 4,
+   "per_ch_w": {
+    "exact": 1.0948110129405721,
+    "quotation": 0.0,
+    "dictionary": 0.0756855660540327,
+    "lemma_min1": 0.40177383412009876,
+    "edit_distance": 1.4571428571428573
+   },
+   "base": 3.029413270257561,
+   "conv": 4.0
+  },
+  {
+   "rank": 39,
+   "source": "sahidica.hebrews.1.4",
+   "target": "sahidic.psalms.82.13",
+   "gold": false,
+   "score": 7.7653,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.046758976485212,
+   "geom_idf": 1.985794263830535,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0267743867807706,
+    "lemma_min1": 0.36095185842421784,
+    "sound": 1.5,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 4.221059578538322,
+   "conv": 3.0
+  },
+  {
+   "rank": 40,
+   "source": "sahidica.hebrews.7.26",
+   "target": "sahidic.psalms.32.1",
+   "gold": false,
+   "score": 7.5468,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8482812765880205,
+   "geom_idf": 1.250110337909681,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.07900038863021007,
+    "lemma_min1": 0.40177383412009876
+   },
+   "base": 9.855497018885949,
+   "conv": 0.5363361095429517
+  },
+  {
+   "rank": 41,
+   "source": "sahidica.hebrews.8.1",
+   "target": "sahidic.psalms.105.21",
+   "gold": false,
+   "score": 7.3859,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.149653835868666,
+   "geom_idf": 2.470229910964882,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.419956884232579,
+    "quotation": 0.0,
+    "lemma_min1": 0.35871141414052404,
+    "edit_distance": 1.2
+   },
+   "base": 2.978668298373103,
+   "conv": 3.0
+  },
+  {
+   "rank": 42,
+   "source": "sahidica.hebrews.3.2",
+   "target": "sahidic.psalms.104.26",
+   "gold": false,
+   "score": 7.3621,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0072447638879098,
+   "geom_idf": 1.5666407720547633,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0129698792961022,
+    "quotation": 0.0,
+    "lemma_min1": 0.3526691539334168,
+    "sound": 1.3043478260869565,
+    "edit_distance": 2.0
+   },
+   "base": 4.6699868593164755,
+   "conv": 2.605290747173874
+  },
+  {
+   "rank": 43,
+   "source": "sahidica.hebrews.13.15",
+   "target": "sahidic.psalms.11.5",
+   "gold": false,
+   "score": 7.3498,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0684649397784216,
+   "geom_idf": 1.8845358818080238,
+   "n_content": 4,
+   "per_ch_w": {
+    "exact": 0.6645323640348457,
+    "lemma_min1": 0.3361588059960588,
+    "sound": 1.2962962962962963,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 3.630320799660534,
+   "conv": 3.0
+  },
+  {
+   "rank": 44,
+   "source": "sahidica.hebrews.4.7",
+   "target": "sahidic.psalms.58.1",
+   "gold": false,
+   "score": 7.3274,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.138457322070358,
+   "geom_idf": 2.379735899690049,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.394254877469539,
+    "quotation": 0.0,
+    "lemma_min1": 0.2907200764187394,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 3.018308287221612,
+   "conv": 3.0
+  },
+  {
+   "rank": 45,
+   "source": "sahidica.hebrews.8.1",
+   "target": "sahidic.psalms.109.1",
+   "gold": false,
+   "score": 7.2202,
+   "channels": [
+    "lemma",
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0051386969530227,
+   "geom_idf": 1.525914798304921,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.4659465336835957,
+    "exact": 0.8360984907345088,
+    "lemma_min1": 0.36989198005253937,
+    "edit_distance": 1.6
+   },
+   "base": 5.271937004470644,
+   "conv": 1.884232597739099
+  },
+  {
+   "rank": 46,
+   "source": "sahidica.hebrews.11.29",
+   "target": "sahidic.psalms.105.22",
+   "gold": false,
+   "score": 7.104,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "edit_distance"
+   ],
+   "mult": 0.7515522256344324,
+   "geom_idf": 1.0907919010449474,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.3937718563064283,
+    "exact": 0.3484429640766071,
+    "rare_word": 9.37472279613564,
+    "edit_distance": 1.4603174603174605
+   },
+   "base": 12.577255076836135,
+   "conv": 0.0
+  },
+  {
+   "rank": 47,
+   "source": "sahidica.hebrews.10.32",
+   "target": "sahidic.psalms.89.15",
+   "gold": false,
+   "score": 7.0447,
+   "channels": [
+    "exact",
+    "quotation",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.138338463334525,
+   "geom_idf": 3.440083994576658,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9084528622248372,
+    "quotation": 0.0,
+    "syntax": 0.3,
+    "edit_distance": 1.5925925925925928
+   },
+   "base": 2.80104545481743,
+   "conv": 3.0
+  },
+  {
+   "rank": 48,
+   "source": "sahidica.hebrews.8.13",
+   "target": "sahidic.psalms.38.6",
+   "gold": false,
+   "score": 7.0058,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "edit_distance"
+   ],
+   "mult": 0.753304689334106,
+   "geom_idf": 1.0936783118444098,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.308456103068105,
+    "exact": 0.32919130174258343,
+    "rare_word": 9.37472279613564,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 12.345703534279663,
+   "conv": 0.0
+  },
+  {
+   "rank": 49,
+   "source": "sahidica.hebrews.9.26",
+   "target": "sahidic.psalms.49.23",
+   "gold": false,
+   "score": 6.985,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0387085027881573,
+   "geom_idf": 1.8921544960679821,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9423528314682174,
+    "lemma_min1": 0.3386885291119872,
+    "semantic": 0.9850254058837891,
+    "edit_distance": 1.3198209198209199
+   },
+   "base": 3.5858876862849134,
+   "conv": 3.0
+  },
+  {
+   "rank": 50,
+   "source": "sahidica.hebrews.7.26",
+   "target": "sahidic.psalms.92.5",
+   "gold": false,
+   "score": 6.936,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 0.7596934216262955,
+   "geom_idf": 1.104200929737428,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.2984474438701534,
+    "rare_word": 9.37472279613564,
+    "lemma_min1": 0.344767116580523
+   },
+   "base": 12.017937356586314,
+   "conv": 0.0
+  }
+ ],
+ "top100_rows": [
+  {
+   "rank": 1,
+   "source": "sahidica.hebrews.9.13",
+   "target": "sahidic.psalms.67.31",
+   "gold": false,
+   "score": 29.2979,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.225229259907736,
+   "geom_idf": 2.3535471788858535,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.1544302655431435,
+    "exact": 0.6999930540936674,
+    "rare_word": 10.00867457674006,
+    "dictionary": 0.099856684866198,
+    "lemma_min1": 0.32316453983147153,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 14.619452454407876,
+   "conv": 6.0
+  },
+  {
+   "rank": 2,
+   "source": "sahidica.hebrews.1.12",
+   "target": "sahidic.psalms.101.27",
+   "gold": true,
+   "score": 26.5187,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "syntax",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0144745839384726,
+   "geom_idf": 1.636095501928981,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.595395834993292,
+    "exact": 0.6602261368066374,
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "syntax": 0.3,
+    "lemma_min1": 0.38930937524899384,
+    "sound": 1.3235294117647058,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 16.40291046275715,
+   "conv": 9.5
+  },
+  {
+   "rank": 3,
+   "source": "sahidica.hebrews.5.10",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 25.2209,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.0693976843871715,
+   "geom_idf": 2.2747069124951427,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 3.248230284262481,
+    "exact": 0.8120575710656203,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.48723454263937216,
+    "sound": 1.5853658536585367
+   },
+   "base": 15.040410397095789,
+   "conv": 7.5
+  },
+  {
+   "rank": 4,
+   "source": "sahidica.hebrews.7.11",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 23.5323,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.076727250935743,
+   "geom_idf": 1.8882431772061037,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.095475319436696,
+    "exact": 0.523868829859174,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.3143212979155044,
+    "sound": 1.4912280701754386
+   },
+   "base": 13.332415662856592,
+   "conv": 7.5
+  },
+  {
+   "rank": 5,
+   "source": "sahidica.hebrews.1.13",
+   "target": "sahidic.psalms.98.5",
+   "gold": false,
+   "score": 22.2722,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.1491911320456876,
+   "geom_idf": 3.6715425987258703,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1571041682111418,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.4289431961460025,
+    "sound": 1.3541666666666665
+   },
+   "base": 12.94888860776387,
+   "conv": 4.5
+  },
+  {
+   "rank": 6,
+   "source": "sahidica.hebrews.11.31",
+   "target": "sahidic.psalms.86.4",
+   "gold": false,
+   "score": 21.2509,
+   "channels": [
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1228818711905741,
+   "geom_idf": 3.135398675605173,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.140093282983745,
+    "quotation": 0.0,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.4289431961460025,
+    "edit_distance": 1.7142857142857144
+   },
+   "base": 13.29199677015552,
+   "conv": 4.0
+  },
+  {
+   "rank": 7,
+   "source": "sahidica.hebrews.10.7",
+   "target": "sahidic.psalms.39.8",
+   "gold": true,
+   "score": 20.1833,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.9772007747577808,
+   "geom_idf": 1.4624483348951685,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 3.1265935154088282,
+    "exact": 1.0455142285255148,
+    "quotation": 0.0,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.4689890273113242,
+    "sound": 3.0303030303030303,
+    "edit_distance": 1.2333333333333334
+   },
+   "base": 18.913407711622092,
+   "conv": 2.1720008749977406
+  },
+  {
+   "rank": 8,
+   "source": "sahidica.hebrews.9.19",
+   "target": "sahidic.psalms.65.15",
+   "gold": false,
+   "score": 19.8739,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0863838350603654,
+   "geom_idf": 2.5187635301505455,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.582594007517855,
+    "exact": 0.6456485018794638,
+    "quotation": 0.0,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.38738910112767827
+   },
+   "base": 13.157105536599195,
+   "conv": 4.0
+  },
+  {
+   "rank": 9,
+   "source": "sahidica.hebrews.7.15",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 19.8567,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 1.045791386502701,
+   "geom_idf": 1.974299056238083,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.688705994576263,
+    "exact": 0.42217649864406576,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.2533058991864394,
+    "sound": 1.625
+   },
+   "base": 12.896710537876547,
+   "conv": 5.5
+  },
+  {
+   "rank": 10,
+   "source": "sahidica.hebrews.11.29",
+   "target": "sahidic.psalms.94.5",
+   "gold": false,
+   "score": 19.2548,
+   "channels": [
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0827752884096535,
+   "geom_idf": 2.4648152085179773,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1212994428633571,
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984,
+    "edit_distance": 1.4445970695970698
+   },
+   "base": 12.729124219588826,
+   "conv": 4.0
+  },
+  {
+   "rank": 11,
+   "source": "sahidica.hebrews.11.28",
+   "target": "sahidic.psalms.44.3",
+   "gold": false,
+   "score": 18.4647,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1075873456785883,
+   "geom_idf": 2.8604792541652455,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0594058014773478,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.40892031111746563,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 12.343133372002347,
+   "conv": 3.0
+  },
+  {
+   "rank": 12,
+   "source": "sahidica.hebrews.11.29",
+   "target": "sahidic.psalms.105.9",
+   "gold": false,
+   "score": 17.3367,
+   "channels": [
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0735957725856997,
+   "geom_idf": 1.870587262841669,
+   "n_content": 3,
+   "per_ch_w": {
+    "quotation": 0.0,
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.07245438796020788,
+    "lemma_min1": 0.40177383412009876,
+    "edit_distance": 1.4665334665334668
+   },
+   "base": 11.315484484749414,
+   "conv": 4.0
+  },
+  {
+   "rank": 13,
+   "source": "sahidica.hebrews.12.6",
+   "target": "sahidic.psalms.72.5",
+   "gold": false,
+   "score": 15.9376,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1043841711085767,
+   "geom_idf": 2.8060284896852994,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.093028058047581,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.25625576517598,
+   "conv": 2.0
+  },
+  {
+   "rank": 14,
+   "source": "sahidica.hebrews.12.6",
+   "target": "sahidic.psalms.72.14",
+   "gold": false,
+   "score": 15.9376,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1043841711085767,
+   "geom_idf": 2.8060284896852994,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.093028058047581,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.25625576517598,
+   "conv": 2.0
+  },
+  {
+   "rank": 15,
+   "source": "sahidica.hebrews.11.13",
+   "target": "sahidic.psalms.38.13",
+   "gold": false,
+   "score": 15.6337,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0038397227295568,
+   "geom_idf": 1.5173786539359662,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.2996406668925506,
+    "exact": 1.5276922830611805,
+    "rare_word": 10.00867457674006,
+    "lemma_min1": 0.3449461000338826,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 15.514286960061007,
+   "conv": 0.0
+  },
+  {
+   "rank": 16,
+   "source": "sahidica.hebrews.2.13",
+   "target": "sahidic.psalms.113.22",
+   "gold": false,
+   "score": 15.5521,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.09079679942578,
+   "geom_idf": 2.586345575562013,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0739834364045218,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.237211143532921,
+   "conv": 2.0
+  },
+  {
+   "rank": 17,
+   "source": "sahidica.hebrews.4.2",
+   "target": "sahidic.psalms.39.10",
+   "gold": false,
+   "score": 15.493,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0967241672458894,
+   "geom_idf": 2.6799820897826185,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1067218079361836,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.40892031111746563
+   },
+   "base": 11.057116045127849,
+   "conv": 2.0
+  },
+  {
+   "rank": 18,
+   "source": "sahidica.hebrews.4.6",
+   "target": "sahidic.psalms.39.10",
+   "gold": false,
+   "score": 15.493,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0967241672458894,
+   "geom_idf": 2.6799820897826185,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1067218079361836,
+    "rare_word": 9.541473926074199,
+    "lemma_min1": 0.40892031111746563
+   },
+   "base": 11.057116045127849,
+   "conv": 2.0
+  },
+  {
+   "rank": 19,
+   "source": "sahidica.hebrews.12.10",
+   "target": "sahidic.psalms.38.12",
+   "gold": false,
+   "score": 15.4819,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0228351902495476,
+   "geom_idf": 1.7202613889614227,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0662054662379894,
+    "rare_word": 9.111609034450211,
+    "lemma_min1": 0.3904975300478662,
+    "edit_distance": 1.296969696969697
+   },
+   "base": 11.865281727705764,
+   "conv": 3.0
+  },
+  {
+   "rank": 20,
+   "source": "sahidica.hebrews.6.16",
+   "target": "sahidic.psalms.80.8",
+   "gold": false,
+   "score": 15.3725,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.1029214407924428,
+   "geom_idf": 2.781509463595909,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0474950064817368,
+    "rare_word": 9.37472279613564,
+    "lemma_min1": 0.40177383412009876
+   },
+   "base": 10.823991636737476,
+   "conv": 2.0
+  },
+  {
+   "rank": 21,
+   "source": "sahidica.hebrews.11.35",
+   "target": "sahidic.psalms.37.21",
+   "gold": false,
+   "score": 15.1864,
+   "channels": [
+    "exact",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 1.0590086224223618,
+   "geom_idf": 2.014776397422371,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.4893596858960674,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 11.652587393024467,
+   "conv": 2.0
+  },
+  {
+   "rank": 22,
+   "source": "sahidica.hebrews.7.1",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 15.053,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word"
+   ],
+   "mult": 1.045791386502701,
+   "geom_idf": 1.974299056238083,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.5899409407607648,
+    "exact": 0.3974852351901912,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779
+   },
+   "base": 10.894948321420735,
+   "conv": 3.0
+  },
+  {
+   "rank": 23,
+   "source": "sahidica.hebrews.1.7",
+   "target": "sahidic.psalms.103.4",
+   "gold": true,
+   "score": 14.314,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8241404843448724,
+   "geom_idf": 1.2103490330386135,
+   "n_content": 7,
+   "per_ch_w": {
+    "lemma": 3.813153420423433,
+    "exact": 1.0729243629450342,
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.571973013063515,
+    "sound": 3.870967741935484,
+    "edit_distance": 2.0
+   },
+   "base": 21.074579353422095,
+   "conv": 0.0
+  },
+  {
+   "rank": 24,
+   "source": "sahidica.hebrews.11.33",
+   "target": "sahidic.psalms.78.6",
+   "gold": false,
+   "score": 14.2964,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0747008414054902,
+   "geom_idf": 2.1792250133554014,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 10.00867457674006,
+    "dictionary": 0.0794193040544408,
+    "lemma_min1": 0.4289431961460025
+   },
+   "base": 10.517037076940502,
+   "conv": 2.0
+  },
+  {
+   "rank": 25,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.96.2",
+   "gold": false,
+   "score": 13.8964,
+   "channels": [
+    "quotation",
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0272153123220658,
+   "geom_idf": 1.7660704292349696,
+   "n_content": 2,
+   "per_ch_w": {
+    "quotation": 0.0,
+    "rare_word": 9.74556081505463,
+    "dictionary": 0.08603482140854013,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 10.24926252853694,
+   "conv": 3.0
+  },
+  {
+   "rank": 26,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.17.10",
+   "gold": false,
+   "score": 12.8585,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0272153123220658,
+   "geom_idf": 1.7660704292349696,
+   "n_content": 2,
+   "per_ch_w": {
+    "rare_word": 9.74556081505463,
+    "dictionary": 0.07596031140637358,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 10.239188018534772,
+   "conv": 2.0
+  },
+  {
+   "rank": 27,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.10.6",
+   "gold": false,
+   "score": 12.2381,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0442644791391413,
+   "geom_idf": 1.871588440648448,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 8.820351541749126,
+    "dictionary": 0.10896974567620801,
+    "lemma_min1": 0.37801506607496255
+   },
+   "base": 9.307336353500297,
+   "conv": 2.0
+  },
+  {
+   "rank": 28,
+   "source": "sahidica.hebrews.12.6",
+   "target": "sahidic.psalms.15.7",
+   "gold": false,
+   "score": 11.9357,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "sound"
+   ],
+   "mult": 1.00411491291769,
+   "geom_idf": 1.520716316189072,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 1.0940265589144402,
+    "exact": 0.38245528705994003,
+    "rare_word": 9.111609034450211,
+    "sound": 1.25
+   },
+   "base": 11.838090880424591,
+   "conv": 0.0
+  },
+  {
+   "rank": 29,
+   "source": "sahidica.hebrews.12.18",
+   "target": "sahidic.psalms.148.8",
+   "gold": false,
+   "score": 11.6393,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 1.0175732804674307,
+   "geom_idf": 1.6667986171342655,
+   "n_content": 2,
+   "per_ch_w": {
+    "rare_word": 8.820351541749126,
+    "dictionary": 0.07696190283955626,
+    "lemma_min1": 0.37801506607496255
+   },
+   "base": 9.275328510663645,
+   "conv": 2.0
+  },
+  {
+   "rank": 30,
+   "source": "sahidica.hebrews.5.6",
+   "target": "sahidic.psalms.109.4",
+   "gold": true,
+   "score": 10.4313,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.7397998945001546,
+   "geom_idf": 1.0714351203531958,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 3.075578909420806,
+    "exact": 0.7688947273552015,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.46133683641312084,
+    "sound": 3.8461538461538463,
+    "edit_distance": 2.0
+   },
+   "base": 19.059486464812753,
+   "conv": 0.0
+  },
+  {
+   "rank": 31,
+   "source": "sahidica.hebrews.2.16",
+   "target": "sahidic.psalms.104.6",
+   "gold": false,
+   "score": 10.2058,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8549725253150013,
+   "geom_idf": 1.2611312181658847,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 3.0336421860342444,
+    "exact": 0.7584105465085611,
+    "quotation": 0.0,
+    "lemma_min1": 0.45504632790513666,
+    "sound": 1.3636363636363635,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 6.944068757417639,
+   "conv": 6.0
+  },
+  {
+   "rank": 32,
+   "source": "sahidica.hebrews.7.17",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 10.0366,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.7397998945001546,
+   "geom_idf": 1.0714351203531958,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 3.075578909420806,
+    "exact": 0.7688947273552015,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.46133683641312084,
+    "sound": 3.125,
+    "edit_distance": 2.0
+   },
+   "base": 18.338332618658907,
+   "conv": 0.0
+  },
+  {
+   "rank": 33,
+   "source": "sahidica.hebrews.2.10",
+   "target": "sahidic.psalms.92.5",
+   "gold": false,
+   "score": 9.7718,
+   "channels": [
+    "exact",
+    "rare_word",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 0.8521190810879433,
+   "geom_idf": 1.2564314276742596,
+   "n_content": 5,
+   "per_ch_w": {
+    "exact": 1.0849993063583772,
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.08461966157142936,
+    "lemma_min1": 0.40177383412009876,
+    "edit_distance": 1.3666666666666667
+   },
+   "base": 12.312782264852212,
+   "conv": 0.975744233503973
+  },
+  {
+   "rank": 34,
+   "source": "sahidica.hebrews.4.16",
+   "target": "sahidic.psalms.90.1",
+   "gold": false,
+   "score": 9.7654,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.9418891525915236,
+   "geom_idf": 1.4042880160330977,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 9.003884777216648,
+    "dictionary": 0.08519221488312008,
+    "lemma_min1": 0.38588077616642774
+   },
+   "base": 9.474957768266195,
+   "conv": 1.4435047237720808
+  },
+  {
+   "rank": 35,
+   "source": "sahidica.hebrews.6.20",
+   "target": "sahidic.psalms.109.4",
+   "gold": false,
+   "score": 9.2172,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "rare_word",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.7397998945001546,
+   "geom_idf": 1.0714351203531958,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.8408074657059856,
+    "exact": 0.7102018664264964,
+    "quotation": 0.0,
+    "rare_word": 8.907522145469779,
+    "lemma_min1": 0.42612111985589785,
+    "sound": 1.9565217391304348,
+    "edit_distance": 2.0
+   },
+   "base": 16.841174336588594,
+   "conv": 0.0
+  },
+  {
+   "rank": 36,
+   "source": "sahidica.hebrews.1.6",
+   "target": "sahidic.psalms.104.36",
+   "gold": false,
+   "score": 8.4746,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 0.8480441371574965,
+   "geom_idf": 1.2497197553182295,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.1479219119522246,
+    "exact": 1.3103818399347626,
+    "quotation": 0.0,
+    "dictionary": 0.09385195040461837,
+    "lemma_min1": 0.47218828679283364,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 6.441010655751106,
+   "conv": 4.530899898175247
+  },
+  {
+   "rank": 37,
+   "source": "sahidica.hebrews.2.10",
+   "target": "sahidic.psalms.32.1",
+   "gold": false,
+   "score": 7.965,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8763293107753263,
+   "geom_idf": 1.2963071001005375,
+   "n_content": 4,
+   "per_ch_w": {
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.0916321495517819,
+    "lemma_min1": 0.40177383412009876
+   },
+   "base": 9.86812877980752,
+   "conv": 0.4413590417546047
+  },
+  {
+   "rank": 38,
+   "source": "sahidica.hebrews.11.33",
+   "target": "sahidic.psalms.63.4",
+   "gold": false,
+   "score": 7.8152,
+   "channels": [
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0763668257553576,
+   "geom_idf": 1.8155385990737445,
+   "n_content": 4,
+   "per_ch_w": {
+    "exact": 1.0948110129405721,
+    "quotation": 0.0,
+    "dictionary": 0.0756855660540327,
+    "lemma_min1": 0.40177383412009876,
+    "edit_distance": 1.4571428571428573
+   },
+   "base": 3.029413270257561,
+   "conv": 4.0
+  },
+  {
+   "rank": 39,
+   "source": "sahidica.hebrews.1.4",
+   "target": "sahidic.psalms.82.13",
+   "gold": false,
+   "score": 7.7653,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.046758976485212,
+   "geom_idf": 1.985794263830535,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0267743867807706,
+    "lemma_min1": 0.36095185842421784,
+    "sound": 1.5,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 4.221059578538322,
+   "conv": 3.0
+  },
+  {
+   "rank": 40,
+   "source": "sahidica.hebrews.7.26",
+   "target": "sahidic.psalms.32.1",
+   "gold": false,
+   "score": 7.5468,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8482812765880205,
+   "geom_idf": 1.250110337909681,
+   "n_content": 3,
+   "per_ch_w": {
+    "rare_word": 9.37472279613564,
+    "dictionary": 0.07900038863021007,
+    "lemma_min1": 0.40177383412009876
+   },
+   "base": 9.855497018885949,
+   "conv": 0.5363361095429517
+  },
+  {
+   "rank": 41,
+   "source": "sahidica.hebrews.8.1",
+   "target": "sahidic.psalms.105.21",
+   "gold": false,
+   "score": 7.3859,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.149653835868666,
+   "geom_idf": 2.470229910964882,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.419956884232579,
+    "quotation": 0.0,
+    "lemma_min1": 0.35871141414052404,
+    "edit_distance": 1.2
+   },
+   "base": 2.978668298373103,
+   "conv": 3.0
+  },
+  {
+   "rank": 42,
+   "source": "sahidica.hebrews.3.2",
+   "target": "sahidic.psalms.104.26",
+   "gold": false,
+   "score": 7.3621,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0072447638879098,
+   "geom_idf": 1.5666407720547633,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0129698792961022,
+    "quotation": 0.0,
+    "lemma_min1": 0.3526691539334168,
+    "sound": 1.3043478260869565,
+    "edit_distance": 2.0
+   },
+   "base": 4.6699868593164755,
+   "conv": 2.605290747173874
+  },
+  {
+   "rank": 43,
+   "source": "sahidica.hebrews.13.15",
+   "target": "sahidic.psalms.11.5",
+   "gold": false,
+   "score": 7.3498,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 1.0684649397784216,
+   "geom_idf": 1.8845358818080238,
+   "n_content": 4,
+   "per_ch_w": {
+    "exact": 0.6645323640348457,
+    "lemma_min1": 0.3361588059960588,
+    "sound": 1.2962962962962963,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 3.630320799660534,
+   "conv": 3.0
+  },
+  {
+   "rank": 44,
+   "source": "sahidica.hebrews.4.7",
+   "target": "sahidic.psalms.58.1",
+   "gold": false,
+   "score": 7.3274,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.138457322070358,
+   "geom_idf": 2.379735899690049,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.394254877469539,
+    "quotation": 0.0,
+    "lemma_min1": 0.2907200764187394,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 3.018308287221612,
+   "conv": 3.0
+  },
+  {
+   "rank": 45,
+   "source": "sahidica.hebrews.8.1",
+   "target": "sahidic.psalms.109.1",
+   "gold": false,
+   "score": 7.2202,
+   "channels": [
+    "lemma",
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0051386969530227,
+   "geom_idf": 1.525914798304921,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 2.4659465336835957,
+    "exact": 0.8360984907345088,
+    "lemma_min1": 0.36989198005253937,
+    "edit_distance": 1.6
+   },
+   "base": 5.271937004470644,
+   "conv": 1.884232597739099
+  },
+  {
+   "rank": 46,
+   "source": "sahidica.hebrews.11.29",
+   "target": "sahidic.psalms.105.22",
+   "gold": false,
+   "score": 7.104,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "edit_distance"
+   ],
+   "mult": 0.7515522256344324,
+   "geom_idf": 1.0907919010449474,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.3937718563064283,
+    "exact": 0.3484429640766071,
+    "rare_word": 9.37472279613564,
+    "edit_distance": 1.4603174603174605
+   },
+   "base": 12.577255076836135,
+   "conv": 0.0
+  },
+  {
+   "rank": 47,
+   "source": "sahidica.hebrews.10.32",
+   "target": "sahidic.psalms.89.15",
+   "gold": false,
+   "score": 7.0447,
+   "channels": [
+    "exact",
+    "quotation",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.138338463334525,
+   "geom_idf": 3.440083994576658,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9084528622248372,
+    "quotation": 0.0,
+    "syntax": 0.3,
+    "edit_distance": 1.5925925925925928
+   },
+   "base": 2.80104545481743,
+   "conv": 3.0
+  },
+  {
+   "rank": 48,
+   "source": "sahidica.hebrews.8.13",
+   "target": "sahidic.psalms.38.6",
+   "gold": false,
+   "score": 7.0058,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "edit_distance"
+   ],
+   "mult": 0.753304689334106,
+   "geom_idf": 1.0936783118444098,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.308456103068105,
+    "exact": 0.32919130174258343,
+    "rare_word": 9.37472279613564,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 12.345703534279663,
+   "conv": 0.0
+  },
+  {
+   "rank": 49,
+   "source": "sahidica.hebrews.9.26",
+   "target": "sahidic.psalms.49.23",
+   "gold": false,
+   "score": 6.985,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.0387085027881573,
+   "geom_idf": 1.8921544960679821,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9423528314682174,
+    "lemma_min1": 0.3386885291119872,
+    "semantic": 0.9850254058837891,
+    "edit_distance": 1.3198209198209199
+   },
+   "base": 3.5858876862849134,
+   "conv": 3.0
+  },
+  {
+   "rank": 50,
+   "source": "sahidica.hebrews.7.26",
+   "target": "sahidic.psalms.92.5",
+   "gold": false,
+   "score": 6.936,
+   "channels": [
+    "lemma",
+    "rare_word",
+    "lemma_min1"
+   ],
+   "mult": 0.7596934216262955,
+   "geom_idf": 1.104200929737428,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.2984474438701534,
+    "rare_word": 9.37472279613564,
+    "lemma_min1": 0.344767116580523
+   },
+   "base": 12.017937356586314,
+   "conv": 0.0
+  },
+  {
+   "rank": 51,
+   "source": "sahidica.hebrews.4.3",
+   "target": "sahidic.psalms.105.23",
+   "gold": false,
+   "score": 6.8192,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1064194826881477,
+   "geom_idf": 2.1386968973026903,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.443497663508953,
+    "quotation": 0.0,
+    "lemma_min1": 0.3202657480423878,
+    "edit_distance": 1.4857142857142858
+   },
+   "base": 3.2494776972656263,
+   "conv": 2.568030922296995
+  },
+  {
+   "rank": 52,
+   "source": "sahidica.hebrews.2.2",
+   "target": "sahidic.psalms.86.5",
+   "gold": false,
+   "score": 6.6749,
+   "channels": [
+    "exact",
+    "dictionary",
+    "edit_distance"
+   ],
+   "mult": 1.1389705114115436,
+   "geom_idf": 3.005120494437756,
+   "n_content": 4,
+   "per_ch_w": {
+    "exact": 1.3066379880296044,
+    "dictionary": 0.08282578819458342,
+    "edit_distance": 2.0
+   },
+   "base": 3.3894637762241877,
+   "conv": 2.0
+  },
+  {
+   "rank": 53,
+   "source": "sahidica.hebrews.11.33",
+   "target": "sahidic.psalms.62.12",
+   "gold": false,
+   "score": 6.6607,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 0.7967855771386713,
+   "geom_idf": 1.1652938917578115,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 2.4242454200920394,
+    "exact": 0.6060613550230098,
+    "quotation": 0.0,
+    "dictionary": 0.07767419675350662,
+    "lemma_min1": 0.3636368130138059,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 4.804951118215696,
+   "conv": 4.530899898175247
+  },
+  {
+   "rank": 54,
+   "source": "sahidica.hebrews.8.2",
+   "target": "sahidic.psalms.103.4",
+   "gold": false,
+   "score": 6.5968,
+   "channels": [
+    "rare_word",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8022758998659706,
+   "geom_idf": 1.1743367762498338,
+   "n_content": 2,
+   "per_ch_w": {
+    "rare_word": 9.74556081505463,
+    "dictionary": 0.08588687099059526,
+    "lemma_min1": 0.41766689207376984
+   },
+   "base": 10.249114578118995,
+   "conv": 0.0
+  },
+  {
+   "rank": 55,
+   "source": "sahidica.hebrews.1.4",
+   "target": "sahidic.psalms.133.3",
+   "gold": false,
+   "score": 6.5857,
+   "channels": [
+    "exact",
+    "quotation",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.1155172771621387,
+   "geom_idf": 2.999869450079288,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.8030599056886462,
+    "quotation": 0.0,
+    "syntax": 0.3,
+    "edit_distance": 1.5
+   },
+   "base": 2.603059905688646,
+   "conv": 3.0
+  },
+  {
+   "rank": 56,
+   "source": "sahidica.hebrews.3.11",
+   "target": "sahidic.psalms.88.50",
+   "gold": false,
+   "score": 6.5848,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0810255262957658,
+   "geom_idf": 2.249240805696368,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.4236909580387354,
+    "lemma_min1": 0.36095185842421784,
+    "edit_distance": 2.0
+   },
+   "base": 3.784642816462953,
+   "conv": 2.0
+  },
+  {
+   "rank": 57,
+   "source": "sahidica.hebrews.11.17",
+   "target": "sahidic.psalms.54.13",
+   "gold": false,
+   "score": 6.5364,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.150472498612007,
+   "geom_idf": 3.1830109904985924,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.1999764769466108,
+    "quotation": 0.0,
+    "edit_distance": 2.0
+   },
+   "base": 3.1999764769466106,
+   "conv": 2.0
+  },
+  {
+   "rank": 58,
+   "source": "sahidica.hebrews.12.11",
+   "target": "sahidic.psalms.73.3",
+   "gold": false,
+   "score": 6.5017,
+   "channels": [
+    "exact",
+    "quotation",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.1272333479106627,
+   "geom_idf": 3.2183383808418258,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.8221045273317056,
+    "quotation": 0.0,
+    "syntax": 0.3,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 2.455437860665039,
+   "conv": 3.0
+  },
+  {
+   "rank": 59,
+   "source": "sahidica.hebrews.13.15",
+   "target": "sahidic.psalms.58.13",
+   "gold": false,
+   "score": 6.4317,
+   "channels": [
+    "exact",
+    "syntax",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0431931261587193,
+   "geom_idf": 1.9437592680457694,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0648856535430633,
+    "syntax": 0.3,
+    "lemma_min1": 0.3361588059960588,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 3.034377792872456,
+   "conv": 3.0
+  },
+  {
+   "rank": 60,
+   "source": "sahidica.hebrews.2.2",
+   "target": "sahidic.psalms.78.10",
+   "gold": false,
+   "score": 6.4201,
+   "channels": [
+    "exact",
+    "quotation",
+    "dictionary",
+    "edit_distance"
+   ],
+   "mult": 1.1368924445514088,
+   "geom_idf": 2.3673549016376003,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 0.9097214167716398,
+    "quotation": 0.0,
+    "dictionary": 0.08524850954609331,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 2.3283032596510664,
+   "conv": 3.0
+  },
+  {
+   "rank": 61,
+   "source": "sahidica.hebrews.4.2",
+   "target": "sahidic.psalms.144.14",
+   "gold": false,
+   "score": 6.42,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0441179956733624,
+   "geom_idf": 1.9545755935034126,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.1067218079361836,
+    "quotation": 0.0,
+    "lemma_min1": 0.40892031111746563,
+    "edit_distance": 1.5
+   },
+   "base": 3.0156421190536493,
+   "conv": 3.0
+  },
+  {
+   "rank": 62,
+   "source": "sahidica.hebrews.1.7",
+   "target": "sahidic.psalms.28.7",
+   "gold": false,
+   "score": 6.3989,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "lemma_min1"
+   ],
+   "mult": 0.8929479999480422,
+   "geom_idf": 1.3236790587379519,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 3.332450510374777,
+    "exact": 0.8331126275936942,
+    "quotation": 0.0,
+    "lemma_min1": 0.4998675765562165
+   },
+   "base": 4.665430714524687,
+   "conv": 3.0
+  },
+  {
+   "rank": 63,
+   "source": "sahidica.hebrews.1.12",
+   "target": "sahidic.psalms.101.28",
+   "gold": false,
+   "score": 6.3053,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.6539842777918877,
+   "geom_idf": 0.9300917516572268,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 2.9227619783661236,
+    "exact": 0.7306904945915309,
+    "quotation": 0.0,
+    "lemma_min1": 0.43841429675491855,
+    "sound": 2.2222222222222223,
+    "edit_distance": 2.0
+   },
+   "base": 8.314088991934796,
+   "conv": 4.204005675666547
+  },
+  {
+   "rank": 64,
+   "source": "sahidica.hebrews.6.13",
+   "target": "sahidic.psalms.39.12",
+   "gold": false,
+   "score": 6.2531,
+   "channels": [
+    "exact",
+    "semantic",
+    "edit_distance"
+   ],
+   "mult": 1.133430621457216,
+   "geom_idf": 3.3402606299102486,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.77478852087287,
+    "semantic": 0.9892700910568237,
+    "edit_distance": 1.3388888888888888
+   },
+   "base": 3.1029475008185825,
+   "conv": 2.0
+  },
+  {
+   "rank": 65,
+   "source": "sahidica.hebrews.8.5",
+   "target": "sahidic.psalms.35.8",
+   "gold": false,
+   "score": 6.2164,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.060528325742705,
+   "geom_idf": 2.156820318938711,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0195081821621266,
+    "quotation": 0.0,
+    "lemma_min1": 0.35659213565303155,
+    "edit_distance": 1.3222222222222222
+   },
+   "base": 2.6983225400373803,
+   "conv": 3.0
+  },
+  {
+   "rank": 66,
+   "source": "sahidica.hebrews.11.30",
+   "target": "sahidic.psalms.119.1",
+   "gold": false,
+   "score": 6.2093,
+   "channels": [
+    "exact",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.100728487001721,
+   "geom_idf": 2.7451508560510796,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.007897059739843,
+    "syntax": 0.3,
+    "edit_distance": 2.0
+   },
+   "base": 3.307897059739843,
+   "conv": 2.0
+  },
+  {
+   "rank": 67,
+   "source": "sahidica.hebrews.12.5",
+   "target": "sahidic.psalms.118.81",
+   "gold": false,
+   "score": 6.1941,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word"
+   ],
+   "mult": 0.7446478600803992,
+   "geom_idf": 1.0794200048383045,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.1400072678213105,
+    "exact": 0.2850018169553276,
+    "rare_word": 9.74556081505463
+   },
+   "base": 11.170569899831268,
+   "conv": 0.0
+  },
+  {
+   "rank": 68,
+   "source": "sahidica.hebrews.1.6",
+   "target": "sahidic.psalms.77.51",
+   "gold": false,
+   "score": 6.1157,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8480441371574965,
+   "geom_idf": 1.2497197553182295,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.1479219119522246,
+    "exact": 1.3103818399347626,
+    "quotation": 0.0,
+    "dictionary": 0.09385195040461837,
+    "lemma_min1": 0.47218828679283364
+   },
+   "base": 5.024343989084439,
+   "conv": 2.9506427844108902
+  },
+  {
+   "rank": 69,
+   "source": "sahidica.hebrews.4.2",
+   "target": "sahidic.psalms.67.12",
+   "gold": false,
+   "score": 6.1098,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "sound"
+   ],
+   "mult": 0.6861627809413526,
+   "geom_idf": 0.983091639197522,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.458064036085199,
+    "exact": 0.36451600902129977,
+    "rare_word": 9.541473926074199,
+    "sound": 1.6129032258064515
+   },
+   "base": 12.976957196987149,
+   "conv": 0.0
+  },
+  {
+   "rank": 70,
+   "source": "sahidica.hebrews.1.6",
+   "target": "sahidic.psalms.88.28",
+   "gold": false,
+   "score": 6.1028,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "dictionary",
+    "lemma_min1"
+   ],
+   "mult": 0.8480441371574965,
+   "geom_idf": 1.2497197553182295,
+   "n_content": 3,
+   "per_ch_w": {
+    "lemma": 3.1479219119522246,
+    "exact": 1.3103818399347626,
+    "quotation": 0.0,
+    "dictionary": 0.07595199311740863,
+    "lemma_min1": 0.47218828679283364
+   },
+   "base": 5.00644403179723,
+   "conv": 2.9506427844108902
+  },
+  {
+   "rank": 71,
+   "source": "sahidica.hebrews.2.5",
+   "target": "sahidic.psalms.143.2",
+   "gold": false,
+   "score": 6.0929,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.080429927908728,
+   "geom_idf": 2.430372834844717,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9969836658955201,
+    "lemma_min1": 0.3714670297683689,
+    "edit_distance": 2.0
+   },
+   "base": 3.368450695663889,
+   "conv": 2.0
+  },
+  {
+   "rank": 72,
+   "source": "sahidica.hebrews.11.31",
+   "target": "sahidic.psalms.118.39",
+   "gold": false,
+   "score": 6.0924,
+   "channels": [
+    "exact",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.1155172771621387,
+   "geom_idf": 2.999869450079288,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.8030599056886462,
+    "syntax": 0.3,
+    "edit_distance": 2.0
+   },
+   "base": 3.103059905688646,
+   "conv": 2.0
+  },
+  {
+   "rank": 73,
+   "source": "sahidica.hebrews.4.6",
+   "target": "sahidic.psalms.113.16",
+   "gold": false,
+   "score": 6.0733,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1752030315716078,
+   "geom_idf": 3.6019676513484633,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.298740076573264,
+    "quotation": 0.0,
+    "edit_distance": 1.396825396825397
+   },
+   "base": 2.695565473398661,
+   "conv": 2.0
+  },
+  {
+   "rank": 74,
+   "source": "sahidica.hebrews.13.20",
+   "target": "sahidic.psalms.151.4",
+   "gold": false,
+   "score": 6.0574,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0350603208215179,
+   "geom_idf": 1.8511869594156214,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0099307961555055,
+    "quotation": 0.0,
+    "lemma_min1": 0.35084570404905874,
+    "edit_distance": 1.394805194805195
+   },
+   "base": 2.7555816950097594,
+   "conv": 3.0
+  },
+  {
+   "rank": 75,
+   "source": "sahidica.hebrews.10.29",
+   "target": "sahidic.psalms.103.26",
+   "gold": false,
+   "score": 5.9417,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1687294475499161,
+   "geom_idf": 3.4872461147437326,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.3053694334828019,
+    "quotation": 0.0,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 2.6387027668161354,
+   "conv": 2.0
+  },
+  {
+   "rank": 76,
+   "source": "sahidica.hebrews.3.4",
+   "target": "sahidic.psalms.113.23",
+   "gold": false,
+   "score": 5.8777,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1581465141101637,
+   "geom_idf": 3.874219382248051,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0552130661986783,
+    "quotation": 0.0,
+    "edit_distance": 1.6
+   },
+   "base": 2.6552130661986784,
+   "conv": 2.0
+  },
+  {
+   "rank": 77,
+   "source": "sahidica.hebrews.3.4",
+   "target": "sahidic.psalms.133.3",
+   "gold": false,
+   "score": 5.8777,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1581465141101637,
+   "geom_idf": 3.874219382248051,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0552130661986783,
+    "quotation": 0.0,
+    "edit_distance": 1.6
+   },
+   "base": 2.6552130661986784,
+   "conv": 2.0
+  },
+  {
+   "rank": 78,
+   "source": "sahidica.hebrews.3.4",
+   "target": "sahidic.psalms.135.4",
+   "gold": false,
+   "score": 5.8777,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1581465141101637,
+   "geom_idf": 3.874219382248051,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0552130661986783,
+    "quotation": 0.0,
+    "edit_distance": 1.6
+   },
+   "base": 2.6552130661986784,
+   "conv": 2.0
+  },
+  {
+   "rank": 79,
+   "source": "sahidica.hebrews.3.4",
+   "target": "sahidic.psalms.145.6",
+   "gold": false,
+   "score": 5.8777,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1581465141101637,
+   "geom_idf": 3.874219382248051,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0552130661986783,
+    "quotation": 0.0,
+    "edit_distance": 1.6
+   },
+   "base": 2.6552130661986784,
+   "conv": 2.0
+  },
+  {
+   "rank": 80,
+   "source": "sahidica.hebrews.8.1",
+   "target": "sahidic.psalms.103.26",
+   "gold": false,
+   "score": 5.8404,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1272333479106627,
+   "geom_idf": 3.2183383808418258,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.8221045273317056,
+    "quotation": 0.0,
+    "edit_distance": 2.0
+   },
+   "base": 2.822104527331706,
+   "conv": 2.0
+  },
+  {
+   "rank": 81,
+   "source": "sahidica.hebrews.6.14",
+   "target": "sahidic.psalms.70.10",
+   "gold": false,
+   "score": 5.8315,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.133430621457216,
+   "geom_idf": 3.3402606299102486,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.77478852087287,
+    "quotation": 0.0,
+    "edit_distance": 2.0
+   },
+   "base": 2.77478852087287,
+   "conv": 2.0
+  },
+  {
+   "rank": 82,
+   "source": "sahidica.hebrews.3.4",
+   "target": "sahidic.psalms.120.2",
+   "gold": false,
+   "score": 5.8107,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1581465141101637,
+   "geom_idf": 3.874219382248051,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0552130661986783,
+    "quotation": 0.0,
+    "edit_distance": 1.55
+   },
+   "base": 2.6052130661986785,
+   "conv": 2.0
+  },
+  {
+   "rank": 83,
+   "source": "sahidica.hebrews.2.10",
+   "target": "sahidic.psalms.146.8",
+   "gold": false,
+   "score": 5.763,
+   "channels": [
+    "exact",
+    "quotation",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.037623980409965,
+   "geom_idf": 1.8798819655105727,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.8405642055652865,
+    "quotation": 0.0,
+    "syntax": 0.3,
+    "edit_distance": 1.3208333333333333
+   },
+   "base": 2.46139753889862,
+   "conv": 3.0
+  },
+  {
+   "rank": 84,
+   "source": "sahidica.hebrews.3.7",
+   "target": "sahidic.psalms.105.23",
+   "gold": false,
+   "score": 5.7629,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1272353383330955,
+   "geom_idf": 2.8338658373793586,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.37218221630123,
+    "quotation": 0.0,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 2.761071105190119,
+   "conv": 2.0
+  },
+  {
+   "rank": 85,
+   "source": "sahidica.hebrews.10.32",
+   "target": "sahidic.psalms.117.24",
+   "gold": false,
+   "score": 5.7623,
+   "channels": [
+    "exact",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.138338463334525,
+   "geom_idf": 3.440083994576658,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9084528622248372,
+    "syntax": 0.3,
+    "edit_distance": 1.4814814814814816
+   },
+   "base": 2.6899343437063186,
+   "conv": 2.0
+  },
+  {
+   "rank": 86,
+   "source": "sahidica.hebrews.13.3",
+   "target": "sahidic.psalms.33.10",
+   "gold": false,
+   "score": 5.7583,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1830949987152444,
+   "geom_idf": 4.499809670330264,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0900804074011696,
+    "quotation": 0.0,
+    "edit_distance": 1.3333333333333335
+   },
+   "base": 2.423413740734503,
+   "conv": 2.0
+  },
+  {
+   "rank": 87,
+   "source": "sahidica.hebrews.3.11",
+   "target": "sahidic.psalms.94.11",
+   "gold": false,
+   "score": 5.7486,
+   "channels": [
+    "lemma",
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "sound",
+    "edit_distance"
+   ],
+   "mult": 0.8020462982047137,
+   "geom_idf": 1.1739586088077638,
+   "n_content": 4,
+   "per_ch_w": {
+    "lemma": 1.7552794502634883,
+    "exact": 0.5411254986007069,
+    "quotation": 0.0,
+    "lemma_min1": 0.26329191753952325,
+    "sound": 3.8461538461538463,
+    "edit_distance": 1.5
+   },
+   "base": 7.905850712557564,
+   "conv": 0.826599725271393
+  },
+  {
+   "rank": 88,
+   "source": "sahidica.hebrews.4.7",
+   "target": "sahidic.psalms.105.23",
+   "gold": false,
+   "score": 5.7225,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1272353383330955,
+   "geom_idf": 2.8338658373793586,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.37218221630123,
+    "quotation": 0.0,
+    "edit_distance": 1.3571428571428572
+   },
+   "base": 2.7293250734440875,
+   "conv": 2.0
+  },
+  {
+   "rank": 89,
+   "source": "sahidica.hebrews.3.4",
+   "target": "sahidic.psalms.123.8",
+   "gold": false,
+   "score": 5.6989,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1581465141101637,
+   "geom_idf": 3.874219382248051,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0552130661986783,
+    "quotation": 0.0,
+    "edit_distance": 1.4666666666666668
+   },
+   "base": 2.521879732865345,
+   "conv": 2.0
+  },
+  {
+   "rank": 90,
+   "source": "sahidica.hebrews.10.23",
+   "target": "sahidic.psalms.65.14",
+   "gold": false,
+   "score": 5.652,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0350603208215179,
+   "geom_idf": 1.8511869594156214,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9990174023111827,
+    "lemma_min1": 0.3442976677424651,
+    "edit_distance": 2.0
+   },
+   "base": 3.343315070053648,
+   "conv": 2.0
+  },
+  {
+   "rank": 91,
+   "source": "sahidica.hebrews.8.5",
+   "target": "sahidic.psalms.134.18",
+   "gold": false,
+   "score": 5.6504,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.081722447090707,
+   "geom_idf": 1.9696842782870083,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.36975552527864,
+    "quotation": 0.0,
+    "lemma_min1": 0.32840460978879416,
+    "edit_distance": 1.388888888888889
+   },
+   "base": 3.0870490239563235,
+   "conv": 1.884232597739099
+  },
+  {
+   "rank": 92,
+   "source": "sahidica.hebrews.12.20",
+   "target": "sahidic.psalms.90.15",
+   "gold": false,
+   "score": 5.6393,
+   "channels": [
+    "exact",
+    "syntax",
+    "edit_distance"
+   ],
+   "mult": 1.1445357368810782,
+   "geom_idf": 3.570406766134744,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9130235841304034,
+    "syntax": 0.3,
+    "edit_distance": 1.3444444444444443
+   },
+   "base": 2.5574680285748475,
+   "conv": 2.0
+  },
+  {
+   "rank": 93,
+   "source": "sahidica.hebrews.8.5",
+   "target": "sahidic.psalms.113.16",
+   "gold": false,
+   "score": 5.6288,
+   "channels": [
+    "exact",
+    "quotation",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.081722447090707,
+   "geom_idf": 1.9696842782870083,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.36975552527864,
+    "quotation": 0.0,
+    "lemma_min1": 0.32840460978879416,
+    "edit_distance": 1.3703703703703705
+   },
+   "base": 3.0685305054378045,
+   "conv": 1.884232597739099
+  },
+  {
+   "rank": 94,
+   "source": "sahidica.hebrews.2.13",
+   "target": "sahidic.psalms.81.6",
+   "gold": false,
+   "score": 5.6072,
+   "channels": [
+    "lemma",
+    "exact",
+    "rare_word",
+    "lemma_min1",
+    "sound"
+   ],
+   "mult": 0.6384277954329787,
+   "geom_idf": 0.9044693101249061,
+   "n_content": 2,
+   "per_ch_w": {
+    "lemma": 1.8448931160059323,
+    "exact": 0.4612232790014831,
+    "rare_word": 9.74556081505463,
+    "lemma_min1": 0.27673396740088985,
+    "sound": 1.4285714285714284
+   },
+   "base": 13.756982606034365,
+   "conv": 0.0
+  },
+  {
+   "rank": 95,
+   "source": "sahidica.hebrews.13.5",
+   "target": "sahidic.psalms.57.12",
+   "gold": false,
+   "score": 5.5972,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.1641208454604923,
+   "geom_idf": 4.015613673285373,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 0.9955553513185832,
+    "quotation": 0.0,
+    "edit_distance": 1.4166666666666667
+   },
+   "base": 2.41222201798525,
+   "conv": 2.0
+  },
+  {
+   "rank": 96,
+   "source": "sahidica.hebrews.2.2",
+   "target": "sahidic.psalms.11.5",
+   "gold": false,
+   "score": 5.5872,
+   "channels": [
+    "exact",
+    "quotation",
+    "edit_distance"
+   ],
+   "mult": 1.0944065960600173,
+   "geom_idf": 2.4048753877939455,
+   "n_content": 3,
+   "per_ch_w": {
+    "exact": 1.5040416428600256,
+    "quotation": 0.0,
+    "edit_distance": 1.3333333333333333
+   },
+   "base": 2.8373749761933587,
+   "conv": 2.0
+  },
+  {
+   "rank": 97,
+   "source": "sahidica.hebrews.11.12",
+   "target": "sahidic.psalms.58.8",
+   "gold": false,
+   "score": 5.5222,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1023332795428258,
+   "geom_idf": 2.7717109066677423,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.055944847544716,
+    "lemma_min1": 0.3361588059960588,
+    "edit_distance": 1.3380952380952382
+   },
+   "base": 2.7301988916360127,
+   "conv": 2.0
+  },
+  {
+   "rank": 98,
+   "source": "sahidica.hebrews.6.12",
+   "target": "sahidic.psalms.43.4",
+   "gold": false,
+   "score": 5.4962,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0955854869797905,
+   "geom_idf": 2.661734638484397,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.0972666015916477,
+    "lemma_min1": 0.36095185842421784,
+    "edit_distance": 1.2952380952380953
+   },
+   "base": 2.753456555253961,
+   "conv": 2.0
+  },
+  {
+   "rank": 99,
+   "source": "sahidica.hebrews.12.20",
+   "target": "sahidic.psalms.22.4",
+   "gold": false,
+   "score": 5.4828,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.0476472280057685,
+   "geom_idf": 1.9964058245643064,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.2166854863779406,
+    "lemma_min1": 0.40892031111746563,
+    "edit_distance": 1.6107744107744109
+   },
+   "base": 3.236380208269817,
+   "conv": 1.8428097178745535
+  },
+  {
+   "rank": 100,
+   "source": "sahidica.hebrews.11.12",
+   "target": "sahidic.psalms.5.10",
+   "gold": false,
+   "score": 5.4791,
+   "channels": [
+    "exact",
+    "lemma_min1",
+    "edit_distance"
+   ],
+   "mult": 1.1023332795428258,
+   "geom_idf": 2.7717109066677423,
+   "n_content": 2,
+   "per_ch_w": {
+    "exact": 1.055944847544716,
+    "lemma_min1": 0.3361588059960588,
+    "edit_distance": 1.3025641025641026
+   },
+   "base": 2.6946677561048773,
+   "conv": 2.0
+  }
+ ]
+}

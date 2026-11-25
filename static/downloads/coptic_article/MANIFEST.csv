@@ -22,6 +22,8 @@ outputs/besa_psalms_ranked_2026-11-11.json,449421,5585e89145f33e9b
 outputs/besa_psalms_ranked_2026-11-11_latin_epic_weights.json,442492,35f9077189dc8edc
 outputs/besa_psalms_ranked_2026-11-11_no_dictionary.json,433195,d5f0a0206e4d6f92
 outputs/besa_wordnet_2026-11-11.json,8164,304b96114429d4ee
+outputs/coptic_hebrews_psalms_baseline_latin_epic_2026-11-24.json,120223,fce53a3498134487
+outputs/greek_hebrews_psalms_baseline_latin_epic_2026-11-24.json,144923,b5341960e8046e8c
 outputs/greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12.json,4332,efcb61b007e2c025
 outputs/greek_hebrews_psalms_two_pairs_latin_epic_2026-11-12_scoring_table.jsonl,2498,868c606675e39071
 outputs/hebrews_psalms_benchmark124_shared_runs.csv,7216,891b83ca80410343
@@ -31,6 +33,7 @@ outputs/hebrews_psalms_semantic_ablation_2026-11-12_ranked.json,1789903,47d5b524
 outputs/hebrews_psalms_top50_adjudicated.csv,4232,8d97f4609a35fdb1
 outputs/romans_isaiah_ranked_10000.jsonl,1537469,0292955e2b3fad61
 outputs/shenoute_abraham_bible_top50.csv,24332,3f89ceb692491aed
+scripts/baseline_rerun_diag.py,5985,35bdd2c768bfd876
 scripts/becky_abraham_parallels.py,7114,65cc4a1b26dcf99e
 scripts/besa_wordnet.py,6173,327327c4b757c41a
 scripts/build_gold_set.py,6610,1d827d61638cf164

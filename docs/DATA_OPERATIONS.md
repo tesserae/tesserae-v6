@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-11-25 Coptic data release: the baseline reruns of 24 November added (RUN 12:47 EST, by hand, at the owner's request)
+
+**What.** Note 6 of the article (Table 1) cites the two baselines run again on the deployed code of 2026-11-24 (commit 35c12157) with the May 2026 weights. Their outputs enter the release as `outputs/coptic_hebrews_psalms_baseline_latin_epic_2026-11-24.json` (Sahidic Hebrews x Sahidic Psalms: 4, 4, 6, 6 and 21 of 124 within the top 50, 100, 500, 1,000 and 5,000) and `outputs/greek_hebrews_psalms_baseline_latin_epic_2026-11-24.json` (Greek Hebrews x Greek Psalms: 8, 12, 15, 21 and 30), with the script `scripts/baseline_rerun_diag.py`. The files carry references, scores and scoring diagnostics and no text (0 bytes above ASCII in each). The per-pair diagnostic files (263 and 331 MB) stay private for size. The README's outputs/ and scripts/ sections describe them.
+
+**Scripts.** `research/coptic_article/checks_2026-11-12/rebuild_manifest_zip.py` (private) rebuilt `MANIFEST.csv` (45 to 48 rows) and `coptic_v6_data_release_2026-09-04.zip` (47 to 50 members, 628,415 bytes) and copied the release into `static/downloads/coptic_article/`.
+
+**Backups.** The previous README, MANIFEST and zip are in git history (commit 9b404754).
+
+**Checks.** Private and public copies byte-identical; README pure ASCII; `zipfile.testzip` clean; the two JSON files reread and their recall counts agree with the memo of 2026-11-24.
+
 ## 2026-11-25 Coptic data release: README Licensing section no longer points back to the article (RUN 12:16 EST, by hand, at the owner's request)
 
 **What.** The Licensing section of `README.md` opened "The Coptic corpus is not uniformly licensed (see the article's Data Availability statement): of the 180 indexed texts, ...". The article's Data Availability statement now sends the reader to the README for that breakdown, and the README gives it in full, so the parenthesis is gone and the sentence reads "The Coptic corpus is not uniformly licensed. Of the 180 indexed texts, ...". The counts (97, 51, 27, 4, 1) are unchanged.
