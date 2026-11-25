@@ -175,8 +175,13 @@ best-weights snapshots for the sweeps described in the article: the
 initial re-tuning sweep, the full-inventory re-optimization, the
 quotation-channel baselines, the Greek diagnostic baseline, and the
 experimental thematic sweeps. The experimental thematic profile in these
-logs used the hand-curated quotation list `gold/hebrews_psalms_verbatim_29.csv` as a tuning constraint;
-no result in the article depends on that profile.
+logs used the hand-curated quotation list `gold/hebrews_psalms_verbatim_29.csv`
+as a tuning constraint. Note 15 of the article (Section 5) reports the
+compromise profile that the wide sweep reached at iteration 24 of
+`optimization_thematic_wide_log.jsonl` (the row marked "new best"): recall
+at 500 of 22 of 124, recall at 100 of 19 of 124, and three of the 29
+verbatim quotations out of the top 50. No table in the article uses that
+profile, and the deployed profile does not derive from it.
 
 ### scripts/
 - `build_gold_set.py`, `build_greek_gold.py` - benchmark construction

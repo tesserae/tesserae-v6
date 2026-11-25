@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-11-25 Coptic data release: README sentence on the experimental thematic profile corrected (RUN 11:51 EST, by hand, at the owner's request)
+
+**What.** The logs/ section of `README.md` said "no result in the article depends on that profile" of the experimental thematic sweeps. Note 15 of the article (Section 5) reports the compromise profile that the wide sweep reached, so the sentence now names the row (iteration 24 of `logs/optimization_thematic_wide_log.jsonl`, marked "new best": recall at 500 of 22 of 124, at 100 of 19 of 124, three of the 29 verbatim quotations out of the top 50) and says that no table in the article uses the profile and the deployed profile does not derive from it. The figures were read from the released log and agree with note 15.
+
+**Scripts.** `research/coptic_article/checks_2026-11-12/rebuild_manifest_zip.py` (private) rebuilt `coptic_v6_data_release_2026-09-04.zip` (47 members, 587,270 bytes) and copied the release into `static/downloads/coptic_article/`. `MANIFEST.csv` unchanged (45 rows; the README is a zip member, not a manifest row).
+
+**Backups.** The previous README and zip are in git history (commit 45cb0a41 and before).
+
+**Checks.** Private and public README byte-identical, pure ASCII; the zip's README member carries the new sentence; `zipfile.testzip` clean.
+
 ## 2026-11-24 Coptic data release: README rewritten in plain ASCII and the Downloads page Latin recall headline corrected to 789 of 862 (RUN 09:21 EST, by hand, at the owner's request)
 - What: `static/downloads/coptic_article/README.md` is served as text/markdown
   with no charset, and a browser showed its em dashes and section signs as
