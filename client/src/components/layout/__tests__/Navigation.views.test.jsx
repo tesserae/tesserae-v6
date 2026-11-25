@@ -70,10 +70,12 @@ describe('the menu order follows the view', () => {
     expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Intertext Search'));
   });
 
-  it('Literature places the People, Places & Things menu after Theme Search and before Browse Corpus', () => {
+  it('Literature places String Search after Theme Search, then the People, Places & Things menu, then Browse Corpus', () => {
     renderNav();
     const names = menuNames();
-    expect(names.indexOf('Theme Search') + 1).toBe(names.indexOf('People, Places & Things'));
+    // String Search directly after Theme Search (the owner, 2026-11-25).
+    expect(names.indexOf('Theme Search') + 1).toBe(names.indexOf('String Search'));
+    expect(names.indexOf('String Search') + 1).toBe(names.indexOf('People, Places & Things'));
     expect(names.indexOf('People, Places & Things') + 1).toBe(names.indexOf('Browse Corpus'));
   });
 });
