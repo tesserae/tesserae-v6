@@ -51,8 +51,12 @@ function useScrollHint(contentKey) {
  */
 export function fitTabs(widths, available, moreWidth) {
   if (!widths.length || !available) return widths.length;
+  // The More button is always in the row (it holds the pages that live only
+  // there), so the tabs fit only when they and More fit together. Checking
+  // the tabs alone left More hanging off the right edge (the owner,
+  // 2026-11-25: "More is getting cut off").
   const total = widths.reduce((a, b) => a + b, 0);
-  if (total <= available) return widths.length;
+  if (total + moreWidth <= available) return widths.length;
   let used = 0;
   let n = 0;
   for (const w of widths) {
@@ -402,17 +406,19 @@ const Navigation = ({
             data-more={mainMore}
             className="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0"
           >
-            {/* Hidden copy of every candidate tab, measured for the overflow. */}
+            {/* Hidden copy of every candidate tab, measured for the overflow, in
+                the semibold weight the open page's tab takes, so the measure is
+                never narrower than the row it stands for. */}
             <div ref={measureRef} aria-hidden="true"
                  className="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
               {candidateTabs.map(tab => (
-                <span key={tab.code} data-tab className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">
+                <span key={tab.code} data-tab className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">
                   {tab.label}
                   {tab.isGroup && <span> &#9662;</span>}
                   {tab.beta && !narrow && <span className="ml-1 text-[9px] font-semibold uppercase tracking-wide">beta</span>}
                 </span>
               ))}
-              <span data-more-probe className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More &#9662;</span>
+              <span data-more-probe className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More &#9662;</span>
             </div>
             {rowTabs.map(tab => (tab.isGroup ? (
               <div key={tab.code} ref={thingsMenu.ref} className="relative">

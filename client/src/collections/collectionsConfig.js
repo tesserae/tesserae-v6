@@ -121,7 +121,8 @@ export const DOCUMENT_COLLECTIONS = ['inscriptions', 'papyri'];
  * answers, and the page a plain visit opens. Nothing is withheld in either
  * view, so every search and collection is reachable from both.
  *
- * `menuOrder` lists main-menu page codes, `readerTabs` Reader tab ids,
+ * `menuOrder` lists main-menu page codes (String Search follows Theme Search
+ * in both views, the owner, 2026-11-25), `readerTabs` Reader tab ids,
  * `searchDefaults` the Phrase Search pair by language tab (a language not
  * listed keeps the app's own default), `startHereOrder` the Start here answer
  * ids (frontDoor.js), `startHereLabels` any answer a view words differently,
@@ -135,7 +136,7 @@ export const VIEWS = [
     home: { page: 'theme-search' },
     askDefault: { lang: 'la', work: 'vergil.aeneid' },
     menuOrder: [
-      'search', 'read', 'theme-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
+      'search', 'read', 'theme-search', 'string-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'reuse', 'verbal', 'scholarship', 'translation', 'coins'],
@@ -158,7 +159,7 @@ export const VIEWS = [
     // Coins and Objects beside the other collections and ahead of
     // Intertext Search (the project lead, 2026-10-18).
     menuOrder: [
-      'read', 'events', 'inscriptions-papyri', 'coins', 'objects', 'theme-search', 'mentions', 'search',
+      'read', 'events', 'inscriptions-papyri', 'coins', 'objects', 'theme-search', 'string-search', 'mentions', 'search',
       'browse', 'about', 'help', 'repository', 'downloads',
     ],
     readerTabs: ['similar', 'coins', 'scholarship', 'reuse', 'verbal', 'translation'],
