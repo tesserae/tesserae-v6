@@ -169,6 +169,32 @@ not subject to this caveat.
   score]. No text is included. Produced by
   `scripts/semantic_ablation_lists.py`. Added 2026-11-12.
 
+- `coptic_hebrews_psalms_baseline_latin_epic_2026-11-24.json` and
+  `greek_hebrews_psalms_baseline_latin_epic_2026-11-24.json` - the two
+  baselines of article Table 1 run again on the deployed code of 2026-11-24
+  (commit 35c12157): Sahidic Hebrews against Sahidic Psalms, and the Greek
+  Hebrews (SBL Greek New Testament) against the Greek Psalms (Swete's
+  Septuagint), each with the May 2026 baseline weights (the ten weights of
+  the first line of `logs/greek_baseline_log.jsonl`, which are today's
+  `latin_epic` profile with the quotation and form channels at 0), 5,000
+  results kept as in May, and the 124 benchmark pairs of
+  `gold/tsk_hebrews_psalms_gold_124.csv`. Within the top 50, 100, 500, 1,000
+  and 5,000 the Coptic run found 4, 4, 6, 6 and 21 of the 124 pairs and the
+  Greek run 8, 12, 15, 21 and 30. The May 2026 runs that Table 1 reports
+  found 8, 9, 15 and 20 (Coptic) and 0, 4, 15 and 16 (Greek) within the top
+  50 to 1,000, so on the code of November 2026 the two baselines stand the
+  other way round. Each file gives the date, the commit, the weights, the
+  recall counts, and for each of the 124 pairs its rank (null when it is
+  outside the 5,000) with the scoring diagnostics of the pair (the rarity
+  multiplier, the geometric-mean IDF of the shared words, the number of
+  shared content words, each channel's weighted contribution; empty for a
+  Greek pair the search never scored), and the same diagnostics for the top
+  50 and the top 100 rows (three Greek rows, ranks 58, 63 and 64, have no
+  diagnostic record and are left out). The per-pair diagnostic files for
+  every scored pair (about 200,000 rows each, 263 and 331 MB) are not
+  included for size and are available from the authors. No text is
+  included. Produced by `scripts/baseline_rerun_diag.py`. Added 2026-11-25.
+
 ### logs/
 Weight-optimization run logs (JSONL, one iteration per line) and the
 best-weights snapshots for the sweeps described in the article: the
@@ -219,6 +245,11 @@ profile, and the deployed profile does not derive from it.
   the weights on the profile itself, because the search's `channel_weights`
   argument is the web form's path and caps each weight at 20, below the shipped quotation
   and sound weights.
+- `baseline_rerun_diag.py` - runs a text pair on a Tesserae V6 checkout with
+  the May 2026 baseline weights, 5,000 results kept, and records the scoring
+  diagnostics of every pair; produced the two baseline rerun files of
+  2026-11-24. Usage: `python scripts/baseline_rerun_diag.py CHECKOUT LANGUAGE
+  SOURCE_ID TARGET_ID GOLD_CSV OUT_JSON`.
 
 ## Licensing
 The Coptic corpus is not uniformly licensed. Of the 180 indexed texts,
