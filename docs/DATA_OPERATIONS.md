@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-11-25 Coptic data release: README Licensing section no longer points back to the article (RUN 12:16 EST, by hand, at the owner's request)
+
+**What.** The Licensing section of `README.md` opened "The Coptic corpus is not uniformly licensed (see the article's Data Availability statement): of the 180 indexed texts, ...". The article's Data Availability statement now sends the reader to the README for that breakdown, and the README gives it in full, so the parenthesis is gone and the sentence reads "The Coptic corpus is not uniformly licensed. Of the 180 indexed texts, ...". The counts (97, 51, 27, 4, 1) are unchanged.
+
+**Scripts.** `research/coptic_article/checks_2026-11-12/rebuild_manifest_zip.py` (private) rebuilt `coptic_v6_data_release_2026-09-04.zip` (47 members) and copied the release into `static/downloads/coptic_article/`. `MANIFEST.csv` unchanged.
+
+**Backups.** The previous README and zip are in git history (commit dfd9ea0d).
+
+**Checks.** Private and public README byte-identical, pure ASCII; the zip's README member carries the change; `zipfile.testzip` clean.
+
 ## 2026-11-25 Coptic data release: README sentence on the experimental thematic profile corrected (RUN 11:51 EST, by hand, at the owner's request)
 
 **What.** The logs/ section of `README.md` said "no result in the article depends on that profile" of the experimental thematic sweeps. Note 15 of the article (Section 5) reports the compromise profile that the wide sweep reached, so the sentence now names the row (iteration 24 of `logs/optimization_thematic_wide_log.jsonl`, marked "new best": recall at 500 of 22 of 124, at 100 of 19 of 124, three of the 29 verbatim quotations out of the top 50) and says that no table in the article uses the profile and the deployed profile does not derive from it. The figures were read from the released log and agree with note 15.

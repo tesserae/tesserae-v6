@@ -221,11 +221,10 @@ profile, and the deployed profile does not derive from it.
   and sound weights.
 
 ## Licensing
-The Coptic corpus is not uniformly licensed (see the article's Data
-Availability statement): of the
-180 indexed texts, 97 are CC BY-SA, 51 CC BY 4.0, 27 are the Sahidica
-New Testament ((c) 2000-2006 J. Warren Wells, academic use only), 4 are
-CC BY-NC-SA 4.0, and 1 is unstated. This release therefore includes no
+The Coptic corpus is not uniformly licensed. Of the 180 indexed texts,
+97 are CC BY-SA, 51 CC BY 4.0, 27 are the Sahidica New Testament ((c)
+2000-2006 J. Warren Wells, academic use only), 4 are CC BY-NC-SA 4.0,
+and 1 is unstated. This release therefore includes no
 Sahidica line text: the ranked JSONL outputs carry references only, and
 the Shenoute CSV replaces New Testament line text with the verse
 reference. Every result is fully reproducible by anyone holding the
