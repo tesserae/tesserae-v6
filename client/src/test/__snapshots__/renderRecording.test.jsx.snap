@@ -38,7 +38,7 @@ exports[`App render recording > page / 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -48,7 +48,7 @@ exports[`App render recording > page / 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
 <div class="relative">
@@ -184,7 +184,7 @@ exports[`App render recording > page / in History view 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">About</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
@@ -196,7 +196,7 @@ exports[`App render recording > page / in History view 1`] = `
 </button>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">About</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
@@ -322,7 +322,7 @@ exports[`App render recording > page /about 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -332,7 +332,7 @@ exports[`App render recording > page /about 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -402,7 +402,7 @@ exports[`App render recording > page /about 1`] = `
 <h3 class="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="bg-gray-50 p-4 rounded-lg">
-<h4 class="font-medium text-red-700 mb-2">Intertextual Search</h4>
+<h4 class="font-medium text-red-700 mb-2">Intertext Search</h4>
 <p class="text-sm text-gray-600">Compare two works, or one work against the whole corpus. Lemma, exact form, sound, edit distance, semantic embeddings, dictionary synonyms, syntax, rare words and quotation are weighed together, and every result shows what it rests on.</p>
 </div>
 <div class="bg-gray-50 p-4 rounded-lg">
@@ -625,7 +625,7 @@ exports[`App render recording > page /admin 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -635,7 +635,7 @@ exports[`App render recording > page /admin 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -720,7 +720,7 @@ exports[`App render recording > page /ask-a-work 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -730,7 +730,7 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
 <div class="relative">
@@ -862,7 +862,7 @@ exports[`App render recording > page /blog-archive 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -872,7 +872,7 @@ exports[`App render recording > page /blog-archive 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -1731,7 +1731,7 @@ exports[`App render recording > page /browse 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -1741,7 +1741,7 @@ exports[`App render recording > page /browse 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -1872,7 +1872,7 @@ exports[`App render recording > page /coins 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -1882,7 +1882,7 @@ exports[`App render recording > page /coins 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -2014,7 +2014,7 @@ exports[`App render recording > page /coins/c1 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -2024,7 +2024,7 @@ exports[`App render recording > page /coins/c1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -2094,7 +2094,7 @@ exports[`App render recording > page /corpus 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -2104,7 +2104,7 @@ exports[`App render recording > page /corpus 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -2235,7 +2235,7 @@ exports[`App render recording > page /document 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -2245,7 +2245,7 @@ exports[`App render recording > page /document 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -2315,7 +2315,7 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -2325,7 +2325,7 @@ exports[`App render recording > page /downloads 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -3140,7 +3140,7 @@ exports[`App render recording > page /events 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -3150,7 +3150,7 @@ exports[`App render recording > page /events 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -3265,7 +3265,7 @@ exports[`App render recording > page /events/e1 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -3275,7 +3275,7 @@ exports[`App render recording > page /events/e1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -3345,7 +3345,7 @@ exports[`App render recording > page /help 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -3355,7 +3355,7 @@ exports[`App render recording > page /help 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -3394,7 +3394,7 @@ exports[`App render recording > page /help 1`] = `
 </li>
 <li>
 <p class="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 mt-3 pt-4 border-t border-gray-200">Searching the literature</p>
-<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Intertextual Search, how it works</button>
+<button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Intertext Search, how it works</button>
 </li>
 <li>
 <button class="w-full text-left pl-6 pr-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100">Match Types</button>
@@ -3495,11 +3495,11 @@ exports[`App render recording > page /help 1`] = `
 <div class="flex-1 p-6">
 <div class="prose max-w-none">
 <h3 class="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Start here</h3>
-<p class="text-gray-700 mb-4">Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu, whether through shared words, shared sounds, or a shared subject. It offers seven kinds of search, listed below in the order of the "What are you trying to do?" panel. The <a href="/theme-search" class="text-red-600 hover:underline">Theme Search</a> page, where a visit starts, and the Intertextual Search page show that panel the first time you visit. Choosing an answer takes you to the right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.</p>
+<p class="text-gray-700 mb-4">Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu, whether through shared words, shared sounds, or a shared subject. It offers seven kinds of search, listed below in the order of the "What are you trying to do?" panel. The <a href="/theme-search" class="text-red-600 hover:underline">Theme Search</a> page, where a visit starts, and the Intertext Search page show that panel the first time you visit. Choosing an answer takes you to the right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it back, and Tessa gives the same list when you ask her where to start.</p>
 <div class="space-y-5">
 <div class="border-l-4 border-gray-300 pl-4">
 <h4 class="text-lg font-semibold text-gray-900">Phrase Search</h4>
-<p class="text-gray-600 text-sm mt-1">Compares a source text with a target text and ranks the passages they share. The default match type is Fusion, which combines eleven detection methods. Use it to discover allusions, quotations and echoes between two works. See <button class="text-red-600 hover:underline">Intertextual Search, how it works</button> and <button class="text-red-600 hover:underline">Match types</button>.</p>
+<p class="text-gray-600 text-sm mt-1">Compares a source text with a target text and ranks the passages they share. The default match type is Fusion, which combines eleven detection methods. Use it to discover allusions, quotations and echoes between two works. See <button class="text-red-600 hover:underline">Intertext Search, how it works</button> and <button class="text-red-600 hover:underline">Match types</button>.</p>
 </div>
 <div class="border-l-4 border-gray-300 pl-4">
 <h4 class="text-lg font-semibold text-gray-900">Line Search</h4>
@@ -3527,7 +3527,7 @@ exports[`App render recording > page /help 1`] = `
 </div>
 </div>
 <h4 class="text-lg font-semibold text-gray-900 mt-8 mb-2">Choosing a language and two texts</h4>
-<p class="text-gray-700 mb-3">The Intertextual Search page has one tab for each language (Latin, Greek, English, Coptic, Hebrew, Persian and Urdu) and a Cross-Language tab for a pair of languages. Seven pairs are open. If a pair is ever held back for rebuilding, the page says so under the pair buttons and the pair returns when the rebuild is done. No pair is held at present. The author, work and book menus accept typing, so a few letters of a name will find it. Choose a <strong>source</strong>, usually the earlier text, and a <strong>target</strong> that may echo it, and click "Find Parallels". Results are ranked by confidence, with the matched words highlighted and badges showing which methods found each pair. See <button class="text-red-600 hover:underline">Cross-Language Search</button> and <button class="text-red-600 hover:underline">Reading the results</button>.</p>
+<p class="text-gray-700 mb-3">The Intertext Search page has one tab for each language (Latin, Greek, English, Coptic, Hebrew, Persian and Urdu) and a Cross-Language tab for a pair of languages. Seven pairs are open. If a pair is ever held back for rebuilding, the page says so under the pair buttons and the pair returns when the rebuild is done. No pair is held at present. The author, work and book menus accept typing, so a few letters of a name will find it. Choose a <strong>source</strong>, usually the earlier text, and a <strong>target</strong> that may echo it, and click "Find Parallels". Results are ranked by confidence, with the matched words highlighted and badges showing which methods found each pair. See <button class="text-red-600 hover:underline">Cross-Language Search</button> and <button class="text-red-600 hover:underline">Reading the results</button>.</p>
 <div class="mt-4 bg-amber-50 p-4 rounded-lg">
 <p class="text-amber-700 text-sm">
 <strong>Tip.</strong> Start with a smaller section, such as Book 1. A comparison of two long works, such as the whole Aeneid against Book 1 of the Metamorphoses, starts at once and takes a few minutes the first time. The page shows the time it expects and fills in the results part by part, and later searches of the same pair are instant. The very largest, such as the whole Aeneid against the whole Metamorphoses, are offered book by book or as a prepared file (below).</p>
@@ -3591,7 +3591,7 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -3601,7 +3601,7 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -3820,7 +3820,7 @@ exports[`App render recording > page /line-search 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -3830,7 +3830,7 @@ exports[`App render recording > page /line-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -3964,7 +3964,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -3974,7 +3974,7 @@ exports[`App render recording > page /no-such-page 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertextual Search</button>
+<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4193,7 +4193,7 @@ exports[`App render recording > page /objects 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4203,7 +4203,7 @@ exports[`App render recording > page /objects 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4331,7 +4331,7 @@ exports[`App render recording > page /objects/o1 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4341,7 +4341,7 @@ exports[`App render recording > page /objects/o1 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4411,7 +4411,7 @@ exports[`App render recording > page /privacy 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4421,7 +4421,7 @@ exports[`App render recording > page /privacy 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4549,7 +4549,7 @@ exports[`App render recording > page /read 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4559,7 +4559,7 @@ exports[`App render recording > page /read 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4685,7 +4685,7 @@ exports[`App render recording > page /repository 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4695,7 +4695,7 @@ exports[`App render recording > page /repository 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4809,7 +4809,7 @@ exports[`App render recording > page /requests 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4819,7 +4819,7 @@ exports[`App render recording > page /requests 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -4909,7 +4909,7 @@ exports[`App render recording > page /research 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -4919,7 +4919,7 @@ exports[`App render recording > page /research 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -5225,7 +5225,7 @@ exports[`App render recording > page /string-search 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -5235,7 +5235,7 @@ exports[`App render recording > page /string-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -5351,7 +5351,7 @@ exports[`App render recording > page /terms 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -5361,7 +5361,7 @@ exports[`App render recording > page /terms 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -5461,7 +5461,7 @@ exports[`App render recording > page /text-credits 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -5471,7 +5471,7 @@ exports[`App render recording > page /text-credits 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">
@@ -5583,7 +5583,7 @@ exports[`App render recording > page /theme-search 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -5593,7 +5593,7 @@ exports[`App render recording > page /theme-search 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
 <div class="relative">
@@ -5778,7 +5778,7 @@ exports[`App render recording > page /theme-search?scope=corpus 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -5788,7 +5788,7 @@ exports[`App render recording > page /theme-search?scope=corpus 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
 <div class="relative">
@@ -5916,7 +5916,7 @@ exports[`App render recording > page /theme-search?scope=two 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -5926,7 +5926,7 @@ exports[`App render recording > page /theme-search?scope=two 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
 <div class="relative">
@@ -6084,7 +6084,7 @@ exports[`App render recording > page /visualize 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertextual Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
@@ -6094,7 +6094,7 @@ exports[`App render recording > page /visualize 1`] = `
 <span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
 <span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
 </div>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertextual Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
 <div class="relative">

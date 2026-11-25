@@ -1,6 +1,6 @@
 """Tessa's answer to "where do I start?".
 
-The same seven choices as the "Start here" panel on the Intertextual Search page
+The same seven choices as the "Start here" panel on the Intertext Search page
 (client/src/components/search/frontDoor.js). The labels and paths here must
 match that file, and tests/test_assistant_front_door.py checks that they do.
 Change both together.

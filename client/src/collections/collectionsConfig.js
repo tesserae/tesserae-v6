@@ -156,7 +156,7 @@ export const VIEWS = [
     home: { page: 'theme-search' },
     askDefault: { lang: 'la', work: 'tacitus.annales' },
     // Coins and Objects beside the other collections and ahead of
-    // Intertextual Search (the project lead, 2026-10-18).
+    // Intertext Search (the project lead, 2026-10-18).
     menuOrder: [
       'read', 'events', 'inscriptions-papyri', 'coins', 'objects', 'theme-search', 'mentions', 'search',
       'browse', 'about', 'help', 'repository', 'downloads',

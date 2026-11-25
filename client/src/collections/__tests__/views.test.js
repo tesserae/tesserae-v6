@@ -36,7 +36,7 @@ describe('the view data', () => {
     expect(h.askDefault).toEqual({ lang: 'la', work: 'tacitus.annales' });
     expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'events', 'inscriptions-papyri']);
     expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
-    // Coins and Objects sit with the collections, ahead of Intertextual Search (2026-10-18).
+    // Coins and Objects sit with the collections, ahead of Intertext Search (2026-10-18).
     expect(h.menuOrder.indexOf('coins')).toBeLessThan(h.menuOrder.indexOf('search'));
     expect(h.menuOrder.indexOf('objects')).toBeLessThan(h.menuOrder.indexOf('search'));
     expect(h.menuOrder.indexOf('inscriptions-papyri')).toBeLessThan(h.menuOrder.indexOf('coins'));

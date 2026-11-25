@@ -64,7 +64,7 @@ TOOLS_DESCRIPTION = tools_description()
 # Start here panel's seven (front_door.FRONT_DOOR_CHOICES, kept equal to the panel by a test)
 # and the other pages of the top row (client/src/components/layout/Navigation.jsx).
 OTHER_PAGES = [
-    ('Intertextual Search', 'the main search: two texts compared by eleven detection methods at once, with tabs for '
+    ('Intertext Search', 'the main search: two texts compared by eleven detection methods at once, with tabs for '
      'Phrase Search, Line Search, Rare Words and Cross-Language', '/'),
     ('Cross-Language', 'parallels between Greek and Latin, Latin and English, Greek and English, Hebrew and Greek or '
      'Latin, Coptic and Greek, Persian and Urdu', '/?tab=cross'),

@@ -26,7 +26,7 @@ const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 const READER_STEP = 1000;
 // The History view opens on a historian instead (the lead, 2026-10-18: the
 // Reader kept opening on the Aeneid under History). The same two works
-// Intertextual Search starts from in that view (collectionsConfig).
+// Intertext Search starts from in that view (collectionsConfig).
 const HISTORY_PREFERRED_WORK = {
   la: 'livy.ab_urbe_condita.part.1.books_1-10.tess',
   grc: 'herodotus.histories.part.1.tess',

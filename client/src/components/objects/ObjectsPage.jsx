@@ -10,7 +10,7 @@ function objectIdFromPath(path) {
 /**
  * The Objects page: /objects lists museum objects, /objects/<id> is one object.
  * Opens in every view and with any collection switch (the project lead, 2026-10-20: Events
- * chosen from the menu in the Literature view returned to Intertextual Search). The
+ * chosen from the menu in the Literature view returned to Intertext Search). The
  * collection switches decide what a search covers, not which pages open.
  */
 export default function ObjectsPage() {
