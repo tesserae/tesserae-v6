@@ -414,7 +414,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     Rare Words lists words found in fewer than 50 texts that your two texts share, and Rare Pairs lists unusual
                     word pairs that few texts contain together. Both suggest direct borrowing or a stylistic fingerprint. Export CSV
                     saves the list you see, and Download everything (CSV) fetches every place each word occurs in the corpus, which
-                    can be a large file. String Search looks for words, patterns and combinations across the whole corpus, with
+                    can be a large file. String Search has its own place in the top row since 25 November 2026, because it looks
+                    a word or pattern up across the whole corpus and compares no two texts. It finds words, patterns and combinations with
                     wildcards and the operators AND, OR, NOT and proximity. The patterns are explained under{' '}
                     <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match types</button>,
                     and{' '}
@@ -575,7 +576,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 expert rating of the 32 pairs among the top 50 Lucan-Vergil results that are not in the benchmark.
                 The <a href="/research" className="text-red-600 hover:underline">Research</a> page, with the studies, evaluations
                 and articles behind the site, is under More as well, since 17 November 2026. Before that it was reached only from the
-                About page.
+                About page. The <a href="/about" className="text-red-600 hover:underline">About</a> page itself moved under More on
+                25 November 2026, when String Search took its place in the row.
               </p>
               <p className="text-gray-700 mb-4">
                 The corpus texts come as one archive per language, a .tar.gz of the .tess files with a

@@ -105,6 +105,11 @@ const mainTabs = [
   { code: 'search', label: 'Intertext Search' },
   { code: 'read', label: 'Read' },
   { code: 'theme-search', label: 'Theme Search' },
+  // String Search looks a word or pattern up across the corpus and compares no
+  // two texts, so it has its own place in the row (the owner, 2026-11-25:
+  // "no one will think to look for string search under Intertext Search").
+  // About moved under More the same day to keep the row's width.
+  { code: 'string-search', label: 'String Search' },
   // Where a place, person or god is named.
   { code: 'mentions', label: 'People & Places', group: 'things' },
   // Trial: shown only when the documents trial is active, both the server
@@ -132,7 +137,7 @@ const mainTabs = [
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
   // { code: 'visualizations', label: 'Visualize' },
   { code: 'downloads', label: 'Downloads', more: true },
-  { code: 'about', label: 'About' },
+  { code: 'about', label: 'About', more: true },
   { code: 'help', label: 'Help & Support' },
   // Opens the Upload Your Text page (/upload-help), its own page since the
   // Help reorganization (2026-10-19) but reachable only from inside Help until
@@ -506,7 +511,7 @@ const Navigation = ({
           </div>
         </div>
         
-        {pageType === 'search' && (
+        {(pageType === 'search' || pageType === 'string-search') && (
           <div className="py-2 border-t">
             <div
               ref={langRef}

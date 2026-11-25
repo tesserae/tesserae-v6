@@ -77,9 +77,17 @@ export const scopeFromSearch = (search) => {
 // /ask-a-work (Tessa's links, Help, the blog, bookmarks) opens the one-text
 // scope of Theme Search with the same parameters (work, lang, q, books).
 // Takes an address "path?query" and returns it, rewritten when it is the old one.
+// Since 2026-11-25 String Search is its own page, so the old sub-tab address
+// of the Intertext Search page (/?tab=string) opens /string-search.
 export const legacyRedirect = (url) => {
   const [pathAndQuery, hash] = String(url).split('#');
   const [path, query = ''] = pathAndQuery.split('?');
+  if (path === '/' && new URLSearchParams(query).get('tab') === 'string') {
+    const q = new URLSearchParams(query);
+    q.delete('tab');
+    const rest = q.toString();
+    return '/string-search' + (rest ? '?' + rest : '') + (hash ? '#' + hash : '');
+  }
   if (path !== '/ask-a-work') return url;
   const p = new URLSearchParams(query);
   p.set('scope', 'one');

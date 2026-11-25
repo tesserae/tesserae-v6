@@ -111,13 +111,13 @@ function App() {
   }, [servedLanguages, activeTab]);
   const [searchMode, setSearchMode] = useState(() => {
     const gotoTab = sessionStorage.getItem('tesserae_goto_tab');
-    if (gotoTab && ['parallel', 'line', 'string', 'hapax', 'bigram'].includes(gotoTab)) {
+    if (gotoTab && ['parallel', 'line', 'hapax', 'bigram'].includes(gotoTab)) {
       sessionStorage.removeItem('tesserae_goto_tab');
       return gotoTab;
     }
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
-    if (tab && ['parallel', 'line', 'string', 'hapax', 'bigram'].includes(tab)) {
+    if (tab && ['parallel', 'line', 'hapax', 'bigram'].includes(tab)) {
       return tab;
     }
     return 'parallel';
@@ -647,8 +647,6 @@ function App() {
 
               {searchMode === 'line' ? (
                 <LineSearch key={activeTab} language={activeTab} />
-              ) : searchMode === 'string' ? (
-                <WildcardSearch language={activeTab} />
               ) : corpusError ? (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
                   <p className="text-red-700 mb-2">Failed to load corpus data: {corpusError}</p>

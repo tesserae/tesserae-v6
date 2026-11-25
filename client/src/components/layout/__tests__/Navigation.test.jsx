@@ -240,3 +240,30 @@ describe('Navigation — Research', () => {
     expect(setPageType).toHaveBeenCalledWith('research');
   });
 });
+
+describe('Navigation — String Search in the top row (2026-11-25)', () => {
+  it('shows String Search in the main row and opens the string-search page', () => {
+    const setPageType = vi.fn();
+    renderNav({ setPageType });
+    fireEvent.click(screen.getByRole('button', { name: 'String Search' }));
+    expect(setPageType).toHaveBeenCalledWith('string-search');
+  });
+
+  it('lists About under More, not in the main row, and opens the about page', () => {
+    const setPageType = vi.fn();
+    renderNav({ setPageType });
+    expect(screen.queryByRole('button', { name: 'About' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /More/ }));
+    const more = screen.getByTestId('more-menu');
+    fireEvent.click(within(more).getByRole('menuitem', { name: 'About' }));
+    expect(setPageType).toHaveBeenCalledWith('about');
+  });
+
+  it('shows the language row on the String Search page', () => {
+    renderNav({ pageType: 'string-search' });
+    expect(screen.getByRole('button', { name: 'Latin' })).toBeTruthy();
+    cleanup();
+    renderNav({ pageType: 'browse' });
+    expect(screen.queryByRole('button', { name: 'Latin' })).toBeNull();
+  });
+});
