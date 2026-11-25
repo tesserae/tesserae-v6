@@ -2140,6 +2140,8 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>
@@ -4287,6 +4289,8 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Save Paral
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>
@@ -4603,6 +4607,8 @@ exports[`App flows: results, Search Corpus, Save Parallel > opens the Search Cor
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>
@@ -6700,6 +6706,8 @@ exports[`App flows: results, Search Corpus, Save Parallel > runs the deep-linked
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>

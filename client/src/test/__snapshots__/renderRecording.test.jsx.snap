@@ -137,6 +137,8 @@ exports[`App render recording > page / 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -279,6 +281,8 @@ exports[`App render recording > page / in History view 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -582,6 +586,8 @@ exports[`App render recording > page /about 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -677,6 +683,8 @@ exports[`App render recording > page /admin 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -819,6 +827,8 @@ exports[`App render recording > page /ask-a-work 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -1688,6 +1698,8 @@ exports[`App render recording > page /blog-archive 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -1829,6 +1841,8 @@ exports[`App render recording > page /browse 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -1971,6 +1985,8 @@ exports[`App render recording > page /coins 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -2051,6 +2067,8 @@ exports[`App render recording > page /coins/c1 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -2192,6 +2210,8 @@ exports[`App render recording > page /corpus 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -2272,6 +2292,8 @@ exports[`App render recording > page /document 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -3097,6 +3119,8 @@ exports[`App render recording > page /downloads 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -3222,6 +3246,8 @@ exports[`App render recording > page /events 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -3302,6 +3328,8 @@ exports[`App render recording > page /events/e1 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -3548,6 +3576,8 @@ exports[`App render recording > page /help 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -3776,6 +3806,8 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -3920,6 +3952,8 @@ exports[`App render recording > page /line-search 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4148,6 +4182,8 @@ exports[`App render recording > page /no-such-page 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4286,6 +4322,8 @@ exports[`App render recording > page /objects 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4366,6 +4404,8 @@ exports[`App render recording > page /objects/o1 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4504,6 +4544,8 @@ exports[`App render recording > page /privacy 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4640,6 +4682,8 @@ exports[`App render recording > page /read 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4764,6 +4808,8 @@ exports[`App render recording > page /repository 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -4864,6 +4910,8 @@ exports[`App render recording > page /requests 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -5180,6 +5228,8 @@ exports[`App render recording > page /research 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -5323,6 +5373,8 @@ exports[`App render recording > page /string-search 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -5433,6 +5485,8 @@ exports[`App render recording > page /terms 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -5555,6 +5609,8 @@ exports[`App render recording > page /text-credits 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -5750,6 +5806,8 @@ exports[`App render recording > page /theme-search 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -5888,6 +5946,8 @@ exports[`App render recording > page /theme-search?scope=corpus 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -6056,6 +6116,8 @@ exports[`App render recording > page /theme-search?scope=two 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"
@@ -6298,6 +6360,8 @@ exports[`App render recording > page /visualize 1`] = `
 <footer class="bg-gray-100 border-t mt-8 py-4">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
 <p>Tesserae V6</p>
+<p class="mt-1">Use Tesserae from Claude or ChatGPT: see <button type="button" class="text-red-700 hover:underline">Use with your AI</button>
+</p>
 </div>
 </footer>
 </div>"

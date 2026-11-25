@@ -1005,6 +1005,15 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
+          {/* One standing pointer to the connector on every page (the owner,
+              2026-11-25: the old banner on every page was distracting, and with
+              it gone nothing showed the option). It opens Help at Use with your AI. */}
+          <p className="mt-1">
+            Use Tesserae from Claude or ChatGPT: see{' '}
+            <button type="button" onClick={openAiHelp} className="text-red-700 hover:underline">
+              Use with your AI
+            </button>
+          </p>
           {/* The requests workflow (2026-10-08) is reached from the header's
               "Suggest a change" button; the list of requests made so far is
               linked from inside that dialog (owner, 2026-10-12: no separate
