@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-25
 
+- **Coptic data release README**: the logs/ section said no result in the article depends on the experimental thematic profile. Note 15 of the article (Section 5) reports that profile's figures, so the sentence now names the row they come from (iteration 24 of optimization_thematic_wide_log.jsonl) and says that no table uses the profile and the deployed profile does not derive from it. Zip rebuilt with the same 47 members; MANIFEST unchanged. The owner raised it.
 - **Intertext Search** is the new name of the Intertextual Search tab, page title, Start here panel, About page and Help sections (every place the site named the feature). The owner found the adjective awkward, and the site already uses the noun "intertext" throughout. The SCS 2027 paper title on the Research page keeps its own wording. Nothing else changes.
 
 ## 2026-11-24
