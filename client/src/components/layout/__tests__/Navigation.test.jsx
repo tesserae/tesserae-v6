@@ -267,3 +267,20 @@ describe('Navigation — String Search in the top row (2026-11-25)', () => {
     expect(screen.queryByRole('button', { name: 'Latin' })).toBeNull();
   });
 });
+
+describe('Navigation — Use with your AI under More (2026-11-25)', () => {
+  it('lists the entry under More and opens Help at the ai-guide section instead of a page', () => {
+    const setPageType = vi.fn();
+    const seen = [];
+    const listener = (e) => seen.push(e.detail);
+    window.addEventListener('tesserae:open-help', listener);
+    renderNav({ setPageType });
+    expect(screen.queryByRole('button', { name: 'Use with your AI' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /More/ }));
+    const more = screen.getByTestId('more-menu');
+    fireEvent.click(within(more).getByRole('menuitem', { name: 'Use with your AI' }));
+    window.removeEventListener('tesserae:open-help', listener);
+    expect(seen).toEqual([{ section: 'ai-guide' }]);
+    expect(setPageType).not.toHaveBeenCalled();
+  });
+});

@@ -151,6 +151,11 @@ const mainTabs = [
   // page or at /research. Under More since 2026-11-17 (owner, on a phone:
   // "I can't find the research page"). The About card stays.
   { code: 'research', label: 'Research', more: true },
+  // The connector for Claude and ChatGPT: an entry under More that opens the
+  // Help section "Use with your AI" (the owner, 2026-11-25: the old standing
+  // banner was distracting, but with it gone nothing pointed to the option).
+  // A helpSection entry opens Help at that section instead of a page of its own.
+  { code: 'ai-guide', label: 'Use with your AI', more: true, helpSection: 'ai-guide' },
   { code: 'admin', label: 'Admin' }
 ];
 
@@ -240,6 +245,16 @@ const Navigation = ({
   // client's ?documents=1 flag and the collection switches no longer gate
   // the menu (2026-10-19).
   const showInscriptionsPapyri = documentsEnabled;
+  // A main-row or More entry opens its page, or, for an entry that names a
+  // Help section, the Help page at that section (App listens for the event).
+  const openTab = (tab) => {
+    if (tab.helpSection) {
+      window.dispatchEvent(new CustomEvent('tesserae:open-help', { detail: { section: tab.helpSection } }));
+      return;
+    }
+    setPageType(tab.code);
+  };
+
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
@@ -442,7 +457,7 @@ const Navigation = ({
             ) : (
               <button
                 key={tab.code}
-                onClick={() => setPageType(tab.code)}
+                onClick={() => openTab(tab)}
                 aria-current={pageType === tab.code ? 'page' : undefined}
                 className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
                   pageType === tab.code
@@ -497,7 +512,7 @@ const Navigation = ({
                       key={tab.code}
                       role="menuitem"
                       type="button"
-                      onClick={() => { moreMenu.setOpen(false); setPageType(tab.code); }}
+                      onClick={() => { moreMenu.setOpen(false); openTab(tab); }}
                       className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 ${
                         pageType === tab.code ? 'text-red-700 font-semibold' : 'text-gray-700'
                       }`}

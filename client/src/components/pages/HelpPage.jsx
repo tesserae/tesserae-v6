@@ -3200,7 +3200,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Any AI can help you with Tesserae. The free way, which works with any assistant including free ones and
                 sandboxed apps like the standard Gemini, is to run the search here and let the AI interpret the results.
                 To have the AI run the searches for you instead, with no copying and pasting, you need a basic paid AI
-                subscription (see below).
+                subscription (see below). This section is reached from Use with your AI under More, at the right end of
+                the top row, and from the line at the foot of every page.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Free, with any AI <span className="text-sm font-normal text-gray-500">(you search, the AI interprets)</span></h4>

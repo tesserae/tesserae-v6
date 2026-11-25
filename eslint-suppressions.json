@@ -4,7 +4,7 @@
       "count": 1
     },
     "no-unused-vars": {
-      "count": 3
+      "count": 2
     }
   },
   "client/src/components/admin/AdminPanel.jsx": {
