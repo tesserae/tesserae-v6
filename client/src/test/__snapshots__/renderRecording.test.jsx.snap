@@ -38,26 +38,26 @@ exports[`App render recording > page / 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -182,15 +182,15 @@ exports[`App render recording > page / in History view 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <div class="relative">
@@ -198,10 +198,10 @@ exports[`App render recording > page / in History view 1`] = `
 </button>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -326,26 +326,26 @@ exports[`App render recording > page /about 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">More <span aria-hidden="true">▾</span>
 </button>
@@ -631,26 +631,26 @@ exports[`App render recording > page /admin 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -728,26 +728,26 @@ exports[`App render recording > page /ask-a-work 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -872,26 +872,26 @@ exports[`App render recording > page /blog-archive 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -1743,26 +1743,26 @@ exports[`App render recording > page /browse 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -1886,26 +1886,26 @@ exports[`App render recording > page /coins 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2030,26 +2030,26 @@ exports[`App render recording > page /coins/c1 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2112,26 +2112,26 @@ exports[`App render recording > page /corpus 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2255,26 +2255,26 @@ exports[`App render recording > page /document 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -2337,26 +2337,26 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">More <span aria-hidden="true">▾</span>
 </button>
@@ -3164,26 +3164,26 @@ exports[`App render recording > page /events 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3291,26 +3291,26 @@ exports[`App render recording > page /events/e1 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3373,26 +3373,26 @@ exports[`App render recording > page /help 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3621,26 +3621,26 @@ exports[`App render recording > page /inscriptions-papyri 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold" aria-current="page">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3851,26 +3851,26 @@ exports[`App render recording > page /line-search 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -3997,26 +3997,26 @@ exports[`App render recording > page /no-such-page 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4227,26 +4227,26 @@ exports[`App render recording > page /objects 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4367,26 +4367,26 @@ exports[`App render recording > page /objects/o1 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4449,26 +4449,26 @@ exports[`App render recording > page /privacy 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4589,26 +4589,26 @@ exports[`App render recording > page /read 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4727,26 +4727,26 @@ exports[`App render recording > page /repository 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">More <span aria-hidden="true">▾</span>
 </button>
@@ -4853,26 +4853,26 @@ exports[`App render recording > page /requests 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -4955,26 +4955,26 @@ exports[`App render recording > page /research 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">More <span aria-hidden="true">▾</span>
 </button>
@@ -5273,26 +5273,26 @@ exports[`App render recording > page /string-search 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5418,26 +5418,26 @@ exports[`App render recording > page /terms 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5530,26 +5530,26 @@ exports[`App render recording > page /text-credits 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5654,26 +5654,26 @@ exports[`App render recording > page /theme-search 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5851,26 +5851,26 @@ exports[`App render recording > page /theme-search?scope=corpus 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -5991,26 +5991,26 @@ exports[`App render recording > page /theme-search?scope=two 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button aria-current="page" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-red-700 text-red-700 font-semibold">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>
@@ -6161,26 +6161,26 @@ exports[`App render recording > page /visualize 1`] = `
 </div>
 <div data-more="false" class="scroll-hint relative flex overflow-x-auto scrollbar-hide flex-1 min-w-0">
 <div aria-hidden="true" class="absolute left-0 top-0 flex invisible pointer-events-none whitespace-nowrap">
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Intertext Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Read</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Theme Search</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">People, Places &amp; Things<span> ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Intertext Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Read</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Theme Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">String Search</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">People, Places &amp; Things<span> ▾</span>
 </span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Browse Corpus</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">Help &amp; Support</span>
-<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">String Search</span>
-<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium inline-block">More ▾</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Browse Corpus</span>
+<span data-tab="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">Help &amp; Support</span>
+<span data-more-probe="true" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold inline-block">More ▾</span>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Intertext Search</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Read</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Theme Search</button>
+<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">People, Places &amp; Things <span aria-hidden="true">▾</span>
 </button>
 </div>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Browse Corpus</button>
 <button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">Help &amp; Support</button>
-<button class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">String Search</button>
 <div class="relative">
 <button type="button" aria-haspopup="menu" aria-expanded="false" class="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap border-transparent text-gray-500 hover:text-red-600 font-medium">More <span aria-hidden="true">▾</span>
 </button>

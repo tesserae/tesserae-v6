@@ -15,7 +15,7 @@ beforeEach(() => {
 describe('the view data', () => {
   it('has Literature and History, each complete', () => {
     expect(VIEWS.map((v) => v.id)).toEqual(['literature', 'history']);
-    const pages = ['search', 'read', 'theme-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
+    const pages = ['search', 'read', 'theme-search', 'string-search', 'mentions', 'inscriptions-papyri', 'events', 'coins', 'objects',
       'browse', 'about', 'help', 'repository', 'downloads'];
     VIEWS.forEach((v) => {
       expect(v.label).toBeTruthy();
@@ -36,6 +36,7 @@ describe('the view data', () => {
     expect(h.askDefault).toEqual({ lang: 'la', work: 'tacitus.annales' });
     expect(h.menuOrder.slice(0, 3)).toEqual(['read', 'events', 'inscriptions-papyri']);
     expect(h.menuOrder.indexOf('theme-search')).toBeLessThan(h.menuOrder.indexOf('search'));
+    expect(h.menuOrder.indexOf('string-search')).toBe(h.menuOrder.indexOf('theme-search') + 1);
     // Coins and Objects sit with the collections, ahead of Intertext Search (2026-10-18).
     expect(h.menuOrder.indexOf('coins')).toBeLessThan(h.menuOrder.indexOf('search'));
     expect(h.menuOrder.indexOf('objects')).toBeLessThan(h.menuOrder.indexOf('search'));
@@ -51,7 +52,8 @@ describe('the view data', () => {
   it('gives Literature Theme Search on one text as its opening page, and the literary profile', () => {
     const l = viewById('literature');
     expect(l.profile).toBe('literary');
-    expect(l.menuOrder.slice(0, 4)).toEqual(['search', 'read', 'theme-search', 'mentions']);
+    // String Search directly after Theme Search (the owner, 2026-11-25).
+    expect(l.menuOrder.slice(0, 5)).toEqual(['search', 'read', 'theme-search', 'string-search', 'mentions']);
     expect(l.startHereOrder[0]).toBe('subject');
     expect(l.home).toEqual({ page: 'theme-search' });
     expect(l.opensOn).toBe('Theme Search, one text, on the Aeneid');
