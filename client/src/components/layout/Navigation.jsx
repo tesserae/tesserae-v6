@@ -102,7 +102,7 @@ function useFixedMenu(width) {
 const THINGS_GROUP = { code: 'things', label: 'People, Places & Things' };
 
 const mainTabs = [
-  { code: 'search', label: 'Intertextual Search' },
+  { code: 'search', label: 'Intertext Search' },
   { code: 'read', label: 'Read' },
   { code: 'theme-search', label: 'Theme Search' },
   // Where a place, person or god is named.

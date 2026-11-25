@@ -44,12 +44,12 @@ describe('the view switch', () => {
 });
 
 describe('the menu order follows the view', () => {
-  it('Literature starts with Intertextual Search, then Read, then Theme Search', () => {
+  it('Literature starts with Intertext Search, then Read, then Theme Search', () => {
     renderNav();
     const names = menuNames();
-    expect(names.indexOf('Intertextual Search')).toBeLessThan(names.indexOf('Read'));
+    expect(names.indexOf('Intertext Search')).toBeLessThan(names.indexOf('Read'));
     expect(names.indexOf('Read')).toBeLessThan(names.indexOf('Theme Search'));
-    expect(names[names.indexOf('Collections') + 1]).toBe('Intertextual Search');
+    expect(names[names.indexOf('Collections') + 1]).toBe('Intertext Search');
   });
 
   it('has no Search One Text tab, and Theme Search carries no beta mark', () => {
@@ -61,13 +61,13 @@ describe('the menu order follows the view', () => {
     expect(menuNames().some((n) => /Search One Text/i.test(n))).toBe(false);
   });
 
-  it('History leads with Read then the People, Places & Things menu, and Intertextual Search comes after Theme Search', () => {
+  it('History leads with Read then the People, Places & Things menu, and Intertext Search comes after Theme Search', () => {
     renderNav();
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     const names = menuNames();
     expect(names.indexOf('Read')).toBeLessThan(names.indexOf('People, Places & Things'));
     expect(names.indexOf('People, Places & Things')).toBeLessThan(names.indexOf('Theme Search'));
-    expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Intertextual Search'));
+    expect(names.indexOf('Theme Search')).toBeLessThan(names.indexOf('Intertext Search'));
   });
 
   it('Literature places the People, Places & Things menu after Theme Search and before Browse Corpus', () => {

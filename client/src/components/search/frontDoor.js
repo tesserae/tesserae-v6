@@ -1,4 +1,4 @@
-// The seven answers to "What are you trying to do?" on the Intertextual Search page's
+// The seven answers to "What are you trying to do?" on the Intertext Search page's
 // "Start here" panel: the feature's fixed name, then what it does (owner's
 // review 2026-10-10: name the feature, then a brief description, smaller). Tessa answers "where do I start" with the same eight
 // (backend/assistant/front_door.py holds the same labels and paths; a test

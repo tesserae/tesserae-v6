@@ -34,7 +34,7 @@ describe('Navigation — selected state is announced, not just colored', () => {
   it('marks the active main tab with aria-current="page" and leaves others unmarked', () => {
     renderNav({ pageType: 'browse' });
     expect(screen.getByRole('button', { name: 'Browse Corpus' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Intertextual Search' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('button', { name: 'Intertext Search' })).not.toHaveAttribute('aria-current');
   });
 
   it('marks the active language tab with aria-current and leaves others unmarked', () => {
@@ -46,7 +46,7 @@ describe('Navigation — selected state is announced, not just colored', () => {
   it('gives the active main tab a heavier font weight, not just a color change', () => {
     renderNav({ pageType: 'browse' });
     const active = screen.getByRole('button', { name: 'Browse Corpus' });
-    const inactive = screen.getByRole('button', { name: 'Intertextual Search' });
+    const inactive = screen.getByRole('button', { name: 'Intertext Search' });
     expect(active.className).toMatch(/font-semibold/);
     expect(inactive.className).not.toMatch(/font-semibold/);
   });

@@ -134,7 +134,7 @@ describe('the Phrase Search defaults follow the view', () => {
     await sourceAfter('vergil.aeneid.part.1.tess');
     fireEvent.click(screen.getByRole('button', { name: 'History' }));
     await waitFor(() => expect(window.location.pathname).toBe('/theme-search'));
-    fireEvent.click(screen.getByRole('button', { name: 'Intertextual Search' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Intertext Search' }));
     await sourceAfter('livy.ab_urbe_condita.part.1.books_1-10.tess');
   });
 });

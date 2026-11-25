@@ -14,7 +14,7 @@ export { pageForPath };
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
-  search: 'Intertextual Search',
+  search: 'Intertext Search',
   read: 'Reader',
   document: 'Document',
   'theme-search': 'Theme Search',
@@ -216,7 +216,7 @@ export const useRoute = ({ adminSessionChecked, adminSessionActive }) => {
   }, [adminSessionChecked, adminSessionActive, pageType]);
 
   // Switching view goes to the new view's home: the Reader on its text, or the
-  // Intertextual Search page. Done inside the app, with no reload.
+  // Intertext Search page. Done inside the app, with no reload.
   const goViewHome = useCallback((nextView) => {
     if (adminSessionChecked && adminSessionActive) return;
     const url = viewHomeUrl(nextView);

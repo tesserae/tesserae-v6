@@ -579,7 +579,7 @@ function App() {
           <AdminPanel />
         ) : (
           <>
-        {/* The Start here panel opens on the Intertextual Search page and on
+        {/* The Start here panel opens on the Intertext Search page and on
             whichever page is the current view's home (Theme Search on one
             text in Literature since 2026-10-12), so a first visit still sees it. */}
         {(pageType === 'search' || pageType === viewById(getView()).home.page) && (

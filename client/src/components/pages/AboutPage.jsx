@@ -177,7 +177,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-red-700 mb-2">Intertextual Search</h4>
+              <h4 className="font-medium text-red-700 mb-2">Intertext Search</h4>
               <p className="text-sm text-gray-600">
                 Compare two works, or one work against the whole corpus. Lemma, exact form, sound, edit distance, semantic embeddings, dictionary synonyms, syntax, rare words and quotation are weighed together, and every result shows what it rests on.
               </p>

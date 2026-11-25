@@ -241,7 +241,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'site-controls', label: 'Collections, Beta marks and other controls', group: 'Start here' },
     { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
 
-    { id: 'fusion-search', label: 'Intertextual Search, how it works', group: 'Searching the literature' },
+    { id: 'fusion-search', label: 'Intertext Search, how it works', group: 'Searching the literature' },
     { id: 'match-types', label: 'Match Types', group: 'Searching the literature' },
     { id: 'settings', label: 'Search Settings', group: 'Searching the literature' },
     { id: 'stoplists', label: 'Stoplists', group: 'Searching the literature' },
@@ -380,7 +380,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Tesserae finds passages that echo one another in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu,
                 whether through shared words, shared sounds, or a shared subject. It offers seven kinds of search, listed
                 below in the order of the "What are you trying to do?" panel. The <a href="/theme-search" className="text-red-600 hover:underline">Theme Search</a> page, where a visit starts,
-                and the Intertextual Search page show that panel the first time you visit. Choosing an answer takes you to the
+                and the Intertext Search page show that panel the first time you visit. Choosing an answer takes you to the
                 right search, and "Skip" closes the panel for good. The "Start here" link at the top of every page brings it
                 back, and Tessa gives the same list when you ask her where to start.
               </p>
@@ -392,7 +392,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                     Compares a source text with a target text and ranks the passages they share. The default match type is
                     Fusion, which combines eleven detection methods. Use it to discover allusions, quotations and echoes between
                     two works. See{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">Intertextual Search, how it works</button>{' '}
+                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">Intertext Search, how it works</button>{' '}
                     and{' '}
                     <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match types</button>.
                   </p>
@@ -462,7 +462,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Choosing a language and two texts</h4>
               <p className="text-gray-700 mb-3">
-                The Intertextual Search page has one tab for each language (Latin, Greek, English, Coptic, Hebrew, Persian and
+                The Intertext Search page has one tab for each language (Latin, Greek, English, Coptic, Hebrew, Persian and
                 Urdu) and a Cross-Language tab for a pair of languages. Seven pairs are open. If a pair is ever held back for
                 rebuilding, the page says so under the pair buttons and the pair returns when the rebuild is done. No pair is held
                 at present. The author, work and book menus accept typing, so a few letters of a name will find it. Choose a{' '}
@@ -524,7 +524,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 mb-4">
                 The site has two views, Literature and History, switched by the two words at the left of the
                 main menu. Literature opens on Theme Search, one text, on the Aeneid, with the menu led by
-                Intertextual Search and Read. History opens on Theme Search, one text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
+                Intertext Search and Read. History opens on Theme Search, one text, on Tacitus&rsquo;s Annals, with its own examples (prodigies in Livy, forced
                 suicides in the Annals, warning dreams in Herodotus, Gallic and German customs in Caesar, besieged cities in Thucydides, omens of an emperor's death in Suetonius), with
                 every collection on, the menu led by Read, and the Reader&rsquo;s side panel opening on
                 Similar, then the coins, the commentaries and articles, Reuse, Verbal and Translation (the inscriptions and papyri appear
@@ -1217,7 +1217,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm">
                     Tesserae finds a match through one or more independent channels: shared
                     dictionary forms, identical words, sound, meaning, and the others described in{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">Intertextual Search, how it works</button>.
+                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">Intertext Search, how it works</button>.
                     Agreement between independent channels is stronger evidence of a real
                     connection than any one channel alone. In Fusion mode, each result displays colored
                     badges showing which channels detected it, grouped by category:
