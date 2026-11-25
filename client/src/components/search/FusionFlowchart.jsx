@@ -184,7 +184,7 @@ const HTML = `<style>.ffc{
       <p class="stage-cap">Each result is a <b>pair of passages</b> — source and target — ranked by confidence, with the shared words highlighted in both and badges showing which channels detected them.</p>
     </div>
 
-    <p class="fx-foot">The other search types — Lines, String Search, Rare Pairs, Rare Words — follow simpler versions of this flow, described in their own sections.</p>
+    <p class="fx-foot">The other search types on this page, Lines, Rare Pairs and Rare Words, follow simpler versions of this flow, described in their own sections.</p>
   </div>
 </div></div>`;
 

@@ -22,16 +22,6 @@ const SearchModeToggle = ({ searchMode, setSearchMode }) => {
         Lines
       </button>
       <button
-        onClick={() => setSearchMode('string')}
-        className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded ${
-          searchMode === 'string' 
-            ? 'bg-white shadow text-blue-700' 
-            : 'text-gray-600 hover:text-gray-800'
-        }`}
-      >
-        String Search
-      </button>
-      <button
         onClick={() => setSearchMode('bigram')}
         className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded ${
           searchMode === 'bigram' 
