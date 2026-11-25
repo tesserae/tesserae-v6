@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-25
 
+- **Research page**: a new first entry under Publications, Coffee and Scheirer 2026, "Multi-Channel Fusion Search for Coptic Text Reuse," preprint on Zenodo of 25 November 2026, under review, linked by its concept DOI https://doi.org/10.5281/zenodo.24542318, in the format of the Feature Fusion entry below it. Nothing else on the page changed. (NC asked, 25 November.)
 - **Coptic data release**: the two baseline reruns of 24 November 2026 that note 6 of the article cites are added as `outputs/coptic_hebrews_psalms_baseline_latin_epic_2026-11-24.json` and `outputs/greek_hebrews_psalms_baseline_latin_epic_2026-11-24.json`, with `scripts/baseline_rerun_diag.py`; README and MANIFEST updated (48 rows), zip rebuilt (50 members). The owner raised it.
 - **The connector has two standing pointers**: a line at the foot of every page ("Use Tesserae from Claude or ChatGPT: see Use with your AI") and an entry Use with your AI under More, both opening the Help section that gives the connector URL and the steps. The owner asked for a middle ground between the old banner on every page and nothing. Help says where the section is reached from.
 - **Coptic data release README**, Licensing section: the pointer "see the article's Data Availability statement" removed, because the article now sends the reader to the README for the license breakdown and the README gives it. Zip rebuilt, 47 members; MANIFEST unchanged. The owner raised it.

@@ -16,6 +16,13 @@ export default function ResearchPage({ setPageType }) {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Publications</h3>
           <ul className="space-y-3 text-gray-700 text-sm leading-relaxed">
             <li>
+              Coffee, Neil, and Walter Scheirer. 2026. "Multi-Channel Fusion Search for Coptic Text Reuse."
+              Preprint, Zenodo, November 25, 2026. Under review.{' '}
+              <a href="https://doi.org/10.5281/zenodo.24542318" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                https://doi.org/10.5281/zenodo.24542318
+              </a>
+            </li>
+            <li>
               Coffee, Neil, and Walter Scheirer. 2026. "Feature Fusion for Computational Intertextuality Detection in Tesserae V6."
               Preprint, Zenodo, November 14, 2026.{' '}
               <a href="https://doi.org/10.5281/zenodo.24206123" className="text-amber-600 hover:underline" target="_blank" rel="noopener noreferrer">
