@@ -292,10 +292,13 @@ export default function TextPane({ units, language, selection, onSelect, total, 
           characters alone. */}
       <div
         className="max-w-3xl"
+        // The size is one step smaller on a phone (2026-11-26), so a hexameter
+        // wraps less often. readerFonts.test.jsx reads the family from this
+        // source, so the family and the size stay on adjacent lines.
         style={{
           fontFamily: '"Gentium Book", "Noto Serif Hebrew", '
             + '"Noto Sans Coptic", Georgia, serif',
-          fontSize: '1.06rem',
+          fontSize: phone ? '1rem' : '1.06rem',
           lineHeight: 1.75,
         }}
         lang={language || undefined}
@@ -322,111 +325,10 @@ export default function TextPane({ units, language, selection, onSelect, total, 
           // whole line pink the owner read a click as selecting the line.
           const wr = markWord && selection && selection.startIdx === i
             && selection.endIdx === i ? selection.clickedWordRange : null;
-          return (
-            <div
-              key={u.ref}
-              id={`line-${cssRef(u.ref)}`}
-              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? `${partial || wr ? '' : 'bg-red-50 '}border-l-[3px] border-red-700 -ml-[3px] rounded-r` : ''}`}
-              // The second column holds the "quoted in N works" mark. With the
-              // documents trial on, a line can carry a second mark (the amber
-              // inscriptions count) beside it, and 1.15rem fitted one mark only:
-              // the second overlapped the line's text (seen on Aeneid 1.1,
-              // 2026-10-09). Reserve room for two whenever the trial is on, so
-              // every line's text stays on the same left edge.
-              style={{ gridTemplateColumns: `${phone ? '1.6rem' : '2.6rem'} ${documentsTrial ? '3.9rem' : '2.7rem'} 1fr`, minHeight: '1.75rem' }}
-              // A tap on a phone makes no text selection, so nothing used to
-              // happen. A click or tap that leaves no selection selects the
-              // line itself; a drag still selects the swept span.
-              onMouseDown={(e) => {
-                if (coarse || e.button !== 0) return;
-                downRef.current = { i, sent: sentenceIndexOf(e.target) };
-                setDrag({ anchor: i, current: i });
-              }}
-              onMouseEnter={() => {
-                if (dragRef.current) setDrag((d) => (d && d.current !== i ? { ...d, current: i } : d));
-              }}
-              onClick={(e) => {
-                const el = e.currentTarget;
-                const bottom = el.offsetTop + el.offsetHeight;
-                if (!coarse) return;   // the mouse path selects on mousedown/mouseup above
-                // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
-                // off there (see index.css), so the phone's own Copy bar
-                // never appears over the page (2026-09-07). A tap
-                // selects a line; a tap on another line extends the span
-                // to it; a tap inside the span narrows it to that line.
-                //
-                // INSIDE A LONG PROSE UNIT the tap selects a sentence. A tap
-                // on another sentence of the same unit extends to it, a tap
-                // on the selected sentence (or on the unit's reference
-                // label) widens to the whole unit, and a tap on one sentence
-                // of a multi-sentence selection narrows to it.
-                if (selection && (i < selLo || i > selHi)) {
-                  emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
-                  return;
-                }
-                const parts = partsOf(u.text);
-                const k = sentenceIndexOf(e.target);
-                const onLabel = !!(e.target.closest && e.target.closest('[data-label]'));
-                const whole = () => emit(i, i, bottom, u.text,
-                  parts ? sentenceFields(u.text, parts, 0, parts.length - 1) : undefined);
-                if (!parts || onLabel || k == null) { whole(); return; }
-                const here = selection && selection.startIdx === i && selection.endIdx === i;
-                if (!here) {
-                  const f = sentenceFields(u.text, parts, k, k);
-                  emit(i, i, bottom, f.text, f);
-                  return;
-                }
-                if (selection.charStart == null) {      // the whole unit: narrow to the tapped sentence
-                  const f = sentenceFields(u.text, parts, k, k);
-                  emit(i, i, bottom, f.text, f);
-                  return;
-                }
-                const [lo, hi] = sentenceRangeOf(selection, parts);
-                if (k >= lo && k <= hi) {
-                  if (lo === hi) { whole(); return; }    // second tap on the one selected sentence
-                  const f = sentenceFields(u.text, parts, k, k);
-                  emit(i, i, bottom, f.text, f);
-                  return;
-                }
-                const f = sentenceFields(u.text, parts, Math.min(lo, k), Math.max(hi, k));
-                emit(i, i, bottom, f.text, f);
-              }}
-            >
-              <span
-                data-label="1"
-                className={`${phone ? 'text-[10px]' : 'text-[0.72rem]'} text-gray-500 text-right pt-[0.35em] tabular-nums select-none`}
-                style={{ fontFamily: 'inherit' }}
-              >
-                {showNumber ? n : ''}
-              </span>
-              {/* "Quoted in N works": a small mark for a line the corpus-wide
-                  reuse table shows repeated verbatim (or near-verbatim) in
-                  other works. Red-and-grey, matching the rest of the
-                  Reader's palette; opens the Reuse tab on the line it marks.
-                  onMouseDown stops here so the line's own drag-to-select
-                  never starts under the mark: without it, pressing the mark
-                  also began a one-line drag on the parent, and the mouseup
-                  that ends it fired onSelect (panel -> Verbal Parallels)
-                  moments before the click fired onReuseClick (panel ->
-                  Reuse). The two usually raced to the right answer, but only
-                  by luck of event order: a slow render between mouseup and
-                  click let Verbal win, which could make a click appear to do
-                  nothing.
-
-                  TIERED (2026-09-19): reuseMarks[ref] is now
-                  {n_works, n_possible_works} -- n_works counts only STRICT
-                  pairs (kept by the original jaccard/containment rules);
-                  n_possible_works counts only POSSIBLE pairs (kept by the
-                  rare-single-ngram rule alone, shared==1 -- a corpus-rare
-                  three-word match is real evidence, but weaker than the
-                  two-or-more-shared-word matches the solid mark stands for,
-                  and a 30-pair sample of that rule's yield was still mostly
-                  coincidental, 2026-09-19). A line with any strict pair
-                  gets the solid mark; a line with possible pairs gets the
-                  lighter, dashed-outline mark, beside the solid one when
-                  the line has both (2026-10-18; before that the solid mark
-                  hid the dashed one). */}
-              <span className="pt-[0.3em] flex items-center gap-0.5">
+          // The reuse marks, placed under the number on a phone and in their
+          // own column on a wide screen.
+          const reuseMarkButtons = (
+            <>
                 {reuseMarks?.[u.ref] && (() => {
                   const strict = reuseMarks[u.ref].n_works || 0;
                   const possible = reuseMarks[u.ref].n_possible_works || 0;
@@ -523,9 +425,130 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   }
                   return null;
                 })()}
-              </span>
+            </>
+          );
+          return (
+            <div
+              key={u.ref}
+              id={`line-${cssRef(u.ref)}`}
+              className={`grid ${phone ? 'gap-1' : 'gap-2'} cursor-text ${selected ? `${partial || wr ? '' : 'bg-red-50 '}border-l-[3px] border-red-700 -ml-[3px] rounded-r` : ''}`}
+              // The second column holds the "quoted in N works" mark. With the
+              // documents trial on, a line can carry a second mark (the amber
+              // inscriptions count) beside it, and 1.15rem fitted one mark only:
+              // the second overlapped the line's text (seen on Aeneid 1.1,
+              // 2026-10-09). Reserve room for two whenever the trial is on, so
+              // every line's text stays on the same left edge.
+              // ON A PHONE ONE MARGIN COLUMN (2026-11-26): the number and the
+              // reuse marks shared the left edge with the connection gutter and
+              // left the text about two thirds of a 393-pixel screen, so nearly
+              // every hexameter wrapped (the owner's screenshot). The marks now
+              // sit under the number in one 2.4rem column.
+              style={{ gridTemplateColumns: phone ? '2.4rem 1fr' : `2.6rem ${documentsTrial ? '3.9rem' : '2.7rem'} 1fr`, minHeight: '1.75rem' }}
+              // A tap on a phone makes no text selection, so nothing used to
+              // happen. A click or tap that leaves no selection selects the
+              // line itself; a drag still selects the swept span.
+              onMouseDown={(e) => {
+                if (coarse || e.button !== 0) return;
+                downRef.current = { i, sent: sentenceIndexOf(e.target) };
+                setDrag({ anchor: i, current: i });
+              }}
+              onMouseEnter={() => {
+                if (dragRef.current) setDrag((d) => (d && d.current !== i ? { ...d, current: i } : d));
+              }}
+              onClick={(e) => {
+                const el = e.currentTarget;
+                const bottom = el.offsetTop + el.offsetHeight;
+                if (!coarse) return;   // the mouse path selects on mousedown/mouseup above
+                // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
+                // off there (see index.css), so the phone's own Copy bar
+                // never appears over the page (2026-09-07). A tap
+                // selects a line; a tap on another line extends the span
+                // to it; a tap inside the span narrows it to that line.
+                //
+                // INSIDE A LONG PROSE UNIT the tap selects a sentence. A tap
+                // on another sentence of the same unit extends to it, a tap
+                // on the selected sentence (or on the unit's reference
+                // label) widens to the whole unit, and a tap on one sentence
+                // of a multi-sentence selection narrows to it.
+                if (selection && (i < selLo || i > selHi)) {
+                  emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
+                  return;
+                }
+                const parts = partsOf(u.text);
+                const k = sentenceIndexOf(e.target);
+                const onLabel = !!(e.target.closest && e.target.closest('[data-label]'));
+                const whole = () => emit(i, i, bottom, u.text,
+                  parts ? sentenceFields(u.text, parts, 0, parts.length - 1) : undefined);
+                if (!parts || onLabel || k == null) { whole(); return; }
+                const here = selection && selection.startIdx === i && selection.endIdx === i;
+                if (!here) {
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                if (selection.charStart == null) {      // the whole unit: narrow to the tapped sentence
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                const [lo, hi] = sentenceRangeOf(selection, parts);
+                if (k >= lo && k <= hi) {
+                  if (lo === hi) { whole(); return; }    // second tap on the one selected sentence
+                  const f = sentenceFields(u.text, parts, k, k);
+                  emit(i, i, bottom, f.text, f);
+                  return;
+                }
+                const f = sentenceFields(u.text, parts, Math.min(lo, k), Math.max(hi, k));
+                emit(i, i, bottom, f.text, f);
+              }}
+            >
+              {phone && <span className="flex flex-col items-end gap-0.5 pt-[0.3em]" data-margin="1">
+                <span data-label="1" className="text-[10px] text-gray-500 text-right tabular-nums select-none leading-tight" style={{ fontFamily: 'inherit' }}>
+                  {showNumber ? n : ''}
+                </span>
+                <span className="flex flex-wrap justify-end gap-0.5">{reuseMarkButtons}</span>
+              </span>}
+              {!phone && <span
+                data-label="1"
+                className="text-[0.72rem] text-gray-500 text-right pt-[0.35em] tabular-nums select-none"
+                style={{ fontFamily: 'inherit' }}
+              >
+                {showNumber ? n : ''}
+              </span>}
+              {/* "Quoted in N works": a small mark for a line the corpus-wide
+                  reuse table shows repeated verbatim (or near-verbatim) in
+                  other works. Red-and-grey, matching the rest of the
+                  Reader's palette; opens the Reuse tab on the line it marks.
+                  onMouseDown stops here so the line's own drag-to-select
+                  never starts under the mark: without it, pressing the mark
+                  also began a one-line drag on the parent, and the mouseup
+                  that ends it fired onSelect (panel -> Verbal Parallels)
+                  moments before the click fired onReuseClick (panel ->
+                  Reuse). The two usually raced to the right answer, but only
+                  by luck of event order: a slow render between mouseup and
+                  click let Verbal win, which could make a click appear to do
+                  nothing.
+
+                  TIERED (2026-09-19): reuseMarks[ref] is now
+                  {n_works, n_possible_works} -- n_works counts only STRICT
+                  pairs (kept by the original jaccard/containment rules);
+                  n_possible_works counts only POSSIBLE pairs (kept by the
+                  rare-single-ngram rule alone, shared==1 -- a corpus-rare
+                  three-word match is real evidence, but weaker than the
+                  two-or-more-shared-word matches the solid mark stands for,
+                  and a 30-pair sample of that rule's yield was still mostly
+                  coincidental, 2026-09-19). A line with any strict pair
+                  gets the solid mark; a line with possible pairs gets the
+                  lighter, dashed-outline mark, beside the solid one when
+                  the line has both (2026-10-18; before that the solid mark
+                  hid the dashed one). */}
+              {!phone && (
+                <span className="pt-[0.3em] flex items-center gap-0.5">
+                  {reuseMarkButtons}
+                </span>
+              )}
               <p className="m-0"
-                 style={phone ? { textIndent: '-1em', [rtl ? 'paddingRight' : 'paddingLeft']: '1em' } : undefined}>
+                 style={phone ? { textIndent: '-0.5em', [rtl ? 'paddingRight' : 'paddingLeft']: '0.5em' } : undefined}>
                 {(() => {
                   // A long prose unit is drawn as its sentences (the text is
                   // unchanged), so one can be clicked, and the selected one lit.
