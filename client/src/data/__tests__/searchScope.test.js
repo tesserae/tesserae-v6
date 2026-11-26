@@ -108,7 +108,8 @@ describe('SEARCH_SCOPE', () => {
   });
 
   it('gives the current documents count and sources', () => {
-    expect(SEARCH_SCOPE.documents.covers).toMatch(/255,000/);
+    // 249,616 documents on 26 November 2026 (/api/scope), stated as about 250,000.
+    expect(SEARCH_SCOPE.documents.covers).toMatch(/250,000/);
     expect(SEARCH_SCOPE.documents.covers).toMatch(/Attic Inscriptions Online/);
     expect(SEARCH_SCOPE.reader_scholarship.covers).toMatch(/Project MUSE/);
   });

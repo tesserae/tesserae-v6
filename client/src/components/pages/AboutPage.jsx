@@ -219,19 +219,19 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
           <h3 className="text-lg font-semibold text-gray-900 mb-3">The Corpus</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center p-4 bg-red-50 rounded-lg">
-              <div className="text-3xl font-bold text-red-700">1,444+</div>
+              <div className="text-3xl font-bold text-red-700">1,880+</div>
               <div className="text-sm text-gray-600">Latin Texts</div>
             </div>
             <div className="text-center p-4 bg-amber-50 rounded-lg">
-              <div className="text-3xl font-bold text-amber-700">650+</div>
+              <div className="text-3xl font-bold text-amber-700">2,980+</div>
               <div className="text-sm text-gray-600">Greek Texts</div>
             </div>
             <div className="text-center p-4 bg-amber-50 rounded-lg">
-              <div className="text-3xl font-bold text-amber-700">14+</div>
+              <div className="text-3xl font-bold text-amber-700">160+</div>
               <div className="text-sm text-gray-600">English Texts</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-3xl font-bold text-green-700">186+</div>
+              <div className="text-3xl font-bold text-green-700">187</div>
               <div className="text-sm text-gray-600">Coptic Texts</div>
             </div>
           </div>
@@ -282,9 +282,9 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Technical Details</h3>
           <ul className="list-disc list-inside text-gray-700 space-y-2">
-            <li>Lemmatization via lookup tables built from Universal Dependencies treebanks, with CLTK (Classical Language Toolkit) as the fallback for Latin and Greek; Stanza for Hebrew, Persian and Urdu</li>
+            <li>Lemmatization via lookup tables built from Universal Dependencies treebanks, with CLTK (Classical Language Toolkit) as the fallback for Latin and Greek; the ETCBC/BHSA morphology for Hebrew, with Stanza as the fallback; Stanza for Persian and Urdu</li>
             <li>NLTK for English text processing</li>
-            <li>A passage index of about 700,000 windows, each with a model-written description and an embedding, behind Theme Search, Similar Passages and the Reader</li>
+            <li>A passage index of about 1,000,000 windows, each with a model-written description and an embedding, behind Theme Search, Similar Passages and the Reader</li>
             <li>SPhilBERTa model for cross-lingual semantic similarity</li>
             <li>Universal Dependencies treebank support for syntax analysis</li>
             <li>Metrical scansion data integrated from MQDQ/Pede Certo</li>

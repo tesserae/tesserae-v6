@@ -38,8 +38,12 @@ describe('ScholarshipSourcesPage', () => {
     expect(screen.getByRole('heading', { name: 'Methods' })).toHaveAttribute('id', 'methods');
     // The gap between the two indexes is computed from their year spans.
     expect(screen.getByRole('heading', { name: 'What is not here, and where to look' })).toHaveAttribute('id', 'beyond');
-    expect(within(screen.getByTestId('beyond')).getByText(/stop at 1869 and resume in 2007\. Between 1870 and 2006/)).toBeTruthy();
-    expect(within(screen.getByTestId('beyond')).getByText(/From 2007 on the index holds Classical Journal/)).toBeTruthy();
+    // Since 2026-11-26 the paragraph names each index's years; with no JSTOR
+    // index in the response it says so instead of listing journals as absent.
+    expect(within(screen.getByTestId('beyond')).getByText(/early-journal index runs from 1866 to 1869/)).toBeTruthy();
+    expect(within(screen.getByTestId('beyond')).getByText(/Project MUSE index runs from 2007 on and holds Classical Journal/)).toBeTruthy();
+    expect(within(screen.getByTestId('beyond')).getByText(/No index covers the years between those two/)).toBeTruthy();
+    expect(within(screen.getByTestId('beyond')).queryByText(/Classical Quarterly/)).toBeNull();
     expect(screen.getByRole('heading', { level: 1, name: 'Scholarship: sources and methods' })).toBeTruthy();
     const ejc = screen.getByTestId('index-ejc');
     expect(within(ejc).getByText('Hermes')).toBeTruthy();

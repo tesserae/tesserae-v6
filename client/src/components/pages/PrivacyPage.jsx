@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             <li><strong>Logeion (University of Chicago):</strong> Dictionary entries for the Reader's Look up and the connector's define tool. The word you look up is sent to Logeion. Nothing else is sent, and answers are kept on our server so a word is sent once.</li>
             <li><strong>Wiktionary API:</strong> Dictionary definitions for rare words and for English</li>
             <li><strong>Perseus Digital Library:</strong> Fallback definitions</li>
-            <li><strong>OpenStreetMap:</strong> The map on the Events page. Your browser fetches the map tiles from OpenStreetMap's servers, so OpenStreetMap sees your address and the map area requested. Nothing else is sent.</li>
+            <li><strong>Map tiles on the Events page:</strong> the Digital Atlas of the Roman Empire, served by the University of Gothenburg, is the default map for events in the Roman world, and OpenStreetMap is the other. Your browser fetches the tiles from the service's servers, so the service sees your address and the map area requested. Nothing else is sent.</li>
           </ul>
         </section>
 

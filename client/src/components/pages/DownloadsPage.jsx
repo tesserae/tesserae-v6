@@ -684,9 +684,9 @@ const DownloadsPage = () => {
           <p className="text-xs text-gray-500">
             <strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata.
             JSON files are flat arrays of objects. The methods are described in the{' '}
-            <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/ARTICLE_METHODS_DRAFT.md"
+            <a href="https://doi.org/10.5281/zenodo.24206123"
                target="_blank" rel="noopener noreferrer"
-               className="text-red-600 hover:underline">methods draft</a>
+               className="text-red-600 hover:underline">preprint (Coffee and Scheirer 2026)</a>
             {' '}and in the Help page section &ldquo;How well does it work?&rdquo;.
           </p>
         </div>
