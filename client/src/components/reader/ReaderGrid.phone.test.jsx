@@ -51,19 +51,21 @@ describe('TextPane', () => {
     expect(screen.getByText(/Arma virumque/).style.textIndent).toBe('');
   });
 
-  it('narrows the number column, the gap and the padding on a phone, with a hanging indent', () => {
+  it('gives a phone one margin column, a smaller gap and padding, and a half-em hanging indent (2026-11-26)', () => {
     const env = installPhone(true);
     try {
       render(<TextPane units={UNITS} language="la" selection={null} onSelect={() => {}} />);
       const line = document.querySelector('[id^="line-"]');
-      expect(line.style.gridTemplateColumns.startsWith('1.6rem')).toBe(true);
+      // One column for the number and the reuse marks, then the text.
+      expect(line.style.gridTemplateColumns).toBe('2.4rem 1fr');
       expect(line.className).toContain('gap-1');
       expect(line.className).not.toContain('gap-2');
       const p = screen.getByText(/Arma virumque/);
-      expect(p.style.textIndent).toBe('-1em');
-      expect(p.style.paddingLeft).toBe('1em');
-      expect(line.firstChild.className).toContain('text-[10px]');
-      expect(line.firstChild.textContent).toBe('5');
+      expect(p.style.textIndent).toBe('-0.5em');
+      expect(p.style.paddingLeft).toBe('0.5em');
+      expect(line.firstChild.getAttribute('data-margin')).toBe('1');
+      expect(line.firstChild.querySelector('[data-label]').className).toContain('text-[10px]');
+      expect(line.firstChild.querySelector('[data-label]').textContent).toBe('5');
     } finally { env.restore(); }
   });
 });

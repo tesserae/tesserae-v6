@@ -264,7 +264,10 @@ export default function AssistantDock() {
         onClick={() => { if (phone) setOpen(true); else setTuckedSaved(false); }}
         aria-label="Show Tessa, the AI assistant"
         title="Show Tessa, the AI assistant"
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 px-1 py-3 rounded-l-md bg-red-700/80 text-white text-[11px] font-semibold shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 [writing-mode:vertical-rl]"
+        // On a phone the tab sits low on the edge, above the Reader's tab strip,
+        // where it covers margin: at mid-height it covered the end of a long line
+        // (the owner's screenshot, 2026-11-26).
+        className={`fixed right-0 ${phone ? 'bottom-[4.25rem]' : 'top-1/2 -translate-y-1/2'} z-40 px-1 py-3 rounded-l-md bg-red-700/80 text-white text-[11px] font-semibold shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 [writing-mode:vertical-rl]`}
       >
         Tessa
       </button>

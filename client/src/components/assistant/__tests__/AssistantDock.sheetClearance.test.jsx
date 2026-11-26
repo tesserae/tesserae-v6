@@ -70,12 +70,17 @@ describe('Tessa pill and the Reader results sheet', () => {
     expect(pill.className).not.toMatch(/(^|\s)bottom-4(\s|$)/);
   });
 
-  it('below 768 px Tessa is the side tab, with no bottom offset to change', async () => {
+  it('below 768 px Tessa is the side tab, low on the edge and clear of the sheet strip (2026-11-26)', async () => {
     stubWidth(600);
-    renderBoth();
+    const { container } = renderBoth();
     const tab = await screen.findByRole('button', { name: 'Show Tessa, the AI assistant' });
     expect(tab.className).toContain('right-0');
-    expect(tab.className).not.toContain('bottom-');
+    // At mid-height the tab covered the end of a long line in the Reader (the
+    // owner's phone screenshot). It now sits above the collapsed sheet strip.
+    const sheet = container.querySelector('aside');
+    const strip = rem(sheet.className, 'max-h-');
+    expect(rem(tab.className, 'bottom-')).toBeGreaterThanOrEqual(strip + 1);
+    expect(tab.className).not.toContain('top-1/2');
   });
 
   it('at 1100 px the pill keeps its bottom-4 offset (the lg: class)', async () => {

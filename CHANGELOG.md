@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-26
 
+- **Reader on a phone**: the line number and the reuse marks share one margin column (the marks under the number) instead of two, the text is one step smaller (16 instead of 17 pixels) with a half-em hanging indent instead of one em, and the Tessa tab sits low on the right edge, above the Reader's tab strip, instead of at mid-height over the text. The text column grows from about two thirds to about 85 percent of a 393-pixel screen. Wide screens are unchanged. (NC, 26 November, screenshot: "this mobile layout is a little awkward".)
 - **Theme Search, one text, "What this search does" box**: the eleven sentences describing the summary, the Scholarship paragraph, the five article services, the Cite links and the citation-index list are replaced by two that name them and point to the Help section, which describes each in full. The six sentences about the search itself stay. (NC, 26 November: the box read as an explanation of secondary scholarship.)
 
 ## 2026-11-25
