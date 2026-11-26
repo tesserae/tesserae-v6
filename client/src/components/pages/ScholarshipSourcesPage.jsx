@@ -137,24 +137,35 @@ function Online({ online }) {
 // What is not here (owner, 2026-10-16: "in addition to saying what secondary
 // scholarship we DO have, it might be useful to say what else a user would
 // need to search beyond what we give"). The years come from the indexes.
+// Rewritten 2026-11-26: the paragraph was computed from the early-journal and
+// MUSE indexes alone and said the Classical Quarterly, the Journal of Roman
+// Studies and nine other journals were not here, after the JSTOR index of 54
+// journals (1832 to 2025) had been holding them since November (found by the
+// monthly Help check).
 function Beyond({ indexes }) {
+  const span = (b) => {
+    const js = b?.journals || [];
+    if (!js.length) return null;
+    return [Math.min(...js.map((j) => j.year_from || 9999)), Math.max(...js.map((j) => j.year_to || 0))];
+  };
+  const names = (b) => [...new Set((b?.journals || []).map((j) => j.journal))].sort();
   const early = indexes.find((b) => b.id === 'ejc');
   const late = indexes.find((b) => b.id === 'muse');
-  const lastEarly = Math.max(0, ...((early?.journals || []).map((j) => j.year_to || 0)));
-  const firstLate = Math.min(9999, ...((late?.journals || []).map((j) => j.year_from || 9999)));
-  const lateNames = [...new Set((late?.journals || []).map((j) => j.journal))].sort();
-  const haveGap = lastEarly > 0 && firstLate < 9999 && firstLate > lastEarly + 1;
+  const jstor = indexes.find((b) => b.id === 'jstor');
+  const e = span(early);
+  const l = span(late);
+  const j = span(jstor);
   return (
     <section data-testid="beyond">
       <Heading id="beyond">What is not here, and where to look</Heading>
       <p className="text-gray-700 mb-3">
-        {haveGap
-          ? `The citation indexes stop at ${lastEarly} and resume in ${firstLate}. Between ${lastEarly + 1} and ${firstLate - 1} there is no journal text on this site. `
-          : 'The citation indexes cover two runs of years with nothing between them. '}
-        That leaves out the Classical Quarterly, the Classical Review, the Journal of Roman Studies, the Journal of
-        Hellenic Studies, Latomus, Mnemosyne, Gnomon, Philologus, and the later volumes of Hermes, Rheinisches Museum,
-        Classical Philology and Harvard Studies.
-        {lateNames.length > 0 && ` From ${firstLate} on the index holds ${lateNames.join(', ')}, and no European journal.`}
+        {e && `The early-journal index runs from ${e[0]} to ${e[1]}. `}
+        {l && `The Project MUSE index runs from ${l[0]} on and holds ${names(late).join(', ')}. `}
+        {j
+          ? `The JSTOR index holds ${names(jstor).length} journals from ${j[0]} to ${j[1]}, each for the years listed above. `
+          : 'No index covers the years between those two. '}
+        Philologus is not indexed, and no journal outside those listed above is. A journal&rsquo;s newest volumes end
+        where its listing above ends.
       </p>
       <p className="text-gray-700 mb-3">
         No in-copyright book is indexed: no monograph, no edited volume, no modern commentary (the Cambridge, Oxford

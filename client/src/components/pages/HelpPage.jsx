@@ -1380,7 +1380,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
               <p className="text-gray-700 mb-3">
                 Theme Search and Similar Passages cover the works that have passage descriptions, about
-                2,100 works and about a million passage windows, not the whole corpus. A work outside that
+                3,000 works and about a million passage windows, not the whole corpus. A work outside that
                 index never appears in either feature. The list is in Browse Corpus:{' '}
                 <a href="/corpus?theme=1&language=la" className="text-red-600 hover:underline">
                   See the list of covered works
@@ -2029,7 +2029,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">For advanced analysis</h4>
               <p className="text-gray-700 mb-3">
-                Tessa answers in a second or two. She reads the results a search returns and
+                Tessa answers in seconds. She reads the results a search returns and
                 will say which parallels look like deliberate allusion and which like the common
                 stock of a genre, and why one would matter. Everything she cites comes from the
                 results in front of her, and anything she adds from general knowledge she marks
@@ -2418,8 +2418,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Latin</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    The best-developed corpus: about 750 works (about 1,830 files, counting books held separately). All eleven channels
-                    are available, and 1,433 of the files are grammatically parsed, so the syntax channels contribute for most pairs. Latin has the most thoroughly evaluated results
+                    The best-developed corpus: about 770 works (1,889 files, counting books held separately). All eleven channels
+                    are available, and every file is grammatically parsed, so the syntax channels contribute for every pair. Latin has the most thoroughly evaluated results
                     (751 of the 862 parallels in five published lists of Latin allusions, 87 percent, on the code of 13 November 2026;
                     see <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-700 hover:underline">How well does it work?</button>).
                   </p>
@@ -2471,7 +2471,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Persian</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Twenty-eight divans, about 943,000 lines, from Rudaki to Iqbal. Nine channels run, including the
+                    Thirty-three texts, about 944,000 lines, from Rudaki to Iqbal. Nine channels run, including the
                     refrain-and-rhyme channel that finds answer poems. Poem boundaries and meters for the major divans
                     come from Ganjoor. See{' '}
                     <button onClick={() => setActiveSection('persian')} className="text-red-600 hover:underline">the Persian page</button>
@@ -2482,8 +2482,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Urdu</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Twenty-one texts, about 62,000 lines: Wali, Fa'iz, Abru, Hatim, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
-                    Anis, Dagh, Hali, Akbar Allahabadi and Iqbal. Nine channels run, refrain and rhyme among them, and the
+                    Twenty-four texts, about 72,000 lines: the poets Wali, Fa'iz, Abru, Hatim, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
+                    Anis, Dagh, Hali, Akbar Allahabadi and Iqbal, and three prose works, Mir Amman's Bagh-o-Bahar, Suroor's Fasana-e Ajaib and Azad's Ab-e Hayat. Nine channels run, refrain and rhyme among them, and the
                     Persian → Urdu cross-language search follows borrowed phrases. See{' '}
                     <button onClick={() => setActiveSection('urdu')} className="text-red-600 hover:underline">the Urdu page</button>.
                   </p>
@@ -2695,7 +2695,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Naser Khosrow, Sanai, Anvari, Khaqani, Nizami, Attar, Rumi, Saadi, Hafez, Jami, Saeb and Bidel,
                 Khayyam's quatrains, Parvin, and the Persian works of Muhammad Iqbal (Payam-e Mashriq, Zabur-e Ajam,
                 Asrar-e Khudi, Rumuz-e Bekhudi, Javid Nama, Pas cheh bayad kard, Armaghan-e Hijaz and his Persian
-                divan). About 943,000 lines in 28 texts. You can compare any two, for instance a classical divan
+                divan). About 944,000 lines in 33 texts. You can compare any two, for instance a classical divan
                 against Iqbal to see how a twentieth-century poet answers his predecessors.
               </p>
 
@@ -2765,11 +2765,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Urdu Search</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae searches twenty-one Urdu texts, about 62,000 lines, by eighteen poets from Wali Dakhani to
+                Tesserae searches twenty-four Urdu texts, about 72,000 lines. Twenty-one are by eighteen poets from Wali Dakhani to
                 Iqbal: Wali, three Delhi poets of the 1720s and after who answered him (Fa'iz Dehlavi, Shah Mubarak Abru
                 and Zuhur ud-Din Hatim), Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
                 Atish, Zauq, Bahadur Shah Zafar, Mirza Ghalib, Anis (the marsiyas), Dagh, Hali, Akbar Allahabadi and
-                Muhammad Iqbal's Urdu collections (Bang-e Dara, Bal-e Jibril, Zarb-e Kalim, Armaghan-e Hijaz).
+                Muhammad Iqbal's Urdu collections (Bang-e Dara, Bal-e Jibril, Zarb-e Kalim, Armaghan-e Hijaz). Three are prose:
+                Mir Amman's Bagh-o-Bahar, Rajab Ali Beg Suroor's Fasana-e Ajaib and Muhammad Husain Azad's Ab-e Hayat.
               </p>
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
@@ -3190,8 +3191,8 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Use Tesserae with your AI assistant</h3>
               <p className="text-gray-700 mb-4">
-                Any AI can help you with Tesserae. The free way, which works with any assistant including free ones and
-                sandboxed apps like the standard Gemini, is to run the search here and let the AI interpret the results.
+                Any AI can help you with Tesserae. The free way, which works with any assistant, free or paid, is to run
+                the search here and let the AI interpret the results.
                 To have the AI run the searches for you instead, with no copying and pasting, you need an assistant
                 that can reach the Tesserae API. Claude can on any plan, and ChatGPT can with a pasted guide (see below).
                 This section is reached from Use with your AI under More, at the right end of the top row, and from the
@@ -3218,15 +3219,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <p className="text-gray-700 text-sm mb-4">
                 To skip the copying and let the assistant search on its own, it has to reach the Tesserae API.
                 Claude does this through a connector, on every plan including the free one. ChatGPT does it
-                through its own web browsing, with a guide you paste in. Sandboxed apps such as the
-                standard Gemini cannot do this at any tier, so for Gemini use the free option above.
+                through its own web browsing, with a guide you paste in. Google&rsquo;s Gemini web app can add a custom app by the
+                address of its connector, for adults in the United States who sign in with a personal Google Account and use
+                English (Google&rsquo;s Gemini Apps Help, checked 26 November 2026). We have not tested Tesserae there, and the
+                free option above works with Gemini in every case.
               </p>
 
               <h5 className="text-base font-semibold text-gray-900 mt-4 mb-2">Claude <span className="text-sm font-normal text-gray-500">(one URL, the smoothest route)</span></h5>
               <p className="text-gray-700 text-sm mb-2">
                 Add Tesserae to Claude once, and regular chat Claude can run everything, including the full fusion
                 search, with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
-                on a computer</strong>, go to <strong>Settings → Connectors → “Add custom connector”</strong> and paste
+                on a computer</strong>, open <strong>Customize → Connectors</strong>, choose <strong>+ Add</strong>, then <strong>Add custom connector</strong>, and paste
                 this URL:
               </p>
               <CopyBlock text={MCP_CONNECTOR_URL} />
@@ -3282,8 +3285,9 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 <div className="mt-2 pl-1 space-y-2">
                   <p className="text-gray-600">
                     OpenAI no longer lets a personal account (Free, Go, Plus or Pro) create or publish a new GPT, and
-                    it is retiring GPTs in Enterprise workspaces from 11 December 2026 (OpenAI&rsquo;s help pages, checked
-                    25 November 2026). If your <strong>Business, Team or Edu workspace</strong> still allows GPT creation,
+                    it plans to retire custom GPTs on every plan on 11 December 2026, with FedRAMP and approved Enterprise deferrals
+                    to 28 February 2027 (OpenAI&rsquo;s help pages, checked 26 November 2026). If your <strong>Business or Edu
+                    workspace</strong> still allows GPT creation,
                     the schema URL and instructions below work. Most users can just paste the guide above instead.
                   </p>
                   <p>
@@ -3382,7 +3386,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Coptic: Available</h4>
                 <p className="text-sm text-gray-700">
-                  The Coptic corpus (187 Sahidic and Bohairic texts, 186 of them parsed) is grammatically parsed and wired into the same syntax
+                  The Coptic corpus (187 Sahidic and Bohairic texts, all parsed) is grammatically parsed and wired into the same syntax
                   channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
@@ -3516,7 +3520,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <h4 className="text-lg font-semibold text-gray-900">What is Fusion search and should I use it?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Fusion is the default search mode. It runs eleven independent detection channels simultaneously
-                    and combines their results, finding 92% of known parallels in the Latin benchmark tests of August 2026 (not re-run since the Latin lemma table was corrected in October 2026). Unless you need
+                    and combines their results, finding 789 of 862 known Latin parallels (91.5 percent) in the run of March 2026 and 751 of 862 (87 percent) on the code of 13 November 2026. Unless you need
                     to isolate a specific detection method, Fusion is recommended for general use.
                   </p>
                 </div>
@@ -3705,7 +3709,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <h4 className="text-lg font-semibold text-gray-900">Which languages does syntax matching work for?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Syntax matching needs both texts to have been parsed for grammar. Three languages are parsed.
-                    Coptic almost entirely (186 of 187 files), Latin for every file (1,889 of 1,889), and Greek for
+                    Coptic for every file (187 of 187), Latin for every file (1,889 of 1,889), and Greek for
                     every file (2,986 of 2,986, the files added in November 2026 included). One Latin line in the Natural History of Pliny
                     (32.61) is too long for the parser and has none. A work added after the latest parse is not
                     covered until the parses are updated. English, Hebrew, Persian and Urdu are not parsed. Where a

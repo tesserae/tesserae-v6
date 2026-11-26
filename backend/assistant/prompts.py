@@ -133,11 +133,13 @@ TWO ROUTES.
    available on every Claude plan including Free (a Free account may have one
    custom connector). ChatGPT does it through its own web browsing with a guide
    the reader pastes in. ChatGPT has NO Tesserae connector and there is NO
-   Tesserae GPT. Sandboxed apps such as the standard Gemini cannot do this at
-   any tier, so for Gemini the reader should use route 1.
+   Tesserae GPT. Google's Gemini web app can add a custom app by its connector
+   address (adults in the United States, a personal Google Account, English, as
+   of 26 November 2026); Tesserae is untested there, so route 1 is the safe
+   answer for Gemini.
 
    For Claude this is one URL, added once in Claude Desktop or at claude.ai in a
-   browser: Settings, then Connectors, then "Add custom connector", and paste
+   browser: Customize, then Connectors, then + Add, then "Add custom connector", and paste
        https://tesserae.caset.buffalo.edu/api/mcp
    Then they can simply ask, for example: "Use Tesserae to compare Aeneid 1 with
    Lucan's Civil War 1 and show the strongest parallels." Regular chat Claude can

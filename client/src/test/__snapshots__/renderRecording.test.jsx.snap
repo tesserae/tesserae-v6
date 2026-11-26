@@ -435,19 +435,19 @@ exports[`App render recording > page /about 1`] = `
 <h3 class="text-lg font-semibold text-gray-900 mb-3">The Corpus</h3>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
 <div class="text-center p-4 bg-red-50 rounded-lg">
-<div class="text-3xl font-bold text-red-700">1,444+</div>
+<div class="text-3xl font-bold text-red-700">1,880+</div>
 <div class="text-sm text-gray-600">Latin Texts</div>
 </div>
 <div class="text-center p-4 bg-amber-50 rounded-lg">
-<div class="text-3xl font-bold text-amber-700">650+</div>
+<div class="text-3xl font-bold text-amber-700">2,980+</div>
 <div class="text-sm text-gray-600">Greek Texts</div>
 </div>
 <div class="text-center p-4 bg-amber-50 rounded-lg">
-<div class="text-3xl font-bold text-amber-700">14+</div>
+<div class="text-3xl font-bold text-amber-700">160+</div>
 <div class="text-sm text-gray-600">English Texts</div>
 </div>
 <div class="text-center p-4 bg-green-50 rounded-lg">
-<div class="text-3xl font-bold text-green-700">186+</div>
+<div class="text-3xl font-bold text-green-700">187</div>
 <div class="text-sm text-gray-600">Coptic Texts</div>
 </div>
 </div>
@@ -480,9 +480,9 @@ exports[`App render recording > page /about 1`] = `
 <section>
 <h3 class="text-lg font-semibold text-gray-900 mb-3">Technical Details</h3>
 <ul class="list-disc list-inside text-gray-700 space-y-2">
-<li>Lemmatization via lookup tables built from Universal Dependencies treebanks, with CLTK (Classical Language Toolkit) as the fallback for Latin and Greek; Stanza for Hebrew, Persian and Urdu</li>
+<li>Lemmatization via lookup tables built from Universal Dependencies treebanks, with CLTK (Classical Language Toolkit) as the fallback for Latin and Greek; the ETCBC/BHSA morphology for Hebrew, with Stanza as the fallback; Stanza for Persian and Urdu</li>
 <li>NLTK for English text processing</li>
-<li>A passage index of about 700,000 windows, each with a model-written description and an embedding, behind Theme Search, Similar Passages and the Reader</li>
+<li>A passage index of about 1,000,000 windows, each with a model-written description and an embedding, behind Theme Search, Similar Passages and the Reader</li>
 <li>SPhilBERTa model for cross-lingual semantic similarity</li>
 <li>Universal Dependencies treebank support for syntax analysis</li>
 <li>Metrical scansion data integrated from MQDQ/Pede Certo</li>
@@ -2744,7 +2744,7 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div class="mt-4 pt-4 border-t border-gray-200">
 <p class="text-xs text-gray-500">
-<strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata. JSON files are flat arrays of objects. The methods are described in the <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/ARTICLE_METHODS_DRAFT.md" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">methods draft</a> and in the Help page section “How well does it work?”.</p>
+<strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata. JSON files are flat arrays of objects. The methods are described in the <a href="https://doi.org/10.5281/zenodo.24206123" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline">preprint (Coffee and Scheirer 2026)</a> and in the Help page section “How well does it work?”.</p>
 </div>
 </div>
 <div class="bg-white rounded-lg shadow p-6">
@@ -4522,7 +4522,7 @@ exports[`App render recording > page /privacy 1`] = `
 <li>
 <strong>Perseus Digital Library:</strong> Fallback definitions</li>
 <li>
-<strong>OpenStreetMap:</strong> The map on the Events page. Your browser fetches the map tiles from OpenStreetMap's servers, so OpenStreetMap sees your address and the map area requested. Nothing else is sent.</li>
+<strong>Map tiles on the Events page:</strong> the Digital Atlas of the Roman Empire, served by the University of Gothenburg, is the default map for events in the Roman world, and OpenStreetMap is the other. Your browser fetches the tiles from the service's servers, so the service sees your address and the map area requested. Nothing else is sent.</li>
 </ul>
 </section>
 <section>
