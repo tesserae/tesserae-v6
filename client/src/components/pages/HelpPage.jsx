@@ -2420,7 +2420,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   <p className="text-gray-600 text-sm mt-1">
                     The best-developed corpus: about 750 works (about 1,830 files, counting books held separately). All eleven channels
                     are available, and 1,433 of the files are grammatically parsed, so the syntax channels contribute for most pairs. Latin has the most thoroughly evaluated results
-                    (about 92 percent recall across five standard Latin allusion benchmarks, as of August 2026;
+                    (751 of the 862 parallels in five published lists of Latin allusions, 87 percent, on the code of 13 November 2026;
                     see <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-700 hover:underline">How well does it work?</button>).
                   </p>
                   <Invitation language="Latin" preprint />

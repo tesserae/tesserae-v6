@@ -134,7 +134,8 @@ def test_the_about_downloads_and_scholarship_sources_pages_are_read_too():
 
 def test_a_downloads_data_entry_keeps_its_name_beside_its_note():
     chunks = [c for c in site_help._load() if c.startswith('Downloads page')]
-    assert any('Data file Window Texts:' in c and 'non-commercial' in c for c in chunks)
+    # Read from the rendered page since 2026-11-25: the name and its note sit in one chunk.
+    assert any('Window Texts (' in c and 'non-commercial' in c for c in chunks)
     assert not any('bg-red-700' in c or 'rounded hover' in c for c in chunks)
 
 

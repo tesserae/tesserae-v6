@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint client/src --max-warnings 37"
+    "lint": "eslint client/src --max-warnings 37",
+    "render:tessa": "vite-node client/src/tessa/writeRenderedPages.jsx"
   },
   "dependencies": {
     "chart.js": "^4.4.1",

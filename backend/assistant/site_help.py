@@ -50,10 +50,38 @@ OTHER_SOURCES = [
     (os.path.join(_PAGES, 'ScholarshipSourcesPage.jsx'), 'Scholarship sources page'),
     (os.path.join(_PAGES, 'PrivacyPage.jsx'), 'Privacy page'),
 ]
+# THE PAGES AS A VISITOR SEES THEM. Since 2026-11-25 the Help, About, Downloads
+# and Privacy pages are read from HTML that React rendered (`npm run
+# render:tessa`, client/src/tessa/renderPagesForTessa.jsx, committed under
+# rendered_pages/ and checked against the pages by renderedPages.test.jsx).
+# Reading the JSX source had handed Tessa a branch that never renders: the
+# Help page kept a paragraph about an "official Tesserae GPT" behind a switch
+# that was never turned on, and she told a reader to use it. The Scholarship
+# sources page keeps the source route because its content arrives by fetch
+# and renders as a loading line. A page whose rendered copy is missing falls
+# back to its source, so a checkout without the copies still answers.
+RENDERED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'rendered_pages')
+RENDERED = {
+    HELP_SOURCE: os.path.join(RENDERED_DIR, 'help.html'),
+    os.path.join(_PAGES, 'AboutPage.jsx'): os.path.join(RENDERED_DIR, 'about.html'),
+    os.path.join(_PAGES, 'DownloadsPage.jsx'): os.path.join(RENDERED_DIR, 'downloads.html'),
+    os.path.join(_PAGES, 'PrivacyPage.jsx'): os.path.join(RENDERED_DIR, 'privacy.html'),
+}
+
+
+def _sources():
+    """(path, page label) for every page Tessa reads, rendered where a rendered copy exists."""
+    out = []
+    for path, label in [(HELP_SOURCE, '')] + OTHER_SOURCES:
+        rendered = RENDERED.get(path)
+        out.append((rendered if rendered and os.path.exists(rendered) else path, label))
+    return out
+
+
 CACHE_PATH = os.path.join(_ROOT, 'cache', 'site_help_chunks.json')
 # Raise this when _extract changes, so a cache written by the old code is not
 # trusted just because the Help page itself has not changed.
-EXTRACTOR_VERSION = 6   # 6: inline code, em, i, b and span text kept in its sentence (2026-10-21)
+EXTRACTOR_VERSION = 7   # 7: rendered pages, svg and comments dropped, duplicate chunks dropped (2026-11-25)
 
 # Long enough to carry an idea, short enough that four of them fit in a prompt
 # without adding seconds of prompt processing.
@@ -117,6 +145,28 @@ def _extract(source=None, page=''):
     # About page's "Founded in 2008 by Neil Coffee and J. P. Koenig" reached Tessa
     # as "J. P. Koenig", and she named him the maker of the site (2026-10-21).
     src = re.sub(r"\{'\s*'\}", ' ', src)
+    if path.endswith('.html'):
+        # React writes the page on one line. The steps below were written for
+        # the JSX source, one tag or run of text per line, so the HTML is laid
+        # out the same way first. A copy box longer than a short URL or config
+        # (the instructions for building a GPT run to 10,000 characters) is
+        # not prose about the site and is dropped.
+        # The box's own closing tag ends the match: a lazy ".{600,}?" ran from
+        # the short URL box over the paragraphs after it to the next long box.
+        src = re.sub(r'<(pre|textarea)\b[^>]*>((?:(?!</\1>).){600,})</\1>', ' ', src, flags=re.S)
+        # Inline formatting and links go first, so "A <strong>convergence
+        # bonus</strong> rewards" stays one run of text instead of three scraps.
+        src = re.sub(r'</?(?:strong|em|i|b|code|span|kbd|sup|sub|a)\b[^>]*>', ' ', src, flags=re.S)
+        src = re.sub(r'[ \t]+([,.;:!?)\]])', r'\1', src)
+        src = re.sub(r'([(\[])[ \t]+', r'\1', src)
+        # A copy box's button ("Copy", "Copy the prompt") is a control, not a word of the text.
+        src = re.sub(r'<button\b[^>]*>\s*Cop(?:y|ied)\b[^<]*</button>', ' ', src, flags=re.S)
+        src = re.sub(r'>\s*<', '>\n<', src)
+        src = re.sub(r'>([^<]+)<', r'>\n\1\n<', src)
+    # Rendered pages carry drawings (the fusion flowchart, the system chart)
+    # and comments that mark the sections; neither is prose.
+    src = re.sub(r'<(svg|script|style)\b.*?</\1>', ' ', src, flags=re.S)
+    src = re.sub(r'<!--.*?-->', ' ', src, flags=re.S)
     src = re.sub(r'<a\b[^>]*>', '', src, flags=re.S).replace('</a>', '')
     # The same for inline formatting: the Coptic keyboard table writes each letter
     # as <code>j</code> = djandja, and every short <code> fragment was dropped, so
@@ -176,6 +226,10 @@ def _extract(source=None, page=''):
     # characters it was being dropped (so the Scholarship tab's paragraph never
     # said "Scholarship" and no question about it could find it).
     fragment_re = re.compile(r'(?:(?<=<strong>)([^<>{}]{3,})|>([^<>{}]{12,}))(?=<)')
+    if path.endswith('.html'):
+        # Rendered HTML has no code between its tags, so a short run of text
+        # (a bold label, "A ", "(uariatio)") is text, not a scrap to drop.
+        fragment_re = re.compile(r'>([^<>{}]{3,})(?=<)')
     if page:
         # A data list entry { file: ..., name: 'Window Texts', note: '...' } reads as
         # "Window Texts: ..." so a note is never separated from what it describes.
@@ -223,10 +277,10 @@ def _load():
     with _lock:
         if _chunks is not None:
             return _chunks
+        sources = _sources()
         stamp = None
         try:
-            stamp = '|'.join(str(os.path.getmtime(p)) for p in [HELP_SOURCE] + [p for p, _ in OTHER_SOURCES]
-                             if os.path.exists(p))
+            stamp = '|'.join(p + '@' + str(os.path.getmtime(p)) for p, _ in sources if os.path.exists(p))
         except OSError:
             pass
         try:
@@ -239,10 +293,14 @@ def _load():
         except (OSError, ValueError):
             pass
 
-        _chunks = _extract()
-        for path, label in OTHER_SOURCES:
+        chunks = []
+        for path, label in sources:
             if os.path.exists(path):
-                _chunks += _extract(path, page=label)
+                chunks += _extract(path, page=label)
+        # The rendered Help page repeats its section list once per section;
+        # one copy of any repeated chunk is enough.
+        seen = set()
+        _chunks = [c for c in chunks if not (c in seen or seen.add(c))]
         try:
             os.makedirs(os.path.dirname(CACHE_PATH), exist_ok=True)
             with open(CACHE_PATH, 'w', encoding='utf-8') as fh:
