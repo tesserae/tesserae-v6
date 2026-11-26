@@ -200,3 +200,27 @@ def test_persian_keyboard_question_gets_its_answer():
     from backend.assistant import site_help
     a = site_help.direct_answer("How do I type Persian without a Persian keyboard?")
     assert a and 'kaf' in a
+
+
+def test_no_dead_help_branch_reaches_tessa():
+    """A JSX branch that never renders is not a fact about the site.
+
+    On 2026-11-25 Tessa told a reader to "use the official Tesserae GPT, with
+    no setup": the sentence sat in the unrendered half of a conditional on
+    the Help page's ChatGPT section, and the extractor reads the source, not
+    the rendered page. The dead branch was removed from the page; this keeps
+    the sentence that misled her from coming back."""
+    joined = ' '.join(site_help._load())
+    assert 'official Tesserae GPT' not in joined
+
+
+def test_tessa_connector_facts_name_claude_free_and_no_tesserae_gpt():
+    """The connector facts Tessa is given match the Help page (2026-11-25):
+    the Claude connector is on every plan, Free included; ChatGPT has no
+    connector and no Tesserae GPT; a connector question is answered with
+    Claude first."""
+    from backend.assistant import prompts
+    facts = prompts.USING_YOUR_OWN_AI
+    assert 'Claude Pro' not in facts
+    assert 'Free' in facts and 'NO Tesserae connector' in facts
+    assert 'ANSWER WITH CLAUDE FIRST' in facts

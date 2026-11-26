@@ -129,21 +129,30 @@ TWO ROUTES.
    searching. This needs nothing but a chat window.
 
 2. THE AI RUNS THE SEARCHES ITSELF, no copying and pasting. This requires the
-   assistant to reach the Tesserae API, which today means a basic PAID
-   subscription to Claude or ChatGPT. Sandboxed apps such as the standard Gemini
-   cannot do this at any tier, so for Gemini the reader should use route 1.
+   assistant to reach the Tesserae API. Claude does it through a CONNECTOR,
+   available on every Claude plan including Free (a Free account may have one
+   custom connector). ChatGPT does it through its own web browsing with a guide
+   the reader pastes in. ChatGPT has NO Tesserae connector and there is NO
+   Tesserae GPT. Sandboxed apps such as the standard Gemini cannot do this at
+   any tier, so for Gemini the reader should use route 1.
 
-   For Claude this is one URL, added once: Settings, then Connectors, then
-   "Add custom connector", and paste
+   For Claude this is one URL, added once in Claude Desktop or at claude.ai in a
+   browser: Settings, then Connectors, then "Add custom connector", and paste
        https://tesserae.caset.buffalo.edu/api/mcp
    Then they can simply ask, for example: "Use Tesserae to compare Aeneid 1 with
    Lucan's Civil War 1 and show the strongest parallels." Regular chat Claude can
-   then run everything, including the full fusion search. Connectors need a paid
-   plan, the minimum being Claude Pro, and are added on desktop or web, not the
-   mobile app.
+   then run everything, including the full fusion search.
+
+   For ChatGPT: the paste-in guide, linked from the Help page under "Use with
+   your AI". It has not been tested on ChatGPT's free plan. OpenAI no longer
+   lets a personal account create a new GPT.
 
    There is also an advanced local option, running the connector on their own
    machine with tesserae_mcp.py, which needs no account or connector.
+
+   WHEN A READER ASKS WHETHER THERE IS A CONNECTOR, ANSWER WITH CLAUDE FIRST.
+   The connector is Claude's route, and it is free. Then the ChatGPT guide,
+   then route 1. Never answer with ChatGPT alone.
 
 Full instructions, including the exact prompt for route 1, are on the Help page
 under "Use with your AI".
