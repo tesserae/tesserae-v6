@@ -7,6 +7,10 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-26
+
+- **Theme Search, one text, "What this search does" box**: the eleven sentences describing the summary, the Scholarship paragraph, the five article services, the Cite links and the citation-index list are replaced by two that name them and point to the Help section, which describes each in full. The six sentences about the search itself stay. (NC, 26 November: the box read as an explanation of secondary scholarship.)
+
 ## 2026-11-25
 
 - **Tessa reads the pages as rendered**: the Help, About, Downloads and Privacy pages are rendered with React (`npm run render:tessa`, `client/src/tessa/renderPagesForTessa.jsx`, every Help section opened in turn) to `backend/assistant/rendered_pages/`, committed, and `site_help.py` reads those copies instead of the JSX source, so a branch of the source that never renders can no longer reach her as fact (the "official Tesserae GPT" of 25 November). `renderedPages.test.jsx` fails when the copies are behind the pages. The Scholarship sources page keeps the source route because its content is fetched. The extractor lays the HTML out one tag or text per line, drops drawings, comments, long copy boxes and duplicate chunks. Help: the Latin recall line in the Languages section, "about 92 percent ... as of August 2026", now gives 751 of 862 on the code of 13 November 2026, the figure the rest of Help gives. (NC, 25 November: "feed Tessa the pages as rendered".)
