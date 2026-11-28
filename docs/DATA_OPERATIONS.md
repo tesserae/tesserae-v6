@@ -35,6 +35,16 @@ Conventions
   hand and are the models the helper matches.
 
 
+## 2026-11-27 Downloads: the text descriptions and the citation indexes archives relicensed to CC BY-NC 4.0 (RUN 21:54 EST, by hand, at the owner's decision)
+
+**What.** The owner decided on 27 November 2026 that the project's own datasets carry CC BY-NC 4.0 (docs/DECISIONS.md, 2026-11-27). The two released archives whose LICENSE.txt said CC BY 4.0, `text_descriptions.tar.gz` and `citations_without_sentences.tar.gz` in the public data folder served at `/tesserae-data/`, were unpacked, their LICENSE.txt rewritten (CC BY-NC 4.0, the date of the change, the offer of 19 October 2026 withdrawn; the descriptions file also loses the sentence that placed the descriptions under the MIT license of the core bundle and names the PolyForm Noncommercial License for the code), and repacked with the same members in the same order. Sizes 560,999 to 563,924 bytes and 4,434,974 to 4,523,510 bytes. The two lines of `SHA256SUMS.txt` for these files were updated.
+
+**Scripts.** None; `tar` and `sed` by hand, the commands recorded in the private journal of 2026-11-27.
+
+**Backups.** `~/tesserae-backups/public_data_relicense_2026-11-27/` holds the two archives of 19 October and the `SHA256SUMS.txt` of 10 November.
+
+**Checks.** `sha256sum -c` over the folder's list: 34 of 34 OK. The live files answer 200 at the new sizes, the live LICENSE.txt of each reads CC BY-NC 4.0, and the live `SHA256SUMS.txt` carries the new sums. The Downloads page's notes on the two files say CC BY-NC 4.0 from pull request #1371.
+
 ## 2026-11-25 Coptic data release: the baseline reruns of 24 November added (RUN 12:47 EST, by hand, at the owner's request)
 
 **What.** Note 6 of the article (Table 1) cites the two baselines run again on the deployed code of 2026-11-24 (commit 35c12157) with the May 2026 weights. Their outputs enter the release as `outputs/coptic_hebrews_psalms_baseline_latin_epic_2026-11-24.json` (Sahidic Hebrews x Sahidic Psalms: 4, 4, 6, 6 and 21 of 124 within the top 50, 100, 500, 1,000 and 5,000) and `outputs/greek_hebrews_psalms_baseline_latin_epic_2026-11-24.json` (Greek Hebrews x Greek Psalms: 8, 12, 15, 21 and 30), with the script `scripts/baseline_rerun_diag.py`. The files carry references, scores and scoring diagnostics and no text (0 bytes above ASCII in each). The per-pair diagnostic files (263 and 331 MB) stay private for size. The README's outputs/ and scripts/ sections describe them.
