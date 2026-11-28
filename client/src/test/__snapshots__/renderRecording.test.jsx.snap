@@ -2451,7 +2451,7 @@ exports[`App render recording > page /downloads 1`] = `
 </div>
 <div class="bg-white rounded-lg shadow p-6">
 <h3 class="text-lg font-semibold text-gray-900 mb-4">Benchmark Sets</h3>
-<p class="text-xs text-gray-500 mb-2">Original Tesserae datasets on this page are released under CC BY 4.0: free to use and redistribute with attribution to the Tesserae Project.</p>
+<p class="text-xs text-gray-500 mb-2">Original Tesserae datasets on this page are released under CC BY-NC 4.0: free to use and redistribute with attribution to the Tesserae Project for noncommercial purposes.</p>
 <p class="text-sm text-gray-600 mb-4">Hand-curated datasets for evaluating intertextual detection algorithms. Includes hand-ranked parallels from scholarly commentaries (Hunter, Knauer, Neils) and Tesserae results with scoring.</p>
 <div class="space-y-4">
 <div>
@@ -3082,14 +3082,14 @@ exports[`App render recording > page /downloads 1`] = `
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Text Descriptions</span>
-<span class="text-sm text-gray-500 ml-2">(CC BY 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed)</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-NC 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/text_descriptions.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-50 rounded">
 <div>
 <span class="font-medium">Citation Indexes</span>
-<span class="text-sm text-gray-500 ml-2">(CC BY 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed)</span>
+<span class="text-sm text-gray-500 ml-2">(CC BY-NC 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed)</span>
 </div>
 <a href="https://tesserae.caset.buffalo.edu/tesserae-data/citations_without_sentences.tar.gz" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm">Download</a>
 </div>

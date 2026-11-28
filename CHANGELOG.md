@@ -7,6 +7,10 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-11-27
+
+- **Downloads page, dataset license**: the project's own datasets are CC BY-NC 4.0, as About and Terms have said since 24 October; the benchmark section's "CC BY 4.0" sentence of 30 August and the CC BY 4.0 notes on the text descriptions and the citation indexes are corrected. Decision recorded in docs/DECISIONS.md. (NC, 27 November: "CC BY-NC 4.0.")
+
 ## 2026-11-26
 
 - **Help, About, Downloads, Privacy, the scope boxes and Tessa's facts: 20 stale statements corrected** after the first run of the monthly Help check (verified against the live API, the sources and the vendors' pages on 26 November 2026). Latin: 1,889 files, every one parsed (was about 1,830 and 1,433); Coptic 187 of 187 parsed (was 186); Persian 33 texts, about 944,000 lines (was 28); Urdu 24 texts, about 72,000 lines, with the three prose works named (was 21, 62,000); the FAQ's "92% ... August 2026" now gives 789 of 862 (March 2026) and 751 of 862 (13 November); Tessa "answers in seconds" (two sentences disagreed); Gemini's web app can add a custom connector app (Google's help, US adults, personal account, English), so the sentence calling it sandboxed goes; Claude's path is Customize, Connectors, + Add; OpenAI retires custom GPTs on every plan on 11 December 2026; About: the ETCBC/BHSA morphology for Hebrew with Stanza as fallback, 1,880+/2,980+/160+/187 texts, about 1,000,000 windows; Downloads: the methods link goes to the preprint (the drafts file is no longer in the repository); Privacy names both map tile services (the Digital Atlas of the Roman Empire and OpenStreetMap); scope boxes: about 250,000 documents (the Coptic documents phrase dropped, the API lists none), 28,612 early-journal articles; the Scholarship sources page's "What is not here" paragraph now takes the JSTOR index into account instead of listing the Classical Quarterly, the Journal of Roman Studies and nine other journals as absent (Philologus alone is).

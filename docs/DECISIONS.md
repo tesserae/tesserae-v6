@@ -8,6 +8,10 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-11-27: every dataset the project made is CC BY-NC 4.0
+
+The Downloads page said since 30 August that the project's own datasets are released under CC BY 4.0, and the data-release decisions of 19 October gave CC BY 4.0 for the text descriptions and the citation indexes, while the About and Terms pages have said CC BY-NC 4.0 since the licensing decision of 24 October. The owner decided on 27 November 2026 that the project's own datasets, the benchmark sets, gold standards, translation alignments, passage and text descriptions and citation indexes among them, carry CC BY-NC 4.0, noncommercial use with attribution. The Downloads page now says so in its benchmark section and in the notes on the text descriptions and the citation indexes; the 19 October lines above for those two files are superseded. Datasets built from sources with their own terms (the Urdu index, the People & Places and Events stores, the coins, the museum objects, the synonym dictionaries) keep the licenses those sources require, as listed on 19 October. The monthly Help check of 26 November found the disagreement.
+
 ## 2026-11-10: the Latin reuse table's rare rule keeps a containment floor of 0.10, where Greek keeps 0.15
 - Scope: the Reader's reuse marks for Latin (`/api/reuse/marks`, the gutter's
   "possible reuse" tier). The Greek decision of the same morning stands.

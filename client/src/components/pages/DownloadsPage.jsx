@@ -22,8 +22,8 @@ const DEVELOPER_FILES = [
   { file: 'objects.sqlite.tar.gz', name: 'Museum Objects', note: 'CC0, with Chicago descriptions under CC BY 4.0, 1,353 records, image addresses only, 0.7 MB packed' },
   { file: 'dictionaries.tar.gz', name: 'Synonym Dictionaries', note: 'CC BY 4.0 and CC BY-SA file by file, with the 13,943 accepted review pairs, without the Coptic WordNet and Hebrew files, 2 MB packed' },
   { file: 'latin_lemma_tables.tar.gz', name: 'Latin Lemma Tables', note: 'CC BY-NC-SA 4.0, non-commercial, 111,739 forms with 76,391 corrections and their provenance, 1.4 MB packed' },
-  { file: 'text_descriptions.tar.gz', name: 'Text Descriptions', note: 'CC BY 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed' },
-  { file: 'citations_without_sentences.tar.gz', name: 'Citation Indexes', note: 'CC BY 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed' },
+  { file: 'text_descriptions.tar.gz', name: 'Text Descriptions', note: 'CC BY-NC 4.0, written by language models, 1,901 works, Arabic and restricted works left out, 0.6 MB packed' },
+  { file: 'citations_without_sentences.tar.gz', name: 'Citation Indexes', note: 'CC BY-NC 4.0, which article cites which passage (70,293 citations in 32,089 articles), without the article sentences, 4 MB packed' },
 ];
 
 const DATA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data';
@@ -156,8 +156,8 @@ const DownloadsPage = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Benchmark Sets</h3>
         <p className="text-xs text-gray-500 mb-2">
-          Original Tesserae datasets on this page are released under CC BY 4.0: free to
-          use and redistribute with attribution to the Tesserae Project.
+          Original Tesserae datasets on this page are released under CC BY-NC 4.0: free to
+          use and redistribute with attribution to the Tesserae Project for noncommercial purposes.
         </p>
         <p className="text-sm text-gray-600 mb-4">
           Hand-curated datasets for evaluating intertextual detection algorithms. Includes hand-ranked parallels 
