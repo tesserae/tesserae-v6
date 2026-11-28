@@ -71,6 +71,7 @@ describe('Downloads page, the public bundle', () => {
     }
     expect(container.querySelector('a[href*="texts_fa"]')).toBeNull();
     expect(screen.getByText(/Each text is under its own license,\s+listed in the manifest/)).toBeTruthy();
-    expect(screen.getByText(/about 69 MB/)).toBeTruthy();
+    // The Latin archive of 25 October 2026 is 64,271,902 bytes and lists 1,783 texts (27 November 2026).
+    expect(screen.getByText(/\(1,783 texts, about 64 MB\)/)).toBeTruthy();
   });
 });
