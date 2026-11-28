@@ -3377,7 +3377,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Latin: Full Coverage</h4>
                 <p className="text-sm text-gray-700">
-                  <strong>Every Latin file</strong> (1,889 files, about 1.08 million lines) has been parsed for syntactic
+                  <strong>Every Latin file</strong> (1,889 files, about 1.0 million lines) has been parsed for syntactic
                   dependencies using LatinPipe, a Latin dependency parser. Syntax matching works for any pair of
                   Latin texts. A work added since the parse contributes nothing to the syntax channels until it is parsed.
                 </p>

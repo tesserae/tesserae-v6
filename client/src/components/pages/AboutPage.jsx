@@ -46,7 +46,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
             texts, so a passage can be read next to the documents and things of its world.
           </p>
           <p className="text-gray-700 leading-relaxed mb-3">
-            The corpus holds more than 3,500 texts in Latin, Greek, English, Hebrew, Coptic, Persian and Urdu,
+            The corpus holds more than 5,300 texts in Latin, Greek, English, Hebrew, Coptic, Persian and Urdu,
             from Homer to the Renaissance and beyond, with an English translation wherever a public-domain one
             exists. Founded in 2008 by{' '}
             <a

@@ -9,6 +9,7 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-11-27
 
+- **Downloads, Help, About, Privacy: counts from the timed Help check of 27 November.** Corpus text archives: Latin 1,783 texts and about 64 MB, Greek 2,986 and about 124 MB, English 164, Coptic 158, Hebrew 39 (from the archive manifests; the page said about 1,890, 1,630, 160, 130 and 40). Developer files: the Latin index holds 1,783 texts at 548 MB packed (not about 1,430 and 567 MB), the Greek index 1,332 texts (not about 650), the syntax archives 1,429 and 650 texts with their archive dates, the window texts 487 MB (not 496); the indexes are about 3.2 GB packed and about 8 GB unpacked (the page said 8 GB packed). Help: Latin about 1.0 million lines (1,005,267 non-blank lines in the production folder; the page said 1.08 million). About: more than 5,300 texts (3,500). Privacy: last updated November 2026. Each count was checked by opening the archive or counting the folder on 27 November 2026.
 - **Downloads page, dataset license**: the project's own datasets are CC BY-NC 4.0, as About and Terms have said since 24 October; the benchmark section's "CC BY 4.0" sentence of 30 August and the CC BY 4.0 notes on the text descriptions and the citation indexes are corrected. Decision recorded in docs/DECISIONS.md. (NC, 27 November: "CC BY-NC 4.0.")
 
 ## 2026-11-26

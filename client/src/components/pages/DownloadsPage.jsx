@@ -1,20 +1,20 @@
 import { useState } from 'react';
 
 const DEVELOPER_FILES = [
-  { file: 'la_index.db.tar.gz', name: 'Latin Search Index', note: 'about 1,430 texts, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 567 MB packed, 2.0 GB unpacked' },
-  { file: 'grc_index.db.tar.gz', name: 'Greek Search Index', note: 'about 650 texts, 564 MB packed, 2.9 GB unpacked' },
+  { file: 'la_index.db.tar.gz', name: 'Latin Search Index', note: '1,783 texts (archive of 25 October 2026), the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 548 MB packed, 2.0 GB unpacked' },
+  { file: 'grc_index.db.tar.gz', name: 'Greek Search Index', note: '1,332 texts (archive of 19 October 2026, before the 1,025 CLLG works of 9 November), 564 MB packed, 2.9 GB unpacked' },
   { file: 'en_index.db.tar.gz', name: 'English Search Index', note: '72 MB packed, 227 MB unpacked' },
   { file: 'cop_index.db.tar.gz', name: 'Coptic Search Index', note: 'the Sahidica New Testament is left out, 39 MB packed' },
   { file: 'he_index.db.tar.gz', name: 'Hebrew Search Index', note: 'Tanakh, CC BY-NC 4.0, 11 MB packed' },
-  { file: 'syntax_latin.db.tar.gz', name: 'Latin Syntax Parses', note: 'LatinPipe UD annotations for about 1,430 texts, 243 MB packed, 1.6 GB unpacked' },
-  { file: 'syntax_greek.db.tar.gz', name: 'Greek Syntax Parses', note: 'about 650 texts, UD annotations, 139 MB packed, 967 MB unpacked' },
+  { file: 'syntax_latin.db.tar.gz', name: 'Latin Syntax Parses', note: 'LatinPipe UD annotations for 1,429 texts (archive of 10 February 2026), 243 MB packed, 1.6 GB unpacked' },
+  { file: 'syntax_greek.db.tar.gz', name: 'Greek Syntax Parses', note: '650 texts (archive of 11 March 2026), UD annotations, 139 MB packed, 967 MB unpacked' },
   { file: 'syntax_coptic.db.tar.gz', name: 'Coptic Syntax Parses', note: '40 MB packed, 351 MB unpacked' },
   { file: 'passage_index_la.tar.gz', name: 'Latin Passage Windows', note: 'descriptions and vectors, 497 MB' },
   { file: 'passage_index_grc.tar.gz', name: 'Greek Passage Windows', note: '355 MB' },
   { file: 'passage_index_en.tar.gz', name: 'English Passage Windows', note: '62 MB' },
   { file: 'passage_index_cop.tar.gz', name: 'Coptic Passage Windows', note: 'Sahidica left out, 26 MB' },
   { file: 'passage_index_he.tar.gz', name: 'Hebrew Passage Windows', note: 'CC BY-NC 4.0, 12 MB' },
-  { file: 'window_texts.db.tar.gz', name: 'Window Texts', note: 'the text of the passage windows and the lines of each work, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 496 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections' },
+  { file: 'window_texts.db.tar.gz', name: 'Window Texts', note: 'the text of the passage windows and the lines of each work, the works from Musisque Deoque, Corpus Thomisticum and augustinus.it left out, 487 MB packed, 2.5 GB unpacked, each work under its own license and non-commercial as a whole, without the Sahidica New Testament, the Arabic and Persian works and eleven Iqbal collections' },
   { file: 'ur_index.db.tar.gz', name: 'Urdu Search Index', note: 'CC BY-SA 4.0, 14 Urdu Wikisource collections, the four Iqbal collections left out, 12 MB packed, 64 MB unpacked' },
   { file: 'entities.sqlite.tar.gz', name: 'People & Places Store', note: 'CC BY-SA 4.0, 39,369 entities and their mentions in Latin, Greek and English works, descriptions written by models, 68 MB packed, 293 MB unpacked' },
   { file: 'event_dossiers.sqlite.tar.gz', name: 'Events Store', note: 'CC BY-SA 4.0, 1,485 events with passages, documents and scholarship references, the model working logs left out, 19 MB packed, 62 MB unpacked' },
@@ -65,11 +65,11 @@ const DownloadsPage = () => {
   };
 
   const languages = [
-    { code: 'la', name: 'Latin', texts: 'about 1,890', size: 'about 69 MB', embeddings: true },
-    { code: 'grc', name: 'Greek', texts: 'about 1,630', size: 'about 74 MB', embeddings: true },
-    { code: 'en', name: 'English', texts: 'about 160', size: 'about 6 MB', embeddings: false },
-    { code: 'cop', name: 'Coptic', texts: 'about 130, without the Sahidica New Testament', size: 'about 6 MB', embeddings: false },
-    { code: 'he', name: 'Hebrew', texts: 'about 40', size: 'about 1.4 MB', embeddings: false },
+    { code: 'la', name: 'Latin', texts: '1,783', size: 'about 64 MB', embeddings: true },
+    { code: 'grc', name: 'Greek', texts: '2,986', size: 'about 124 MB', embeddings: true },
+    { code: 'en', name: 'English', texts: '164', size: 'about 6 MB', embeddings: false },
+    { code: 'cop', name: 'Coptic', texts: '158, without the Sahidica New Testament', size: 'about 6 MB', embeddings: false },
+    { code: 'he', name: 'Hebrew', texts: '39', size: 'about 1.4 MB', embeddings: false },
   ];
 
   return (
@@ -975,7 +975,7 @@ const DownloadsPage = () => {
           (too large for GitHub). The repository holds the corpus texts, the lemma tables and the code.
           The pre-computed embeddings left the repository on 19 October 2026 and are offered
           as ZIP files above and in the passage window archives below. The search indexes add about
-          8 GB packed.
+          3.2 GB packed, about 8 GB unpacked.
         </p>
 
         <div className="bg-gray-50 rounded p-4 mb-4 overflow-x-auto">
@@ -984,7 +984,7 @@ const DownloadsPage = () => {
           </p>
           <p className="text-xs sm:text-sm font-mono text-gray-800 mb-3 whitespace-nowrap">git clone https://github.com/tesserae/tesserae-v6.git</p>
           <p className="text-xs sm:text-sm font-mono text-gray-700 mb-1">
-            <span className="text-gray-500"># 2. Download the search indexes (about 8 GB packed):</span>
+            <span className="text-gray-500"># 2. Download the search indexes (about 3.2 GB packed, about 8 GB unpacked):</span>
           </p>
           <p className="text-xs sm:text-sm font-mono text-gray-800 mb-3">python scripts/download_data.py</p>
           <p className="text-xs sm:text-sm font-mono text-gray-700 mb-1">
